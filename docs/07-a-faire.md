@@ -1,40 +1,33 @@
 # 7. La suite
 
-## Prochain sujet convenu : les recettes
+## Recettes : fait en 2026.10.08-8, restent à valider avec lui
 
 Demandé mot pour mot : « pour les repas il me faudrait un sous onglet avec des
 idées de recette en fonction des calories, Protéine, glucide, Lipide restante
 (cherche sur les réseaux sociaux ou internet des recettes simples, gourmande,
 mais surtout protéiné ou healty). Les recettes qui ont déjà été préparer. »
 
-Ce que cela veut dire :
+Ce qui a été fait : voir `docs/06-journal.md`. Les recettes sont **rédigées pour
+l'application** (ingrédients et proportions, étapes dans nos mots) : rien n'est
+recopié d'un site ou d'un réseau social. Calories et macros sont **calculées** à
+partir d'une table de valeurs moyennes par aliment, dans `tools/gen_recettes.py`
+(à relancer après toute modification, puis `./src/build.sh`).
 
-1. **Un sous-onglet Recettes dans Repas**, à côté du journal.
-2. **Un classement par ce qu'il reste** sur la journée : calories, protéines,
-   glucides, lipides. Une recette qui tient dans le reste remonte en tête.
-3. **Des recettes simples, gourmandes, protéinées ou saines.**
-4. **Marquer les recettes déjà préparées** et les retrouver facilement.
+Choix faits sans lui poser la question, à lui confirmer :
 
-Pistes d'implémentation, à valider avec lui :
+- Une recette = **une portion**, avec un choix ½ / 1 / 1,5 / 2 sur la fiche.
+- **35 recettes** au départ, aucune allergie ni aliment exclu connu. Pas de
+  matériel particulier (poêle, four, micro-ondes, mixeur).
+- Il peut **ajouter ses propres recettes** (valeurs saisies à la main).
+- Ajouter une recette au journal la marque aussi « préparée ».
 
-- Une liste de recettes embarquée dans le code, en français, avec pour chacune :
-  nom, temps, ingrédients avec quantités, étapes, et les valeurs par portion
-  (kcal, protéines, glucides, lipides).
-- Tri par écart aux macros restantes, avec un bandeau « il te reste X kcal et Y g
-  de protéines ».
-- Un bouton « Ajouter au journal » qui reprend les valeurs de la portion.
-- Un marquage « déjà préparée » et une note, conservés dans une nouvelle tranche
-  `recipes` de l'état (penser à l'ajouter à `SLICES` et `defaults()`).
-- Attention aux droits : **ne pas recopier le texte d'une recette trouvée en
-  ligne**. Les ingrédients et les proportions ne sont pas protégés, la rédaction
-  l'est. Donc : rédiger les étapes soi-même, ou citer la source avec un lien.
+Pour agrandir la liste : ajouter un appel `rec(...)` dans `tools/gen_recettes.py`
+avec des aliments de la table `ALIM` (en ajouter si besoin), relancer le script.
+Il refuse une recette dont les macros ne collent pas aux calories (écart de plus
+de 8 %) ou qui a moins de 15 g de protéines.
 
-Questions à lui poser avant de coder :
-
-- Combien de recettes au départ, et quelles habitudes alimentaires ? (allergies,
-  aliments qu'il ne mange pas, matériel de cuisine)
-- Veut-il pouvoir ajouter ses propres recettes ?
-- Une recette = une portion, ou un nombre de portions ajustable ?
+Pistes non faites : recherche par mot dans les recettes, liste de courses,
+recettes favorites, un filtre « sans viande de porc / sans lactose » si besoin.
 
 ## Demandé plus tôt, en attente
 
@@ -66,5 +59,5 @@ champs vides, et c'est le signe qu'il faut passer à l'import de fichier.
   absolus de l'atelier d'origine. À adapter avant toute réexécution.
 - Deux imperfections assumées sur la coloration des muscles, décrites dans
   `docs/04-images.md`.
-- Aucun test ne couvre les onglets Repas et Scan de bout en bout. Les tests
-  existants couvrent Poids, Muscu et le partage entrant.
+- Les tests couvrent Poids, Muscu, le partage entrant et les recettes (`tests/t8.py`).
+  Ni le journal du Repas ni l'onglet Scan n'ont de test de bout en bout.

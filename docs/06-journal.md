@@ -5,6 +5,26 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 
 ---
 
+### 2026.10.08-8 — Recettes
+
+- L'onglet Repas a trois sous-onglets : **Journal**, **Recettes**, **Déjà faites**.
+- 35 recettes simples et protéinées (petit-déjeuner, déjeuner/dîner, collations),
+  avec temps, ingrédients, étapes, calories et macros par portion.
+- Classement selon ce qu'il reste dans la journée affichée : une recette qui
+  tient dans les calories, glucides et lipides restants passe devant, celle qui
+  couvre le mieux les protéines aussi. Sans filtre, on vise le prochain repas
+  (selon l'heure et ce qui est déjà saisi).
+- Filtres : repas, rapide (15 min max), à préparer à l'avance, végétarien.
+- Fiche : portions ½ / 1 / 1,5 / 2 (quantités et macros recalculées), « Ajouter
+  au journal » dans le repas choisi, « Je l'ai préparée », note personnelle.
+- « Déjà faites » : les recettes préparées, la plus récente d'abord, avec date et
+  note. Ajouter une recette au journal la marque aussi comme préparée.
+- Ses propres recettes : créer, modifier, supprimer.
+- Nouvelle tranche de données `recipes` (synchronisée, incluse dans l'export).
+- Les feuilles de recettes sont orange comme l'onglet Repas.
+
+---
+
 ### 2026.10.08-7 — Muscles en rouge
 
 - Les muscles travaillés apparaissent en rouge directement sur l'illustration du

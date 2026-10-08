@@ -44,6 +44,10 @@ garde tout dans le navigateur du téléphone.
   Débrayable pour saisir des grammes fixes.
 - Quatre façons d'ajouter : décrire en texte (Claude uniquement), scanner un
   code-barres, reprendre un favori ou un aliment récent, saisir à la main.
+- **Recettes** : 35 recettes simples et protéinées, classées selon les calories,
+  protéines, glucides et lipides restants du jour. Filtres (repas, rapide, à
+  l'avance, végétarien), portions, ajout au journal, note, recettes personnelles.
+- **Déjà faites** : les recettes préparées, avec la date et la note.
 
 **Muscu**
 - Bibliothèque de 60 exercices en 7 groupes, plus les exercices créés à la volée.
@@ -93,3 +97,5 @@ garde tout dans le navigateur du téléphone.
 7. Routines remplissables à l'avance.
 8. Muscles travaillés en rouge sur les illustrations.
 9. Transposer le projet dans un dossier documenté.
+10. Un sous-onglet de recettes dans Repas, selon les calories et macros restantes,
+    avec les recettes déjà préparées.

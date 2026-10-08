@@ -15,7 +15,7 @@ applications par une seule, organisée en quatre onglets :
 | Onglet | Remplace | Rôle |
 |---|---|---|
 | **Poids** | Better Weight | Pesées, courbe, cercle de progression par paliers, pas et calories du jour |
-| **Repas** | Yazio | Journal alimentaire, calories et macros, objectifs calculés selon le poids |
+| **Repas** | Yazio | Journal alimentaire, calories et macros, objectifs calculés selon le poids ; sous-onglets **Recettes** (classées selon le reste du jour) et **Déjà faites** |
 | **Muscu** | Hevy | Séances, séries, charges, routines préparées à l'avance, minuteur de repos, progression |
 | **Scan** | Yuka | Lecture de codes-barres, fiche produit, note de qualité nutritionnelle |
 
@@ -78,6 +78,8 @@ paliers de 2,5 kg.
 │   ├── js1.js                 ← utilitaires, état, stockage, synchro, graphique, navigation
 │   ├── js2.js                 ← onglet Poids (cercle, paliers) + onglet Repas
 │   ├── js2b.js                ← carte « Journée » (pas, dépense, apport) + reprise des pesées
+│   ├── js2c.js                ← les recettes embarquées — GÉNÉRÉ par tools/gen_recettes.py, ne pas éditer
+│   ├── js2d.js                ← sous-onglets Recettes et Déjà faites du Repas
 │   ├── js3.js                 ← onglet Muscu : bibliothèque d'exercices, séance, progression
 │   ├── js3b.js                ← minuteur de repos, fiche d'exercice animée, routines
 │   ├── js4.js                 ← onglet Scan, codes-barres, note produit, réglages, démarrage
@@ -85,6 +87,7 @@ paliers de 2,5 kg.
 │   └── build.sh               ← assemble le tout
 │
 ├── tools/                     ← scripts d'atelier, lancés à la main, hors application
+│   ├── gen_recettes.py        ← fabrique src/js2c.js : recettes, macros calculées
 │   ├── exercices_map.py       ← correspondance nom français → illustration
 │   ├── paint.py               ← colore en rouge les muscles sur les illustrations
 │   └── gen_schemas_muscles.py ← génère les schémas anatomiques de img2/
@@ -93,7 +96,8 @@ paliers de 2,5 kg.
 │   ├── t4.py  séance, minuteur de repos, fiche d'exercice
 │   ├── t5.py  partage entrant des pas, mise en page de la fiche
 │   ├── t6.py  routines : création, édition, démarrage
-│   └── t7.py  bascule muscles en rouge / image simple
+│   ├── t7.py  bascule muscles en rouge / image simple
+│   └── t8.py  recettes : classement, fiche, journal, recettes faites, recette perso
 │
 ├── ill/                       ← illustrations des mouvements (288 fichiers, CC0)
 ├── img2/                      ← schémas anatomiques par exercice (MIT)
@@ -182,10 +186,10 @@ le demande : il avance sujet par sujet.
 
 ## 7. État au 8 octobre 2026
 
-- Version publiée : **2026.10.08-7**
+- Version construite dans ce dossier : **2026.10.08-8** (recettes). Dernière version publiée sur GitHub : 2026.10.08-7, **à pousser**.
 - Site : `https://piz-zly.github.io/forme/` — dépôt : `github.com/Piz-zly/forme`
 - Les quatre onglets fonctionnent. Il utilise l'application tous les jours sur son
   téléphone et a validé le scan de codes-barres, les routines et les illustrations.
-- Prochain sujet convenu : **un sous-onglet de recettes dans Repas**, proposées
-  selon les calories et les macros restantes, avec les recettes déjà préparées.
-  Détail dans `docs/07-a-faire.md`.
+- Sous-onglet **Recettes** réalisé en 2026.10.08-8 : construit et testé (`tests/t8.py`),
+  **pas encore publié** ni essayé sur son téléphone. Voir `docs/07-a-faire.md` pour
+  les choix à lui confirmer.

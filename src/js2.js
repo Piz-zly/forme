@@ -163,23 +163,33 @@ function goals(){
   return{kcal:s.kcal,p:s.p,c:s.c,f:s.f,auto:false,w};
 }
 function totals(list){return list.reduce((t,e)=>({kcal:t.kcal+e.kcal,p:t.p+e.p,c:t.c+e.c,f:t.f+e.f}),{kcal:0,p:0,c:0,f:0})}
-VIEWS.food=()=>{
-  const list=dayEntries(fDate),t=totals(list),g=goals();
-  const rem=g.kcal-t.kcal,over=rem<0,C=2*Math.PI*56,prog=clamp(t.kcal/g.kcal,0,1);
-  const mac=(l,v,goal)=>`<div class="macro"><div class="row sb small"><b>${l}</b><span class="num">${nf(v,0)} / ${nf(goal,0)} g</span></div><div class="bar"><i style="width:${clamp(v/goal*100,0,100)}%"></i></div></div>`;
+function dateBar(){
   const isToday=fDate===today();
-  const slots=SLOTS.map(([k,name])=>{
-    const es=list.filter(e=>e.slot===k),st=totals(es);
-    return `<div class="card slot"><div class="row sb" style="margin-bottom:4px"><h4 class="row" style="gap:10px">${slotIcon(k)}${name}</h4><span class="num muted">${nf(st.kcal,0)} kcal</span></div>
-    ${es.map(e=>`<button class="entry" data-act="f-edit" data-id="${e.id}"><div class="grow"><div class="t" style="font-weight:600;overflow-wrap:anywhere">${esc(e.name)}</div><div class="small muted">P ${nf(e.p,0)} · G ${nf(e.c,0)} · L ${nf(e.f,0)}</div></div><b class="num">${nf(e.kcal,0)}</b></button>`).join('')}
-    <button class="addslot" data-act="f-add" data-slot="${k}">${ICON.plus} Ajouter</button></div>`;
-  }).join('');
   return `
   <div class="datebar">
     <button class="iconbtn" data-act="f-day" data-n="-1" aria-label="Jour précédent">${ICON.chevL}</button>
     <div class="d">${isToday?'Aujourd’hui':esc(fmtLong(fDate))}${isToday?'<div class="small muted" style="font-weight:500">'+esc(fmtLong(fDate))+'</div>':''}</div>
     <button class="iconbtn" data-act="f-day" data-n="1" aria-label="Jour suivant" ${isToday?'disabled style="opacity:.35"':''}>${ICON.chev}</button>
   </div>
+  `;
+}
+let foodSub='journal';
+const FOOD_SUBS=[['journal','Journal'],['recipes','Recettes'],['done','Déjà faites']];
+const foodSeg=()=>'<div class="seg" role="tablist">'+FOOD_SUBS.map(([k,n])=>`<button role="tab" data-act="food-sub" data-s="${k}" aria-selected="${foodSub===k}">${n}</button>`).join('')+'</div>';
+A['food-sub']=b=>{foodSub=b.dataset.s;render();window.scrollTo(0,0)};
+VIEWS.food=()=>{
+  if(foodSub!=='journal')return foodSeg()+recipesView();
+  const list=dayEntries(fDate),t=totals(list),g=goals();
+  const rem=g.kcal-t.kcal,over=rem<0,C=2*Math.PI*56,prog=clamp(t.kcal/g.kcal,0,1);
+  const mac=(l,v,goal)=>`<div class="macro"><div class="row sb small"><b>${l}</b><span class="num">${nf(v,0)} / ${nf(goal,0)} g</span></div><div class="bar"><i style="width:${clamp(v/goal*100,0,100)}%"></i></div></div>`;
+  const slots=SLOTS.map(([k,name])=>{
+    const es=list.filter(e=>e.slot===k),st=totals(es);
+    return `<div class="card slot"><div class="row sb" style="margin-bottom:4px"><h4 class="row" style="gap:10px">${slotIcon(k)}${name}</h4><span class="num muted">${nf(st.kcal,0)} kcal</span></div>
+    ${es.map(e=>`<button class="entry" data-act="f-edit" data-id="${e.id}"><div class="grow"><div class="t" style="font-weight:600;overflow-wrap:anywhere">${esc(e.name)}</div><div class="small muted">P ${nf(e.p,0)} · G ${nf(e.c,0)} · L ${nf(e.f,0)}</div></div><b class="num">${nf(e.kcal,0)}</b></button>`).join('')}
+    <button class="addslot" data-act="f-add" data-slot="${k}">${ICON.plus} Ajouter</button></div>`;
+  }).join('');
+  return foodSeg()+`
+  ${dateBar()}
   <div class="card"><div class="row" style="gap:18px">
     <div class="ring"><svg viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="var(--surface2)" stroke-width="12"/><circle cx="66" cy="66" r="56" fill="none" stroke="${over?'var(--bad)':'var(--accent)'}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${(C*prog).toFixed(1)} ${C.toFixed(1)}"/></svg>
       <div class="c"><b>${nf(t.kcal,0)}</b><span class="small muted">sur ${nf(g.kcal,0)} kcal</span></div></div>

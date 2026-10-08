@@ -10,6 +10,8 @@ p1.html  →  <title>, polices, variables CSS, feuille de style, <header>, #view
 js1.js   →  utilitaires, état, stockage, synchro, helpers d'interface, graphique, navigation
 js2.js   →  onglet Poids, onglet Repas
 js2b.js  →  carte Journée, reprise des pesées
+js2c.js  →  RECIPES : les recettes embarquées (GÉNÉRÉ par tools/gen_recettes.py, ne pas éditer)
+js2d.js  →  sous-onglets Recettes et Déjà faites du Repas : classement, fiche, ajout au journal, recettes perso
 js3.js   →  onglet Muscu : données, accueil, séance, sélecteur, fin de séance, progression
 js3b.js  →  minuteur de repos, fiche d'exercice, routines
 js4.js   →  onglet Scan, codes-barres, note produit, réglages, démarrage
@@ -36,6 +38,11 @@ si elle existe. Il n'y a ni rendu différentiel ni état de composant : on
 reconstruit la vue entière, c'est suffisant à cette échelle.
 
 Les quatre vues : `weight`, `food`, `gym`, `scan`.
+
+Le **Repas** a trois sous-onglets, pilotés par la variable `foodSub`
+(`'journal'`, `'recipes'`, `'done'`) : `VIEWS.food` affiche le journal, ou passe la
+main à `recipesView()` (`js2d.js`). Le choix n'est pas enregistré : on revient au
+journal à chaque ouverture de l'application.
 
 ## Les actions
 
@@ -106,6 +113,21 @@ arcs sont proportionnels aux kilos, pas au nombre de paliers.
 **Graphique** (`js1.js`, `chart`) — SVG fait maison : grille, échelle « ronde »
 via `niceStep`, points pour les pesées, courbe pour la moyenne 7 jours, ligne
 d'objectif, et une ligne de lecture qui suit le doigt (`onPick`).
+
+**Recettes** (`js2d.js`) — le reste de la journée affichée (`rcRem`) est comparé à
+chaque recette. Une recette « tient » si elle ne dépasse ni les calories restantes
+(+30), ni les lipides (+4 g), ni les glucides (+8 g) ; les protéines ne sont jamais
+bloquantes. Les recettes qui tiennent passent en premier, triées par `rcScore` :
+écart à la part du reste qu'un repas de ce type devrait couvrir (`rcTarget`, qui
+répartit le reste entre les repas pas encore saisis), les protéines en dessous de
+la cible comptant plus que celles au-dessus. Sans filtre de repas, la cible est celle
+du prochain repas (`rcNextSlot` : l'heure, puis le premier repas non saisi) et une
+recette prévue pour un autre repas prend une petite pénalité. Si les calories sont
+déjà dépassées, tout est « en trop » et les plus légères passent en premier.
+La fiche d'une recette ne se reconstruit pas à chaque appui (portions, repas
+choisi) : `rcDraw()` met à jour les morceaux concernés, sinon la fiche remonterait
+en haut. Le calque des feuilles est hors de `#app`, donc la classe `.rc` y remet
+l'accent orange du Repas.
 
 **Minuteur de repos** (`js3b.js`) — l'élément `#rbar` est ajouté au `<body>`, pas
 dans `#view`, pour survivre aux rendus. `syncRestBar()` est appelée chaque seconde

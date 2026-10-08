@@ -125,6 +125,16 @@ textarea.inp{padding:12px 14px;min-height:96px;resize:vertical}
 .entry{display:flex;gap:10px;align-items:center;min-height:52px;padding:6px 0;width:100%;text-align:left;border-top:1px solid var(--line)}
 .entry .grow{flex:1;min-width:0}
 .addslot{min-height:44px;color:var(--accent);font-weight:700;display:flex;align-items:center;gap:6px;width:100%;border-top:1px solid var(--line)}
+/* recettes */
+.rcl{margin:0 0 18px;padding-left:22px}
+.rcl li{margin:0 0 8px;padding-left:2px;overflow-wrap:anywhere}
+ol.rcl li::marker{font-weight:800;color:var(--accent)}
+.card.empty{box-shadow:none}
+.rc{--accent:var(--c-food)}  /* le calque des feuilles est hors de #app : on remet l'orange du Repas */
+.rcslotseg button{font-size:13px}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0 -16px 14px;padding:0 16px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips .chip{flex:none;min-height:44px;padding:0 14px;white-space:nowrap}
 
 /* gym */
 .ex{margin-bottom:14px}

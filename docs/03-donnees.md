@@ -49,6 +49,13 @@ Conséquences à ne jamais perdre de vue :
 
   exercises: [ "Nom d'un exercice créé à la main" ],
 
+  recipes: {
+    done:  { "pancakes": { n: 2, last: "2026-10-08" } },  // recettes préparées : nombre de jours, dernière date
+    notes: { "pancakes": "avec un peu de cannelle" },       // note personnelle par recette
+    mine:  [ { id: "u_ab12", n, s: ["di"], t, k, p, c, f,   // ses propres recettes (valeurs par portion)
+               ingTxt: ["150 g de poulet"], st: ["Étape 1"], mine: 1 } ]
+  },
+
   scans:   [ { id, date, name, brand, code, src,
                per: { kcal, fat, sat, carbs, sugar, salt, fiber, prot, fv },
                additives: [ { name, risk } ], lastG } ],   // 400 au maximum
@@ -58,6 +65,11 @@ Conséquences à ne jamais perdre de vue :
   _t:      { … }       // horodatage par tranche, pour la synchronisation
 }
 ```
+
+Les recettes **embarquées** ne sont pas dans l'état : elles sont dans `RECIPES`
+(`src/js2c.js`, fichier généré). L'état ne garde que ce que l'utilisateur en fait :
+`recipes.done` (clé = identifiant de la recette), `recipes.notes`, `recipes.mine`.
+Une recette est comptée une seule fois par jour dans `done`.
 
 `src` d'un produit scanné : `off` (Open Food Facts), `label` (étiquette lue par
 Claude), `estimate` (estimé), `manual` (saisi à la main).

@@ -136,6 +136,16 @@ textarea.inp{padding:12px 14px;min-height:96px;resize:vertical}
 .entry{display:flex;gap:10px;align-items:center;min-height:52px;padding:6px 0;width:100%;text-align:left;border-top:1px solid var(--line)}
 .entry .grow{flex:1;min-width:0}
 .addslot{min-height:44px;color:var(--accent);font-weight:700;display:flex;align-items:center;gap:6px;width:100%;border-top:1px solid var(--line)}
+/* recettes */
+.rcl{margin:0 0 18px;padding-left:22px}
+.rcl li{margin:0 0 8px;padding-left:2px;overflow-wrap:anywhere}
+ol.rcl li::marker{font-weight:800;color:var(--accent)}
+.card.empty{box-shadow:none}
+.rc{--accent:var(--c-food)}  /* le calque des feuilles est hors de #app : on remet l'orange du Repas */
+.rcslotseg button{font-size:13px}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0 -16px 14px;padding:0 16px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips .chip{flex:none;min-height:44px;padding:0 14px;white-space:nowrap}
 
 /* gym */
 .ex{margin-bottom:14px}
@@ -251,7 +261,7 @@ textarea.inp{padding:12px 14px;min-height:96px;resize:vertical}
 <script>
 (function(){'use strict';
 /* ===== utils ===== */
-const APP_VER='2026.10.08-7';
+const APP_VER='2026.10.08-8';
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
@@ -277,12 +287,12 @@ const ICON={
 
 /* ===== state & storage ===== */
 const LS='forme.v1';
-const defaults=()=>({settings:{kcal:2200,p:150,c:250,f:70,goalW:80,startW:null,step:2.5,rest:90,auto:true,pkg:2,fkg:1,steps:10000},weights:{},foods:[],meals:{},routines:[],sessions:[],exercises:[],scans:[],act:{},active:null,ui:{tab:'weight'},_t:{}});
+const defaults=()=>({settings:{kcal:2200,p:150,c:250,f:70,goalW:80,startW:null,step:2.5,rest:90,auto:true,pkg:2,fkg:1,steps:10000},weights:{},foods:[],meals:{},routines:[],sessions:[],exercises:[],scans:[],act:{},recipes:{done:{},notes:{},mine:[]},active:null,ui:{tab:'weight'},_t:{}});
 let S=defaults();
 try{const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);S=Object.assign(defaults(),o);S.settings=Object.assign(defaults().settings,o.settings||{})}}catch(e){}
 function migrateSettings(){const g=S.settings;if(!g.v2){g.v2=1;if(g.goalW==null)g.goalW=80;if(!g.step)g.step=2.5;return true}return false}
 const migrated=migrateSettings();
-const SLICES=['settings','weights','foods','routines','exercises','scans','act','active'];
+const SLICES=['settings','weights','foods','routines','exercises','scans','act','recipes','active'];
 const docOf=(slice,key)=>slice==='meals'?'meals_'+String(key).slice(0,7):slice==='sessions'?'sessions_'+String(key).slice(0,4):slice;
 function docValue(id){
   if(id.startsWith('meals_')){const p=id.slice(6),o={};for(const k in S.meals)if(k.startsWith(p)&&S.meals[k].length)o[k]=S.meals[k];return o}
@@ -594,23 +604,33 @@ function goals(){
   return{kcal:s.kcal,p:s.p,c:s.c,f:s.f,auto:false,w};
 }
 function totals(list){return list.reduce((t,e)=>({kcal:t.kcal+e.kcal,p:t.p+e.p,c:t.c+e.c,f:t.f+e.f}),{kcal:0,p:0,c:0,f:0})}
-VIEWS.food=()=>{
-  const list=dayEntries(fDate),t=totals(list),g=goals();
-  const rem=g.kcal-t.kcal,over=rem<0,C=2*Math.PI*56,prog=clamp(t.kcal/g.kcal,0,1);
-  const mac=(l,v,goal)=>`<div class="macro"><div class="row sb small"><b>${l}</b><span class="num">${nf(v,0)} / ${nf(goal,0)} g</span></div><div class="bar"><i style="width:${clamp(v/goal*100,0,100)}%"></i></div></div>`;
+function dateBar(){
   const isToday=fDate===today();
-  const slots=SLOTS.map(([k,name])=>{
-    const es=list.filter(e=>e.slot===k),st=totals(es);
-    return `<div class="card slot"><div class="row sb" style="margin-bottom:4px"><h4 class="row" style="gap:10px">${slotIcon(k)}${name}</h4><span class="num muted">${nf(st.kcal,0)} kcal</span></div>
-    ${es.map(e=>`<button class="entry" data-act="f-edit" data-id="${e.id}"><div class="grow"><div class="t" style="font-weight:600;overflow-wrap:anywhere">${esc(e.name)}</div><div class="small muted">P ${nf(e.p,0)} · G ${nf(e.c,0)} · L ${nf(e.f,0)}</div></div><b class="num">${nf(e.kcal,0)}</b></button>`).join('')}
-    <button class="addslot" data-act="f-add" data-slot="${k}">${ICON.plus} Ajouter</button></div>`;
-  }).join('');
   return `
   <div class="datebar">
     <button class="iconbtn" data-act="f-day" data-n="-1" aria-label="Jour précédent">${ICON.chevL}</button>
     <div class="d">${isToday?'Aujourd’hui':esc(fmtLong(fDate))}${isToday?'<div class="small muted" style="font-weight:500">'+esc(fmtLong(fDate))+'</div>':''}</div>
     <button class="iconbtn" data-act="f-day" data-n="1" aria-label="Jour suivant" ${isToday?'disabled style="opacity:.35"':''}>${ICON.chev}</button>
   </div>
+  `;
+}
+let foodSub='journal';
+const FOOD_SUBS=[['journal','Journal'],['recipes','Recettes'],['done','Déjà faites']];
+const foodSeg=()=>'<div class="seg" role="tablist">'+FOOD_SUBS.map(([k,n])=>`<button role="tab" data-act="food-sub" data-s="${k}" aria-selected="${foodSub===k}">${n}</button>`).join('')+'</div>';
+A['food-sub']=b=>{foodSub=b.dataset.s;render();window.scrollTo(0,0)};
+VIEWS.food=()=>{
+  if(foodSub!=='journal')return foodSeg()+recipesView();
+  const list=dayEntries(fDate),t=totals(list),g=goals();
+  const rem=g.kcal-t.kcal,over=rem<0,C=2*Math.PI*56,prog=clamp(t.kcal/g.kcal,0,1);
+  const mac=(l,v,goal)=>`<div class="macro"><div class="row sb small"><b>${l}</b><span class="num">${nf(v,0)} / ${nf(goal,0)} g</span></div><div class="bar"><i style="width:${clamp(v/goal*100,0,100)}%"></i></div></div>`;
+  const slots=SLOTS.map(([k,name])=>{
+    const es=list.filter(e=>e.slot===k),st=totals(es);
+    return `<div class="card slot"><div class="row sb" style="margin-bottom:4px"><h4 class="row" style="gap:10px">${slotIcon(k)}${name}</h4><span class="num muted">${nf(st.kcal,0)} kcal</span></div>
+    ${es.map(e=>`<button class="entry" data-act="f-edit" data-id="${e.id}"><div class="grow"><div class="t" style="font-weight:600;overflow-wrap:anywhere">${esc(e.name)}</div><div class="small muted">P ${nf(e.p,0)} · G ${nf(e.c,0)} · L ${nf(e.f,0)}</div></div><b class="num">${nf(e.kcal,0)}</b></button>`).join('')}
+    <button class="addslot" data-act="f-add" data-slot="${k}">${ICON.plus} Ajouter</button></div>`;
+  }).join('');
+  return foodSeg()+`
+  ${dateBar()}
   <div class="card"><div class="row" style="gap:18px">
     <div class="ring"><svg viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="var(--surface2)" stroke-width="12"/><circle cx="66" cy="66" r="56" fill="none" stroke="${over?'var(--bad)':'var(--accent)'}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${(C*prog).toFixed(1)} ${C.toFixed(1)}"/></svg>
       <div class="c"><b>${nf(t.kcal,0)}</b><span class="small muted">sur ${nf(g.kcal,0)} kcal</span></div></div>
@@ -783,6 +803,229 @@ A['seed-go']=()=>{
   toast(n+' pesées importées');
 };
 A['seed-no']=()=>{S.settings.seeded=1;persist('settings');render()};
+/* ===== RECETTES - fichier genere par tools/gen_recettes.py, ne pas editer a la main ===== */
+/* Valeurs par portion, calculees d'apres des valeurs moyennes pour 100 g : indicatives. */
+const RECIPES=[{"id":"pancakes","n":"Pancakes banane-avoine protéinés","s":["bk"],"t":12,"k":552,"p":44.8,"c":53.7,"f":15.6,"veg":1,"prep":0,"ing":[[1,"","banane|bananes"],[2,"","œuf|œufs"],[40,"g","flocons d’avoine"],[1,"dose|doses","whey (protéine en poudre)"],[80,"g","fruits rouges"]],"st":["Écrase la banane dans un bol, ajoute les œufs, les flocons d’avoine et la whey, puis mélange (ou mixe) jusqu’à obtenir une pâte lisse.","Laisse reposer 2 minutes : les flocons gonflent et la pâte épaissit.","Fais cuire de petites louches dans une poêle antiadhésive chaude, 2 minutes de chaque côté.","Dresse avec les fruits rouges. Une cuillère de skyr par-dessus, si tu en as, est un vrai plus."],"tip":"La pâte se garde une nuit au frais : tu peux la préparer la veille."},{"id":"skyrbowl","n":"Bol de skyr croustillant","s":["bk","sn"],"t":5,"k":362,"p":28.9,"c":40.7,"f":8.1,"veg":1,"prep":0,"ing":[[200,"g","skyr nature"],[30,"g","flocons d’avoine"],[100,"g","fruits rouges"],[10,"g","amandes"],[1,"càc","miel"]],"st":["Fais griller les flocons d’avoine 3 minutes dans une poêle sèche, en remuant, jusqu’à ce qu’ils sentent bon.","Verse le skyr dans un bol et pose les fruits rouges dessus.","Ajoute les flocons grillés, les amandes concassées et un filet de miel."],"tip":"Les flocons grillés peuvent être faits pour toute la semaine et rangés dans une boîte."},{"id":"omelette","n":"Omelette jambon-épinards","s":["bk","lu","di"],"t":10,"k":437,"p":41.1,"c":18.3,"f":21.1,"veg":0,"prep":0,"ing":[[3,"","œuf|œufs"],[80,"g","épinards frais"],[30,"g","mozzarella allégée"],[1,"tranche|tranches","jambon blanc"],[1,"tranche|tranches","pain complet"]],"st":["Fais tomber les épinards 2 minutes dans une poêle antiadhésive, puis retire-les et presse-les légèrement.","Bats les œufs avec une pincée de sel et de poivre, verse-les dans la poêle chaude.","Quand l’omelette commence à prendre, garnis une moitié d’épinards, de jambon coupé en morceaux et de mozzarella.","Replie, laisse fondre 1 minute et sers avec la tranche de pain complet grillée."],"tip":""},{"id":"overnight","n":"Overnight oats chocolat-banane","s":["bk"],"t":5,"k":402,"p":36.0,"c":45.0,"f":6.7,"veg":1,"prep":1,"ing":[[45,"g","flocons d’avoine"],[150,"g","fromage blanc 0 %"],[20,"g","whey (protéine en poudre)"],[100,"ml","lait d’amande sans sucre"],[1,"càs","cacao maigre en poudre"],[0.5,"","banane|bananes"]],"st":["Dans un bocal, mélange les flocons d’avoine, le cacao et la whey.","Ajoute le fromage blanc et le lait d’amande, remue bien pour qu’il n’y ait pas de grumeaux.","Ferme et mets au frigo toute la nuit.","Le matin, ajoute la banane en rondelles et mange froid, ou 1 minute au micro-ondes."],"tip":"Se garde 2 jours au frais : fais-en deux d’un coup."},{"id":"porridge","n":"Porridge protéiné pomme-cannelle","s":["bk"],"t":8,"k":496,"p":31.7,"c":59.2,"f":13.3,"veg":1,"prep":0,"ing":[[50,"g","flocons d’avoine"],[200,"ml","lait demi-écrémé"],[20,"g","whey (protéine en poudre)"],[1,"","pomme|pommes"],[10,"g","amandes"]],"st":["Fais chauffer les flocons d’avoine avec le lait à feu doux 4 minutes, en remuant, jusqu’à ce que ce soit crémeux.","Hors du feu, laisse tiédir 1 minute puis incorpore la whey (sinon elle fait des grumeaux).","Coupe la pomme en dés, fais-la revenir 2 minutes à la poêle avec de la cannelle.","Verse sur le porridge et ajoute les amandes."],"tip":""},{"id":"tartine_cottage","n":"Tartines cottage, œuf et avocat","s":["bk","lu"],"t":12,"k":496,"p":31.9,"c":35.8,"f":23.2,"veg":1,"prep":0,"ing":[[2,"tranche|tranches","pain complet"],[100,"g","cottage cheese"],[2,"","œuf|œufs"],[40,"g","avocat"]],"st":["Fais cuire les œufs 9 minutes dans l’eau bouillante, passe-les sous l’eau froide et écale-les.","Grille le pain.","Étale le cottage cheese, ajoute l’avocat écrasé à la fourchette, puis les œufs en rondelles.","Poivre, un peu de piment ou de paprika, et c’est prêt."],"tip":""},{"id":"mugcake","n":"Mug cake chocolat protéiné","s":["bk","sn"],"t":5,"k":322,"p":38.9,"c":17.1,"f":9.3,"veg":1,"prep":0,"ing":[[1,"","œuf|œufs"],[1,"dose|doses","whey (protéine en poudre)"],[20,"g","flocons d’avoine"],[1,"càs","cacao maigre en poudre"],[50,"g","fromage blanc 0 %"]],"st":["Dans un grand mug, mélange tous les ingrédients à la fourchette jusqu’à avoir une pâte sans grumeaux. Ajoute une demi-cuillère à café de levure si tu en as.","Passe au micro-ondes 1 min 15 à 1 min 30 : le centre doit être juste pris.","Laisse reposer 1 minute avant de manger, directement dans le mug."],"tip":"Ne dépasse pas 1 min 30, sinon il devient sec."},{"id":"fb_amandes","n":"Fromage blanc, amandes et miel","s":["sn"],"t":2,"k":203,"p":18.2,"c":14.3,"f":8.3,"veg":1,"prep":0,"ing":[[200,"g","fromage blanc 0 %"],[1,"càc","miel"],[15,"g","amandes"]],"st":["Verse le fromage blanc dans un bol.","Ajoute les amandes concassées et le miel."],"tip":""},{"id":"mousse_choco","n":"Crème chocolat-skyr","s":["sn"],"t":5,"k":227,"p":24.4,"c":17.6,"f":5.4,"veg":1,"prep":0,"ing":[[200,"g","skyr nature"],[1,"càs","cacao maigre en poudre"],[1,"càc","miel"],[10,"g","chocolat noir 70 %"]],"st":["Mélange le skyr, le cacao et le miel au fouet jusqu’à obtenir une crème bien lisse.","Râpe le chocolat noir par-dessus.","Laisse 20 minutes au frigo : la texture devient plus mousseuse."],"tip":""},{"id":"grec_banane","n":"Bol grec, banane et cacahuète","s":["sn","bk"],"t":3,"k":224,"p":19.0,"c":17.9,"f":8.6,"veg":1,"prep":0,"ing":[[150,"g","yaourt grec 0 %"],[1,"càs","beurre de cacahuète"],[0.5,"","banane|bananes"]],"st":["Mets le yaourt grec dans un bol.","Coupe la banane en rondelles et pose-les dessus.","Termine avec le beurre de cacahuète, réchauffé 10 secondes pour qu’il coule."],"tip":""},{"id":"oeufs_durs","n":"Œufs durs et crudités","s":["sn"],"t":10,"k":187,"p":15.2,"c":6.3,"f":11.1,"veg":1,"prep":1,"ing":[[2,"","œuf|œufs"],[100,"g","concombre"],[100,"g","tomate"]],"st":["Plonge les œufs dans l’eau bouillante 9 minutes, puis dans l’eau froide.","Coupe le concombre en bâtonnets et les tomates en quartiers.","Écale les œufs, sale, poivre, ajoute du paprika."],"tip":"Cuits en avance, les œufs durs se gardent 4 jours au frigo, avec leur coquille."},{"id":"roules_jambon","n":"Roulés jambon-cottage","s":["sn"],"t":5,"k":179,"p":27.1,"c":4.2,"f":5.7,"veg":0,"prep":0,"ing":[[2,"tranche|tranches","jambon blanc"],[80,"g","cottage cheese"],[50,"g","concombre"]],"st":["Étale le cottage cheese sur les tranches de jambon.","Ajoute un bâtonnet de concombre sur chacune.","Roule serré et coupe en deux si tu veux des bouchées."],"tip":""},{"id":"glace_skyr","n":"Glace express skyr-fraise","s":["sn"],"t":5,"k":194,"p":23.1,"c":22.2,"f":0.9,"veg":1,"prep":0,"ing":[[200,"g","skyr nature"],[150,"g","fraises surgelées"],[1,"càc","miel"]],"st":["Sors les fraises du congélateur 5 minutes avant, pour que le mixeur ne force pas.","Mixe les fraises avec le skyr et le miel jusqu’à obtenir une crème épaisse.","Mange tout de suite à la cuillère, ou mets 30 minutes au congélateur pour une texture de glace."],"tip":""},{"id":"verrine_cheesecake","n":"Verrine façon cheesecake au skyr","s":["sn","bk"],"t":8,"k":255,"p":25.3,"c":32.2,"f":2.0,"veg":1,"prep":0,"ing":[[200,"g","skyr nature"],[20,"g","flocons d’avoine"],[80,"g","fruits rouges"],[1,"càc","miel"]],"st":["Mixe grossièrement les flocons d’avoine pour faire une poudre, tasse-la au fond d’un verre avec 1 cuillère à café d’eau pour faire une base.","Mélange le skyr avec le miel et étale-le sur la base.","Recouvre de fruits rouges et laisse 30 minutes au frais."],"tip":""},{"id":"boules_energie","n":"Boules énergie cacahuète-avoine (4)","s":["sn"],"t":10,"k":312,"p":24.6,"c":27.1,"f":10.9,"veg":1,"prep":1,"ing":[[30,"g","flocons d’avoine"],[20,"g","whey (protéine en poudre)"],[15,"g","beurre de cacahuète"],[1,"càc","miel"],[20,"ml","lait demi-écrémé"]],"st":["Mélange tous les ingrédients dans un bol jusqu’à avoir une pâte qui se tient. Ajoute quelques gouttes de lait si c’est trop sec.","Forme 4 boules avec les mains mouillées.","Mets-les 15 minutes au frigo pour qu’elles durcissent."],"tip":"Double ou triple la quantité : elles se gardent 5 jours au frais."},{"id":"bowl_poulet","n":"Bowl poulet, riz et brocoli","s":["lu","di"],"t":25,"k":515,"p":45.5,"c":60.6,"f":8.1,"veg":0,"prep":1,"ing":[[150,"g","blanc de poulet cru"],[70,"g","riz basmati cru"],[150,"g","brocoli"],[1,"càc","huile d’olive"],[1,"càs","sauce soja"]],"st":["Mets le riz à cuire dans l’eau bouillante salée (environ 12 minutes).","Coupe le poulet en dés et fais-le dorer 6 à 8 minutes à la poêle avec l’huile, jusqu’à ce qu’il ne soit plus rose au centre.","Cuis le brocoli 5 minutes à la vapeur ou dans l’eau du riz, pour qu’il reste croquant.","Mélange le poulet avec la sauce soja, puis assemble le tout dans un bol."],"tip":"Idéal en meal prep : 4 portions se gardent 3 jours au frigo."},{"id":"poulet_champi","n":"Poulet crémeux, champignons et pâtes","s":["lu","di"],"t":25,"k":548,"p":54.3,"c":59.1,"f":8.7,"veg":0,"prep":0,"ing":[[150,"g","blanc de poulet cru"],[150,"g","champignons"],[80,"g","fromage blanc 0 %"],[50,"g","oignon"],[1,"càc","huile d’olive"],[70,"g","pâtes crues"]],"st":["Mets les pâtes à cuire selon le temps du paquet.","Dore le poulet en morceaux avec l’huile, 6 minutes, puis réserve.","Dans la même poêle, fais revenir l’oignon émincé et les champignons coupés 5 minutes.","Remets le poulet, ajoute le fromage blanc hors du feu avec une cuillère de moutarde, sel et poivre.","Mélange avec les pâtes égouttées et un peu d’eau de cuisson."],"tip":""},{"id":"wrap_poulet","n":"Wrap poulet-crudités sauce fromage blanc","s":["lu","di"],"t":15,"k":400,"p":37.4,"c":35.4,"f":11.1,"veg":0,"prep":0,"ing":[[1,"","galette de blé (wrap)|galettes de blé (wraps)"],[120,"g","blanc de poulet cru"],[50,"g","fromage blanc 0 %"],[40,"g","salade verte"],[80,"g","tomate"],[1,"càc","huile d’olive"]],"st":["Coupe le poulet en lamelles et fais-le dorer 6 minutes avec l’huile, épices au choix (paprika, cumin).","Mélange le fromage blanc avec du sel, du poivre, de l’ail en poudre et un peu de jus de citron.","Étale la sauce sur le wrap, ajoute la salade, la tomate en dés et le poulet.","Roule serré, coupe en deux."],"tip":""},{"id":"wrap_thon","n":"Wrap thon-avocat","s":["lu","di"],"t":8,"k":405,"p":34.5,"c":35.4,"f":12.9,"veg":0,"prep":0,"ing":[[1,"","galette de blé (wrap)|galettes de blé (wraps)"],[100,"g","thon au naturel égoutté"],[50,"g","avocat"],[80,"g","tomate"],[40,"g","fromage blanc 0 %"]],"st":["Écrase l’avocat à la fourchette avec le fromage blanc, du sel, du poivre et du citron.","Étale sur le wrap, ajoute le thon émietté et la tomate en dés.","Roule et coupe en deux."],"tip":""},{"id":"chili","n":"Chili con carne léger","s":["lu","di"],"t":35,"k":591,"p":44.4,"c":81.7,"f":8.1,"veg":0,"prep":1,"ing":[[125,"g","bœuf haché 5 %"],[120,"g","haricots rouges égouttés"],[150,"g","coulis de tomate"],[100,"g","poivron"],[50,"g","oignon"],[60,"g","riz basmati cru"]],"st":["Fais revenir l’oignon et le poivron en dés 4 minutes dans une casserole antiadhésive.","Ajoute le bœuf et émiette-le jusqu’à ce qu’il soit bien coloré.","Verse le coulis de tomate et les haricots rouges, ajoute cumin, paprika et piment. Laisse mijoter 15 minutes à feu doux.","Pendant ce temps, cuis le riz. Sers le chili sur le riz."],"tip":"Meilleur le lendemain, et il se congèle très bien."},{"id":"pates_thon","n":"Pâtes thon-tomate gratinées","s":["lu","di"],"t":25,"k":520,"p":46.5,"c":68.0,"f":6.2,"veg":0,"prep":0,"ing":[[80,"g","pâtes crues"],[100,"g","thon au naturel égoutté"],[150,"g","coulis de tomate"],[40,"g","mozzarella allégée"],[100,"g","courgette"]],"st":["Cuis les pâtes selon le paquet et chauffe le four à 200 °C (ou le gril).","Fais revenir la courgette en dés 5 minutes, ajoute le coulis et le thon émietté, assaisonne avec de l’origan.","Mélange avec les pâtes, verse dans un plat, couvre de mozzarella.","Passe 8 minutes au four, jusqu’à ce que le dessus soit doré."],"tip":""},{"id":"pates_skyr","n":"Pâtes crémeuses au skyr, poulet et épinards","s":["lu","di"],"t":20,"k":568,"p":54.4,"c":59.5,"f":11.1,"veg":0,"prep":0,"ing":[[75,"g","pâtes crues"],[120,"g","blanc de poulet cru"],[100,"g","skyr nature"],[100,"g","épinards frais"],[10,"g","parmesan rape"],[1,"càc","huile d’olive"]],"st":["Cuis les pâtes ; garde un verre d’eau de cuisson.","Fais dorer le poulet en dés à la poêle avec l’huile 6 minutes, ajoute les épinards et laisse-les tomber.","Hors du feu, mélange le skyr avec le parmesan et 3 cuillères d’eau de cuisson, pour obtenir une sauce lisse.","Ajoute les pâtes et le poulet, remue vite. Ne remets surtout pas sur le feu : le skyr tournerait."],"tip":"Le skyr chauffé trop fort devient granuleux : mélange toujours hors du feu."},{"id":"saumon_patate","n":"Saumon, patate douce et haricots verts","s":["di","lu"],"t":30,"k":477,"p":32.2,"c":46.0,"f":17.4,"veg":0,"prep":0,"ing":[[130,"g","pavé de saumon cru"],[200,"g","patate douce"],[150,"g","haricots verts"]],"st":["Chauffe le four à 200 °C. Coupe la patate douce en bâtonnets et enfourne-la 25 minutes avec du sel et du paprika.","Au bout de 12 minutes, ajoute le saumon sur la plaque avec un peu de citron.","Cuis les haricots verts 8 minutes à l’eau bouillante.","Sers le tout ensemble."],"tip":""},{"id":"cabillaud_quinoa","n":"Cabillaud au four, quinoa et courgettes","s":["di","lu"],"t":30,"k":457,"p":44.1,"c":46.9,"f":10.7,"veg":0,"prep":0,"ing":[[180,"g","filet de cabillaud cru"],[60,"g","quinoa cru"],[200,"g","courgette"],[1,"càc","huile d’olive"],[100,"g","tomate"]],"st":["Chauffe le four à 190 °C. Pose le cabillaud sur une feuille de papier cuisson, avec les tomates en rondelles, l’huile, le sel et le citron. Referme en papillote.","Enfourne 15 minutes.","Cuis le quinoa 12 minutes à l’eau bouillante, égoutte.","Poêle la courgette en rondelles 6 minutes et sers avec le poisson et le quinoa."],"tip":""},{"id":"pizza_wrap","n":"Pizza wrap express","s":["lu","di"],"t":12,"k":396,"p":37.0,"c":34.1,"f":11.6,"veg":0,"prep":0,"ing":[[1,"","galette de blé (wrap)|galettes de blé (wraps)"],[50,"g","coulis de tomate"],[60,"g","mozzarella allégée"],[2,"tranche|tranches","jambon blanc"],[50,"g","champignons"]],"st":["Chauffe le four à 220 °C. Pose le wrap sur une plaque.","Étale le coulis assaisonné d’origan, ajoute le jambon coupé, les champignons en lamelles, puis la mozzarella.","Enfourne 7 à 8 minutes, jusqu’à ce que le bord soit croustillant."],"tip":"Servie avec une salade, elle devient un vrai repas."},{"id":"burger","n":"Burger maison et frites de patate douce","s":["lu","di"],"t":35,"k":562,"p":42.0,"c":61.7,"f":16.6,"veg":0,"prep":0,"ing":[[1,"","pain à burger|pains à burger"],[130,"g","bœuf haché 5 %"],[30,"g","mozzarella allégée"],[30,"g","salade verte"],[60,"g","tomate"],[150,"g","patate douce"],[1,"càc","huile d’olive"]],"st":["Chauffe le four à 210 °C. Coupe la patate douce en frites, mélange avec l’huile, sel et paprika, et enfourne 25 minutes en retournant à mi-cuisson.","Forme un steak avec le bœuf, sale et poivre, et fais-le cuire 3 minutes de chaque côté dans une poêle très chaude.","Pose la mozzarella sur le steak pour qu’elle fonde en fin de cuisson.","Monte le burger avec la salade et la tomate."],"tip":""},{"id":"dahl","n":"Dahl de lentilles corail et yaourt grec","s":["lu","di"],"t":25,"k":549,"p":35.6,"c":78.1,"f":7.4,"veg":1,"prep":1,"ing":[[80,"g","lentilles corail seches"],[100,"g","coulis de tomate"],[60,"g","oignon"],[80,"g","épinards frais"],[1,"càc","huile d’olive"],[30,"g","riz basmati cru"],[100,"g","yaourt grec 0 %"]],"st":["Fais revenir l’oignon émincé dans l’huile avec une cuillère à café de curry, 3 minutes.","Ajoute les lentilles rincées, le coulis et 250 ml d’eau. Laisse cuire 15 minutes, jusqu’à ce que les lentilles se défassent.","Ajoute les épinards en fin de cuisson. Cuis le riz à part.","Sers avec le riz et le yaourt grec par-dessus."],"tip":"Végétarien et très économique. Il se congèle en portions."},{"id":"bowl_tofu","n":"Bowl tofu croustillant, riz et légumes","s":["lu","di"],"t":25,"k":536,"p":30.6,"c":60.6,"f":19.2,"veg":1,"prep":0,"ing":[[150,"g","tofu ferme"],[60,"g","riz basmati cru"],[100,"g","poivron"],[100,"g","brocoli"],[1,"càs","sauce soja"],[1,"càc","huile d’olive"],[1,"càc","beurre de cacahuète"]],"st":["Presse le tofu dans du papier absorbant 10 minutes, puis coupe-le en cubes.","Fais dorer les cubes à la poêle avec l’huile, 8 minutes, en les retournant.","Cuis le riz ; fais sauter le poivron et le brocoli 5 minutes.","Mélange la sauce soja, le beurre de cacahuète et un peu d’eau chaude pour faire la sauce, et verse sur le bol."],"tip":""},{"id":"salade_pois_chiches","n":"Salade pois chiches, thon et feta","s":["lu","di"],"t":10,"k":425,"p":41.2,"c":28.6,"f":15.7,"veg":0,"prep":1,"ing":[[120,"g","pois chiches égouttés"],[100,"g","thon au naturel égoutté"],[30,"g","feta"],[100,"g","concombre"],[100,"g","tomate"],[30,"g","oignon"],[1,"càc","huile d’olive"]],"st":["Rince et égoutte les pois chiches.","Coupe le concombre, la tomate et l’oignon en petits dés.","Mélange tout avec le thon émietté et la feta en cubes.","Assaisonne avec l’huile, du citron, du sel, du poivre et de l’origan."],"tip":"Se transporte très bien dans une boîte, sans réchauffer."},{"id":"wok_crevettes","n":"Wok de crevettes à l’ail, riz et poivrons","s":["lu","di"],"t":20,"k":514,"p":42.9,"c":66.5,"f":8.1,"veg":0,"prep":0,"ing":[[180,"g","crevettes cuites décortiquées"],[70,"g","riz basmati cru"],[150,"g","poivron"],[100,"g","courgette"],[1,"càc","huile d’olive"],[1,"càc","sauce soja"]],"st":["Cuis le riz dans l’eau bouillante salée.","Fais sauter le poivron et la courgette en lamelles à feu vif avec l’huile, 6 minutes.","Ajoute les crevettes, une gousse d’ail écrasée et la sauce soja, 2 minutes seulement pour ne pas les durcir.","Sers sur le riz."],"tip":""},{"id":"boulettes_dinde","n":"Boulettes de dinde, sauce tomate et boulgour","s":["lu","di"],"t":30,"k":535,"p":45.4,"c":54.8,"f":12.9,"veg":0,"prep":1,"ing":[[150,"g","dinde hachée 5 %"],[150,"g","coulis de tomate"],[70,"g","boulgour cru"],[100,"g","courgette"],[10,"g","parmesan rape"]],"st":["Mélange la dinde hachée avec le parmesan, du sel, du poivre et des herbes, puis forme 6 petites boulettes.","Fais-les dorer 5 minutes à la poêle antiadhésive en les roulant.","Ajoute la courgette en dés et le coulis, laisse mijoter 10 minutes à couvert.","Cuis le boulgour 10 minutes dans de l’eau bouillante salée et sers avec les boulettes."],"tip":"Les boulettes se congèlent crues, bien séparées sur une plaque."},{"id":"shakshuka","n":"Shakshuka aux pois chiches","s":["lu","di","bk"],"t":25,"k":535,"p":35.2,"c":51.0,"f":20.3,"veg":1,"prep":0,"ing":[[3,"","œuf|œufs"],[200,"g","coulis de tomate"],[100,"g","poivron"],[60,"g","oignon"],[80,"g","pois chiches égouttés"],[1,"tranche|tranches","pain complet"]],"st":["Fais revenir l’oignon et le poivron en dés 5 minutes dans une poêle avec couvercle.","Ajoute le coulis, les pois chiches, du cumin et du paprika, laisse mijoter 8 minutes.","Creuse trois petits puits, casse un œuf dans chacun, couvre et laisse cuire 5 à 6 minutes, jusqu’à ce que le blanc soit pris.","Sers avec le pain grillé pour tremper."],"tip":""},{"id":"cesar","n":"Salade César allégée au poulet","s":["lu","di"],"t":20,"k":385,"p":49.4,"c":15.9,"f":12.3,"veg":0,"prep":0,"ing":[[150,"g","blanc de poulet cru"],[100,"g","salade verte"],[0.6,"tranche|tranches","pain complet"],[15,"g","parmesan rape"],[60,"g","yaourt grec 0 %"],[1,"càc","huile d’olive"],[80,"g","tomate"]],"st":["Fais dorer le poulet en lamelles avec l’huile, 6 à 8 minutes, puis laisse-le tiédir.","Coupe le pain en petits cubes et fais-les griller à la poêle sèche pour faire des croûtons.","Mélange le yaourt grec avec le parmesan râpé, un peu de citron, de moutarde et de l’ail en poudre : c’est la sauce.","Assemble la salade, le poulet, les tomates et les croûtons, puis nappe de sauce."],"tip":""},{"id":"steak_pdt","n":"Steak haché, pommes de terre rôties et haricots verts","s":["lu","di"],"t":35,"k":425,"p":39.5,"c":48.5,"f":8.1,"veg":0,"prep":0,"ing":[[150,"g","bœuf haché 5 %"],[250,"g","pommes de terre"],[150,"g","haricots verts"]],"st":["Chauffe le four à 210 °C. Coupe les pommes de terre en quartiers, sel, paprika, et enfourne 30 minutes sur du papier cuisson.","Cuis les haricots verts 8 minutes dans l’eau bouillante.","Forme un steak avec le bœuf et fais-le cuire 3 à 4 minutes de chaque côté dans une poêle sans matière grasse.","Sers avec une pointe de moutarde."],"tip":""},{"id":"poulet_tikka","n":"Poulet façon tikka au yaourt, riz et concombre","s":["lu","di"],"t":30,"k":509,"p":48.2,"c":58.7,"f":7.8,"veg":0,"prep":1,"ing":[[150,"g","blanc de poulet cru"],[80,"g","yaourt grec 0 %"],[70,"g","riz basmati cru"],[80,"g","concombre"],[1,"càc","huile d’olive"]],"st":["Mélange le yaourt avec une cuillère à café de curry, de paprika, de l’ail, du sel et du citron. Plonge le poulet en cubes dedans (15 minutes minimum, ou toute la nuit).","Fais dorer le poulet à la poêle avec l’huile, 8 minutes, en le retournant.","Cuis le riz ; coupe le concombre en dés.","Sers le poulet sur le riz avec le concombre."],"tip":"Mariné la veille, il est encore plus tendre."}];
+
+/* ===== RECETTES : sous-onglets « Recettes » et « Déjà faites » du Repas =====
+   Les recettes viennent de RECIPES (js2c.js, généré) + S.recipes.mine (les siennes).
+   S.recipes = { done:{ id:{n,last} }, notes:{ id:texte }, mine:[ recette ] }.
+   Classées selon ce qu'il reste de la journée affichée (fDate) : calories,
+   protéines, glucides, lipides. */
+const RC=()=>{const r=S.recipes||(S.recipes={});r.done=r.done||{};r.notes=r.notes||{};r.mine=r.mine||[];return r};
+const allRecipes=()=>RECIPES.concat(RC().mine);
+const recipeById=id=>allRecipes().find(r=>r.id===id);
+const SLOT_SHORT={bk:'Petit-déj.',lu:'Déjeuner',di:'Dîner',sn:'Collation'};
+const SLOT_TO={bk:'au petit-déjeuner',lu:'au déjeuner',di:'au dîner',sn:'aux collations'};
+const SLOT_W={bk:.25,lu:.35,di:.3,sn:.1};   /* poids d'un repas dans la journée */
+let rcSlot='all',rcFast=false,rcPrep=false,rcVeg=false,rcOpenId=null,rcK=1,rcAdd='lu',rcEditId=null,rcFormSlot='lu';
+
+/* ---- ce qu'il reste, et ce qui convient le mieux ---- */
+function rcRem(){
+  const g=goals(),t=totals(dayEntries(fDate));
+  return{k:g.kcal-t.kcal,p:g.p-t.p,c:g.c-t.c,f:g.f-t.f};
+}
+/* Part du reste de la journée qu'un repas de ce type devrait couvrir : on divise
+   le reste entre les repas pas encore saisis (plus celui-ci). */
+function rcTarget(rem,slot){
+  const filled=new Set(dayEntries(fDate).map(e=>e.slot));
+  let sum=SLOT_W[slot];
+  for(const s in SLOT_W)if(s!==slot&&!filled.has(s))sum+=SLOT_W[s];
+  const sh=SLOT_W[slot]/sum,pos=v=>Math.max(0,v)*sh;
+  return{k:pos(rem.k),p:pos(rem.p),c:pos(rem.c),f:pos(rem.f)};
+}
+/* Prochain repas à viser quand aucun filtre n'est choisi : celui de l'heure s'il
+   n'est pas encore saisi, sinon le suivant ; un jour passé commence au petit-déjeuner. */
+function rcNextSlot(){
+  const filled=new Set(dayEntries(fDate).map(e=>e.slot)),h=new Date().getHours(),order=['bk','lu','di'];
+  const i=order.indexOf(fDate!==today()?'bk':h<11?'bk':h<16?'lu':'di');
+  for(let n=0;n<3;n++){const s=order[(i+n)%3];if(!filled.has(s))return s}
+  return 'sn';
+}
+const rcSlotOf=r=>rcSlot==='all'?rcNextSlot():r.s.includes(rcSlot)?rcSlot:r.s[0];
+/* Plus c'est bas, mieux c'est. Les protéines en dessous de la cible coûtent cher,
+   au-dessus presque rien : on veut des repas protéinés. */
+function rcScore(r,rem){
+  const t=rcTarget(rem,rcSlotOf(r)),rel=(a,b,m)=>Math.abs(a-b)/Math.max(b,m);
+  const dp=r.p>=t.p?.4*(r.p-t.p)/Math.max(t.p,15):1.5*(t.p-r.p)/Math.max(t.p,15);
+  const hors=rcSlot==='all'&&!r.s.includes(rcSlotOf(r))?.35:0;   /* pas prévue pour ce repas */
+  return dp+1.2*rel(r.k,t.k,150)+.6*rel(r.c,t.c,20)+.6*rel(r.f,t.f,8)+hors;
+}
+/* Ce qui dépasse du reste de la journée (avec un peu de tolérance). */
+function rcOver(r,rem){
+  const o=[],x=(v,u)=>'+'+nf(Math.round(v),0)+u;
+  if(r.k>rem.k+30)o.push({w:(r.k-rem.k)/100,t:x(r.k-rem.k,' kcal en trop')});
+  if(r.f>rem.f+4)o.push({w:(r.f-rem.f)/8,t:x(r.f-rem.f,' g de lipides en trop')});
+  if(r.c>rem.c+8)o.push({w:(r.c-rem.c)/20,t:x(r.c-rem.c,' g de glucides en trop')});
+  return o;   /* dans l'ordre d'importance pour l'affichage : calories, lipides, glucides */
+}
+
+/* ---- liste ---- */
+function rcRow(r,rem,withDone){
+  const over=rcOver(r,rem),d=RC().done[r.id],note=RC().notes[r.id];
+  const pills=(over.length?`<span class="pill warn">${over[0].t}</span>`:'<span class="pill good">Tient dans ton reste</span>')
+    +(d&&d.n?`<span class="pill neutral">✓ Faite ${d.n}×</span>`:'')
+    +(!over.length&&rem.p>5&&!(d&&d.n)?`<span class="pill neutral">${Math.min(100,Math.round(r.p/rem.p*100))} % des protéines restantes</span>`:'');
+  return `<button class="li" data-act="rc-open" data-id="${esc(r.id)}"><div class="grow">
+    <div class="t">${esc(r.n)}</div>
+    <div class="small muted">${r.t} min · P ${nf(r.p,0)} · G ${nf(r.c,0)} · L ${nf(r.f,0)}${r.mine?' · Ma recette':''}</div>
+    ${withDone&&d?`<div class="small muted">Dernière fois : ${esc(fmtShort(d.last))}${note?' · « '+esc(note.length>60?note.slice(0,58)+'…':note)+' »':''}</div>`:''}
+    <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:5px">${pills}</div></div>
+    <div style="text-align:right;flex:none"><b class="num" style="font-size:19px">${nf(r.k,0)}</b><div class="small muted">kcal</div></div></button>`;
+}
+function rcBanner(rem){
+  const stat=(l,v)=>`<div class="stat"><b class="num"${v<0?' style="color:var(--bad)"':''}>${v<0?'−':''}${nf(Math.abs(v),0)}</b><span>${l}</span></div>`;
+  return `<div class="card"><h2>Il te reste ${fDate===today()?'aujourd’hui':'le '+esc(fmtShort(fDate))}</h2>
+    <div class="stats" style="grid-template-columns:repeat(4,1fr)">${stat('kcal',rem.k)}${stat('prot. (g)',rem.p)}${stat('gluc. (g)',rem.c)}${stat('lip. (g)',rem.f)}</div>
+    <div class="small muted" style="margin-top:12px">${rem.k<=0?'Tu as atteint ton objectif de calories : voici les recettes les plus légères.':'Classées pour '+(rcSlot==='all'?'ton prochain repas ('+SLOT_SHORT[rcNextSlot()].toLowerCase()+')':'le choix « '+SLOT_SHORT[rcSlot].toLowerCase()+' »')+' : les mieux adaptées à ce reste d’abord.'}</div></div>`;
+}
+function recipesView(){
+  if(foodSub==='done')return doneView();
+  const rem=rcRem();
+  let list=allRecipes().filter(r=>(rcSlot==='all'||r.s.includes(rcSlot))&&(!rcFast||r.t<=15)&&(!rcPrep||r.prep)&&(!rcVeg||r.veg))
+    .map(r=>({r,o:rcOver(r,rem),sc:rcScore(r,rem)}));
+  const exc=x=>x.o.reduce((s,y)=>s+y.w,0);
+  list.sort((a,b)=>{const ao=a.o.length>0,bo=b.o.length>0;if(ao!==bo)return ao?1:-1;return ao?(exc(a)-exc(b)||a.sc-b.sc):a.sc-b.sc});
+  const chip=(k,label,on)=>`<button class="chip" data-act="rc-flag" data-k="${k}" aria-pressed="${on}">${label}</button>`;
+  const slots=[['all','Tous'],['bk','Petit-déj.'],['lu','Déjeuner'],['di','Dîner'],['sn','Collation']]
+    .map(([k,n])=>`<button role="tab" data-act="rc-slot" data-s="${k}" aria-selected="${rcSlot===k}">${n}</button>`).join('');
+  const flags=chip('fast','Rapide ≤ 15 min',rcFast)+chip('prep','À l’avance',rcPrep)+chip('veg','Végétarien',rcVeg);
+  return dateBar()+rcBanner(rem)+
+    `<div class="seg rcslotseg" role="tablist" aria-label="Repas" style="margin-bottom:10px">${slots}</div>
+     <div class="chips">${flags}</div>`+
+    (list.length?`<div class="card"><h2>${list.length} recette${list.length>1?'s':''}</h2><div class="list">${list.map(x=>rcRow(x.r,rem)).join('')}</div></div>`
+      :'<div class="card empty">Aucune recette avec ces filtres.</div>')+
+    `<button class="btn ghost block" data-act="rc-new" style="margin-bottom:14px">${ICON.plus} Ajouter ma recette</button>
+     <div class="small muted" style="margin-bottom:14px">Valeurs par portion, calculées à partir de valeurs moyennes : elles sont indicatives.</div>`;
+}
+function doneView(){
+  const rem=rcRem(),d=RC().done;
+  const list=allRecipes().filter(r=>d[r.id]&&d[r.id].n>0).sort((a,b)=>(d[b.id].last||'').localeCompare(d[a.id].last||''));
+  return dateBar()+(list.length
+    ?`<div class="card"><h2>${list.length} recette${list.length>1?'s':''} déjà faite${list.length>1?'s':''}</h2><div class="list">${list.map(r=>rcRow(r,rem,true)).join('')}</div></div>`
+    :'<div class="card empty">Rien pour l’instant.<br>Ouvre une recette et appuie sur « Je l’ai préparée » : elle apparaît ici, avec la date et ta note.</div>');
+}
+A['rc-slot']=b=>{rcSlot=b.dataset.s;render()};
+A['rc-flag']=b=>{const k=b.dataset.k;if(k==='fast')rcFast=!rcFast;else if(k==='prep')rcPrep=!rcPrep;else rcVeg=!rcVeg;render()};
+
+/* ---- fiche d'une recette ---- */
+const frac=v=>{
+  v=Math.round(v*4)/4;const w=Math.floor(v),f=v-w;
+  const s=f===.25?'¼':f===.5?'½':f===.75?'¾':'';
+  return (w||!s?String(w):'')+(w&&s?' ':'')+s;
+};
+const rcPl=(s,n)=>{const p=s.split('|');return n>1?(p[1]||p[0]):p[0]};
+const rcDe=n=>(/^(huile|[aeiouéèêâîôœ])/i.test(n)?'d’':'de ')+n;
+function rcIng(r,k){
+  if(r.ingTxt)return r.ingTxt.map(l=>`<li>${esc(l)}</li>`).join('')||'<li class="muted">Pas d’ingrédients notés.</li>';
+  return r.ing.map(([q,u,n])=>{
+    const v=q*k;
+    if(u==='g'||u==='ml')return `<li>${nf(Math.round(v),0)} ${u} ${esc(rcDe(n))}</li>`;
+    if(u==='')return `<li>${frac(v)} ${esc(rcPl(n,v))}</li>`;
+    return `<li>${frac(v)} ${esc(rcPl(u,v))} ${esc(rcDe(n.split('|')[0]))}</li>`;
+  }).join('');
+}
+function rcSheet(){
+  const r=recipeById(rcOpenId);if(!r)return;
+  const note=RC().notes[r.id]||'';
+  openSheet(`<div class="rc"><h3>${esc(r.n)}</h3>
+  <div class="row" style="flex-wrap:wrap;gap:6px;margin:-6px 0 14px"><span class="pill neutral">⏱ ${r.t} min</span>${r.veg?'<span class="pill good">Végétarien</span>':''}${r.prep?'<span class="pill neutral">À préparer à l’avance</span>':''}${r.mine?'<span class="pill neutral">Ma recette</span>':''}</div>
+  <div class="sec">Portions</div>
+  <div class="seg" id="rcseg" role="tablist" aria-label="Nombre de portions">${[[.5,'½'],[1,'1'],[1.5,'1,5'],[2,'2']].map(([k,n])=>`<button role="tab" data-act="rc-k" data-k="${k}" aria-selected="${rcK===k}">${n}</button>`).join('')}</div>
+  <div class="stats" id="rcstats" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px"></div>
+  <div class="sec">Ingrédients</div>
+  <ul class="rcl" id="rcing"></ul>
+  <div class="sec">Préparation</div>
+  <ol class="rcl">${r.st.length?r.st.map(s=>`<li>${esc(s)}</li>`).join(''):'<li class="muted">Pas d’étapes notées.</li>'}</ol>
+  ${r.tip?`<div class="card" style="box-shadow:none;background:var(--surface2)"><b>Astuce</b><div style="margin-top:4px">${esc(r.tip)}</div></div>`:''}
+  <div class="sec" style="margin-top:6px">Ajouter au journal</div>
+  <div class="seg rcslotseg" id="rcslots" role="tablist" aria-label="Repas du journal"></div>
+  <button class="btn block" id="rcaddbtn" data-act="rc-log"></button>
+  <div id="rcmade" style="margin-top:12px"></div>
+  <div class="field" style="margin-top:16px"><label for="rcnote">Ma note</label><textarea class="inp" id="rcnote" data-ch="rcnote" placeholder="Ex : un peu moins de sel, ajouter du piment…">${esc(note)}</textarea></div>
+  ${r.mine?'<div class="grid2"><button class="btn ghost" data-act="rc-edit">Modifier</button><button class="btn danger" data-act="rc-del">Supprimer</button></div>':''}
+  <div class="small muted" style="margin-top:14px">Valeurs indicatives. Poids crus pour les viandes, poissons, féculents et lentilles ; conserves égouttées.</div></div>`);
+  rcDraw();
+}
+/* Met à jour les morceaux qui dépendent des portions, sans refaire toute la fiche
+   (sinon elle remonterait en haut à chaque appui). */
+function rcDraw(){
+  const r=recipeById(rcOpenId);if(!r||!$('#rcstats'))return;
+  const k=rcK,d=RC().done[r.id];
+  $('#rcstats').innerHTML=[['kcal',r.k],['prot. (g)',r.p],['gluc. (g)',r.c],['lip. (g)',r.f]].map(([l,v])=>`<div class="stat"><b class="num">${nf(v*k,0)}</b><span>${l}</span></div>`).join('');
+  $('#rcing').innerHTML=rcIng(r,k);
+  document.querySelectorAll('#rcseg button').forEach(b=>b.setAttribute('aria-selected',String(Number(b.dataset.k)===k)));
+  $('#rcslots').innerHTML=SLOTS.map(([s])=>`<button role="tab" data-act="rc-addslot" data-s="${s}" aria-selected="${rcAdd===s}">${SLOT_SHORT[s]}</button>`).join('');
+  $('#rcaddbtn').textContent='Ajouter à '+(fDate===today()?'aujourd’hui':fmtShort(fDate))+' · '+nf(r.k*k,0)+' kcal';
+  $('#rcmade').innerHTML=d&&d.n
+    ?`<div class="card" style="box-shadow:none;background:var(--surface2);margin:0 0 10px"><b>✓ Préparée ${d.n} fois</b><div class="small muted">Dernière fois : ${esc(fmtLong(d.last))}</div></div>
+      <div class="grid2"><button class="btn soft" data-act="rc-made">+ Refaite aujourd’hui</button><button class="btn ghost" data-act="rc-unmade">Retirer des faites</button></div>`
+    :'<button class="btn soft block" data-act="rc-made">✓ Je l’ai préparée</button>';
+}
+function rcMark(id,date){
+  const dn=RC().done,d=dn[id]||(dn[id]={n:0,last:''});
+  if(d.n&&d.last===date)return false;
+  d.n++;if(date>d.last)d.last=date;persist('recipes');return true;
+}
+A['rc-open']=b=>{
+  const r=recipeById(b.dataset.id);if(!r)return;
+  rcOpenId=r.id;rcK=1;rcAdd=rcSlot!=='all'&&r.s.includes(rcSlot)?rcSlot:r.s[0];rcSheet();
+};
+A['rc-k']=b=>{rcK=Number(b.dataset.k);rcDraw()};
+A['rc-addslot']=b=>{rcAdd=b.dataset.s;rcDraw()};
+A['rc-log']=()=>{
+  const r=recipeById(rcOpenId);if(!r)return;const k=rcK;
+  addEntry(rcAdd,{name:r.n+(k===1?'':k===.5?' (½ portion)':' ('+nf(k)+' portions)'),kcal:r.k*k,p:r.p*k,c:r.c*k,f:r.f*k});
+  rcMark(r.id,fDate);closeSheet();toast('Ajouté '+SLOT_TO[rcAdd]);render();
+};
+A['rc-made']=()=>{
+  if(!rcMark(rcOpenId,today())){toast('Déjà noté pour aujourd’hui');return}
+  toast('Noté dans tes recettes faites');rcDraw();render();
+};
+A['rc-unmade']=()=>{delete RC().done[rcOpenId];persist('recipes');toast('Retirée des recettes faites');rcDraw();render()};
+I.rcnote=t=>{
+  if(!rcOpenId)return;const n=RC().notes,v=t.value.trim();
+  if(v)n[rcOpenId]=v;else delete n[rcOpenId];
+  persist('recipes');render();
+};
+
+/* ---- ses propres recettes ---- */
+function rcForm(r){
+  rcEditId=r?r.id:null;rcFormSlot=r?r.s[0]:'lu';
+  const v=r||{n:'',t:'',k:'',p:'',c:'',f:'',ingTxt:[],st:[]};
+  openSheet(`<div class="rc"><h3>${r?'Modifier ma recette':'Ma recette'}</h3>
+  <div class="field"><label for="rfn">Nom</label><input class="inp" id="rfn" value="${esc(v.n)}" placeholder="Ex : Poulet au curry de maman"></div>
+  <div class="sec">Repas</div>
+  <div class="seg" id="rfseg" role="tablist">${SLOTS.map(([s])=>`<button role="tab" data-act="rc-fslot" data-s="${s}" aria-selected="${rcFormSlot===s}">${SLOT_SHORT[s]}</button>`).join('')}</div>
+  <div class="grid2"><div class="field"><label for="rft">Temps (min)</label><input class="inp" id="rft" inputmode="numeric" value="${esc(v.t)}"></div><div class="field"><label for="rfk">Calories (kcal)</label><input class="inp" id="rfk" inputmode="decimal" value="${esc(v.k)}"></div></div>
+  <div class="grid2"><div class="field"><label for="rfp">Protéines (g)</label><input class="inp" id="rfp" inputmode="decimal" value="${esc(v.p)}"></div><div class="field"><label for="rfc">Glucides (g)</label><input class="inp" id="rfc" inputmode="decimal" value="${esc(v.c)}"></div></div>
+  <div class="field"><label for="rff">Lipides (g)</label><input class="inp" id="rff" inputmode="decimal" value="${esc(v.f)}"></div>
+  <div class="field"><label for="rfi">Ingrédients (un par ligne)</label><textarea class="inp" id="rfi" placeholder="150 g de poulet&#10;70 g de riz">${esc((v.ingTxt||[]).join('\n'))}</textarea></div>
+  <div class="field"><label for="rfs">Préparation (une étape par ligne)</label><textarea class="inp" id="rfs">${esc((v.st||[]).join('\n'))}</textarea></div>
+  <div class="small muted" style="margin-bottom:12px">Les valeurs sont pour une portion.</div>
+  <button class="btn block" data-act="rc-save">Enregistrer</button></div>`);
+}
+A['rc-new']=()=>rcForm(null);
+A['rc-edit']=()=>{const r=recipeById(rcOpenId);if(r&&r.mine)rcForm(r)};
+A['rc-fslot']=b=>{rcFormSlot=b.dataset.s;document.querySelectorAll('#rfseg button').forEach(x=>x.setAttribute('aria-selected',String(x.dataset.s===rcFormSlot)))};
+A['rc-save']=()=>{
+  const n=$('#rfn').value.trim(),k=num($('#rfk').value);
+  if(!n||!k){toast('Indique un nom et les calories');return}
+  const lines=id=>$('#'+id).value.split('\n').map(x=>x.trim()).filter(Boolean),m=RC().mine,i=m.findIndex(x=>x.id===rcEditId);
+  const o=Object.assign({veg:0,prep:0,tip:''},i>=0?m[i]:{},{
+    id:i>=0?rcEditId:'u_'+uid(),n,s:[rcFormSlot],t:Math.max(1,Math.round(num($('#rft').value))||15),
+    k:Math.round(k),p:r1($('#rfp').value),c:r1($('#rfc').value),f:r1($('#rff').value),
+    ingTxt:lines('rfi'),st:lines('rfs'),mine:1});
+  if(i>=0)m[i]=o;else m.unshift(o);
+  persist('recipes');rcOpenId=o.id;rcK=1;rcAdd=o.s[0];render();rcSheet();toast('Recette enregistrée');
+};
+A['rc-del']=()=>{
+  const r=recipeById(rcOpenId);if(!r||!r.mine)return;
+  confirmSheet('Supprimer cette recette ?','« '+r.n+' » disparaît de ta liste, avec ta note.','Supprimer',()=>{
+    const s=RC();s.mine=s.mine.filter(x=>x.id!==r.id);delete s.done[r.id];delete s.notes[r.id];
+    persist('recipes');rcOpenId=null;render();toast('Recette supprimée');
+  });
+};
 /* ===== GYM ===== */
 const LIB=[['Pectoraux',['Développé couché','Développé incliné barre','Développé incliné haltères','Développé couché haltères','Développé décliné','Développé couché machine','Écarté haltères','Écarté poulie','Pec deck','Pompes','Dips']],['Dos',['Tractions','Tractions supination','Tirage vertical','Tirage vertical prise serrée','Rowing barre','Rowing haltère','Tirage horizontal','Rowing T-bar','Soulevé de terre','Pull-over poulie','Shrugs haltères']],['Épaules',['Développé militaire','Développé haltères assis','Arnold press','Élévations latérales','Élévations frontales','Oiseau','Face pull']],['Biceps',['Curl barre','Curl haltères','Curl marteau','Curl pupitre','Curl incliné','Curl poulie']],['Triceps',['Extension poulie','Extension poulie corde','Barre au front','Dips banc','Extension nuque haltère','Extension verticale poulie','Développé serré']],['Jambes',['Squat','Squat avant','Goblet squat','Hack squat','Presse à cuisses','Fentes','Fentes marchées','Leg extension','Leg curl','Leg curl assis','Soulevé de terre roumain','Hip thrust','Mollets debout','Mollets assis']],['Abdos',['Crunch','Crunch poulie','Relevé de jambes','Gainage']]];
 /* muscles sollicités par exercice */
