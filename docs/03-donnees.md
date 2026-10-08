@@ -58,7 +58,10 @@ Conséquences à ne jamais perdre de vue :
 
   scans:   [ { id, date, name, brand, code, src,
                per: { kcal, fat, sat, carbs, sugar, salt, fiber, prot, fv },
-               additives: [ { name, risk } ], lastG } ],   // 400 au maximum
+               additives: [ { name, risk } ], lastG,
+               cat?: "vpo.poisson",     // rangement choisi (par lui, ou par Claude à la lecture d'une étiquette)
+               tags?: ["cheeses"] } ],  // catégories Open Food Facts, sans préfixe de langue
+                                        // 400 au maximum
 
   active:  null,       // la séance en cours, ou null
   ui:      { tab: 'weight' },
@@ -70,6 +73,10 @@ Les recettes **embarquées** ne sont pas dans l'état : elles sont dans `RECIPES
 (`src/js2c.js`, fichier généré). L'état ne garde que ce que l'utilisateur en fait :
 `recipes.done` (clé = identifiant de la recette), `recipes.notes`, `recipes.mine`.
 Une recette est comptée une seule fois par jour dans `done`.
+
+`cat` = `section.sous-section` de la bibliothèque (voir `SLIB` dans `src/js4b.js`).
+Absent tant qu'il ne l'a pas choisi : le rangement est alors deviné à l'affichage
+(`libGuess`) d'après le nom, la marque et `tags`, et rien n'est écrit dans l'état.
 
 `src` d'un produit scanné : `off` (Open Food Facts), `label` (étiquette lue par
 Claude), `estimate` (estimé), `manual` (saisi à la main).

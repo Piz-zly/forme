@@ -97,10 +97,10 @@ function bcReset(){bc={busy:false,msg:''};pendingCode='';bcProd=null}
 const errMsg=e=>e&&e.code==='not_granted'?'L’accès à Claude a été refusé. Utilise la saisie manuelle.':e&&e.code==='rate_limited'?'Trop de demandes. Réessaie dans un instant.':e&&e.code==='unreadable'?'Je n’ai pas reconnu de produit sur ces photos. Cadre le tableau nutritionnel de près.':'L’analyse a échoué. Réessaie, ou saisis les valeurs à la main.';
 async function analyseProduct(files,code){
   if(!sampleFn)throw{code:'not_granted'};
-  const res=await sampleFn.json(PRODUCT_PROMPT,{images:files,modelTier:'default'});
+  const res=await sampleFn.json(PRODUCT_PROMPT+libPrompt(),{images:files,modelTier:'default'});
   if(!res||res.error||!res.per100)throw{code:'unreadable'};
   const q=res.per100;
-  return{id:uid(),date:today(),name:String(res.name||'Produit'),brand:res.brand?String(res.brand):'',code:code||(res.barcode&&EAN_OK(String(res.barcode))?String(res.barcode):''),src:res.source==='label'?'label':'estimate',
+  return{id:uid(),date:today(),name:String(res.name||'Produit'),brand:res.brand?String(res.brand):'',code:code||(res.barcode&&EAN_OK(String(res.barcode))?String(res.barcode):''),src:res.source==='label'?'label':'estimate',cat:libOk(String(res.category||''))&&res.category!=='autre.autre'?String(res.category):undefined,
     per:{kcal:num(q.kcal),fat:num(q.fat),sat:num(q.sat),carbs:num(q.carbs),sugar:num(q.sugar),salt:num(q.salt),fiber:num(q.fiber),prot:num(q.protein),fv:num(res.fruitVeg)},
     additives:(Array.isArray(res.additives)?res.additives:[]).filter(a=>a&&a.name).map(a=>({name:String(a.name),risk:['low','moderate','high'].includes(a.risk)?a.risk:'low'}))};
 }
@@ -166,14 +166,15 @@ I.bcg=t=>{const p=bcProd;if(!p)return;const k=num(t.value)/100,b=$('[data-act="b
 A['s-manual-code']=()=>{manualFrom='food';A['s-manual']()};
 
 VIEWS.scan=()=>{
+  if(scanSub==='lib')return libView();
   const thumbs=scanUrls.length?`<div class="thumbs">${scanUrls.map(u=>`<img src="${u}" alt="Photo du produit">`).join('')}</div>`:'';
   const canVision=hasVision;
-  const hist=S.scans.map(s=>{const e=evalProduct(s);return `<button class="li" data-act="s-open" data-id="${s.id}"><span class="badge num" style="width:46px;height:46px;font-size:18px;background:${e.color}">${e.score}</span><div class="grow"><div class="t">${esc(s.name)}</div><div class="small muted">${esc(s.brand||'')}${s.brand?' · ':''}${esc(fmtShort(s.date))}</div></div>${ICON.chev}</button>`}).join('');
+  const hist=S.scans.slice(0,5).map(s=>{const e=evalProduct(s);return `<button class="li" data-act="s-open" data-id="${s.id}"><span class="badge num" style="width:46px;height:46px;font-size:18px;background:${e.color}">${e.score}</span><div class="grow"><div class="t">${esc(s.name)}</div><div class="small muted">${esc(s.brand||'')}${s.brand?' · ':''}${esc(fmtShort(s.date))}</div></div>${ICON.chev}</button>`}).join('');
   const bcCard=`<div class="card"><h2>Code-barres</h2>
   ${pendingCode?`<div class="bcnum" style="margin-bottom:6px">${esc(pendingCode)}</div><div class="muted small" style="margin-bottom:12px">Produit pas encore connu : photographie son tableau nutritionnel ci-dessous, il sera retenu pour les prochains scans.</div>`:`<p class="muted small" style="margin:0 0 12px">Photographie le code-barres. S’il est déjà connu, la fiche s’affiche tout de suite.</p>`}
   ${bc.busy?'<div class="row muted"><span class="spin"></span> Lecture du code…</div>':`${typeof liveBtn==='function'?liveBtn('scan',''):''}<label class="btn ${typeof liveBtn==='function'?'ghost ':''}block" style="cursor:pointer">${ICON.cam} ${pendingCode?'Scanner un autre code':'Scanner un code-barres'}<input type="file" accept="image/*" capture="environment" data-ch="bc-file" data-ctx="scan" class="hidden"></label>`}
   ${bc.msg?`<div class="pill bad" style="margin-top:10px;white-space:normal">${esc(bc.msg)}</div>`:''}</div>`;
-  return bcCard+`<div class="card"><h2>${pendingCode?'Étiquette du produit':'Analyser un produit'}</h2>
+  return scanSeg()+bcCard+`<div class="card"><h2>${pendingCode?'Étiquette du produit':'Analyser un produit'}</h2>
   ${canVision?`<p class="muted small" style="margin:0 0 12px">Photographie le tableau nutritionnel et la liste d’ingrédients (jusqu’à ${maxImgs} photos). La note est calculée à partir du Nutri-Score et des additifs.</p>
   <div class="grid2"><label class="btn" style="cursor:pointer">${ICON.cam} Photo<input type="file" accept="image/*" capture="environment" data-ch="s-files" class="hidden"></label>
   <label class="btn ghost" style="cursor:pointer">Galerie<input type="file" accept="image/*" multiple data-ch="s-files" class="hidden"></label></div>${thumbs}
@@ -181,8 +182,8 @@ VIEWS.scan=()=>{
   :`<p class="muted small" style="margin:0 0 12px">L’analyse par photo n’est pas disponible ici. Tu peux saisir les valeurs de l’étiquette à la main.</p>`}
   ${scanErr?`<div class="pill bad" style="margin-top:10px;white-space:normal">${esc(scanErr)}</div>`:''}
   <button class="btn soft block" style="margin-top:12px" data-act="s-manual">Saisir les valeurs à la main</button></div>
-  <div id="sres">${scanCur?resultCard(scanCur):''}</div>
-  <div class="card"><h2>Produits scannés</h2>${hist?'<div class="list">'+hist+'</div>':'<div class="empty">Tes produits analysés seront gardés ici.</div>'}</div>`;
+  <div id="sres">${scanCur?resultCard(scanCur)+libMove(scanCur):''}</div>
+  <div class="card"><h2>Derniers produits scannés</h2>${hist?'<div class="list">'+hist+'</div>'+(S.scans.length>5?`<button class="btn soft block" style="margin-top:10px" data-act="lib-go">Voir toute la bibliothèque (${S.scans.length})</button>`:`<button class="btn soft block" style="margin-top:10px" data-act="lib-go">Ouvrir la bibliothèque</button>`):'<div class="empty">Tes produits analysés seront gardés ici, rangés par catégorie dans la bibliothèque.</div>'}</div>`;
 };
 function resultCard(p){
   const e=evalProduct(p);

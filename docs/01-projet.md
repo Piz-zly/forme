@@ -42,9 +42,11 @@ garde tout dans le navigateur du téléphone.
 - Objectifs de macros calculés depuis la dernière pesée : protéines et lipides
   en grammes par kilo (2 et 1 par défaut), glucides en complément des calories.
   Débrayable pour saisir des grammes fixes.
-- Quatre façons d'ajouter : décrire en texte (Claude uniquement), scanner un
-  code-barres, reprendre un favori ou un aliment récent, saisir à la main.
-- **Recettes** : 35 recettes simples et protéinées, classées selon les calories,
+- Cinq façons d'ajouter : **chercher** un aliment de base sans code-barres (œuf,
+  riz, poulet… 321 aliments, avec unités usuelles), décrire en texte (Claude
+  uniquement), scanner un code-barres, reprendre un favori ou un aliment récent,
+  saisir à la main. « Chercher » est l'onglet ouvert par défaut.
+- **Recettes** : 74 recettes simples et protéinées, classées selon les calories,
   protéines, glucides et lipides restants du jour. Filtres (repas, rapide, à
   l'avance, végétarien), portions, ajout au journal, note, recettes personnelles.
 - **Déjà faites** : les recettes préparées, avec la date et la note.
@@ -99,3 +101,12 @@ garde tout dans le navigateur du téléphone.
 9. Transposer le projet dans un dossier documenté.
 10. Un sous-onglet de recettes dans Repas, selon les calories et macros restantes,
     avec les recettes déjà préparées.
+11. Ajouter au Repas des aliments de base sans code-barres (comme les œufs), en
+    les cherchant avec une barre de recherche : onglet « Chercher » (2026.10.08-9),
+    puis plus d'aliments et de recettes (2026.10.08-10).
+12. Une bibliothèque de tous les aliments scannés, triés en sections et
+    sous-sections (ex. Viandes, poissons, œufs → viandes / poissons / œufs), sur le
+    même principe pour les autres aliments (2026.10.08-11).
+13. Pas de doublon dans la bibliothèque (même produit de deux marques, mêmes apports)
+    et les aliments de base du Repas rangés selon les mêmes sections et sous-sections
+    (2026.10.08-12).

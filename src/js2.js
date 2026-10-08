@@ -217,11 +217,13 @@ function mineList(slot){
     (!fav.length&&!rec.length?'<div class="empty">Rien pour l’instant. Ce que tu ajoutes apparaît ici pour le retrouver en un geste.</div>':'');
 }
 function addSheet(slot){
-  if(!addTab)addTab='scan';
-  const tabs=[...(hasAI?[['ai','Décrire']]:[]),['scan','Scanner'],['mine','Favoris'],['manual','Manuel']];
+  if(!addTab)addTab='basic';
+  const tabs=[['basic','Chercher'],...(hasAI?[['ai','Décrire']]:[]),['scan','Scanner'],['mine','Favoris'],['manual','Manuel']];
   const slotName=SLOTS.find(s=>s[0]===slot)[1];
   let body='';
-  if(addTab==='ai'){
+  if(addTab==='basic'){
+    bSlot=slot;body=bSel?foodQtyHtml():foodSearchHtml(slot);
+  }else if(addTab==='ai'){
     body=`<div class="field"><label for="aitext">Qu’as-tu mangé ?</label><textarea class="inp" id="aitext" placeholder="Ex : 2 œufs brouillés, 2 tranches de pain complet, un café sans sucre"></textarea></div>
     <button class="btn block" id="aigo" data-act="ai-go" data-slot="${slot}">Estimer les calories</button>
     <div class="small muted" style="margin-top:8px">Estimation par Claude : à ajuster selon les portions réelles.</div><div id="airesult" style="margin-top:14px"></div>`;
@@ -237,9 +239,9 @@ function addSheet(slot){
     <label class="row" style="margin:4px 0 14px;min-height:44px"><input type="checkbox" id="mfav" style="width:22px;height:22px"> Garder dans mes favoris</label>
     <button class="btn block" data-act="f-manual" data-slot="${slot}">Ajouter</button>`;
   }
-  openSheet(`<h3 class="row" style="gap:10px">${slotIcon(slot)}${esc(slotName)}</h3><div class="seg" role="tablist">${tabs.map(t=>`<button role="tab" data-act="add-tab" data-t="${t[0]}" data-slot="${slot}" aria-selected="${addTab===t[0]}">${t[1]}</button>`).join('')}</div>${body}`);
+  openSheet(`<div class="rc"><h3 class="row" style="gap:10px">${slotIcon(slot)}${esc(slotName)}</h3><div class="seg rcslotseg" role="tablist">${tabs.map(t=>`<button role="tab" data-act="add-tab" data-t="${t[0]}" data-slot="${slot}" aria-selected="${addTab===t[0]}">${t[1]}</button>`).join('')}</div>${body}</div>`);
 }
-A['f-add']=b=>{addTab=null;favQuery='';aiItems=[];bcReset();addSheet(b.dataset.slot)};
+A['f-add']=b=>{addTab=null;favQuery='';aiItems=[];bcReset();bq='';bcat='top';bSel=null;addSheet(b.dataset.slot)};
 A['add-tab']=b=>{addTab=b.dataset.t;addSheet(b.dataset.slot)};
 I.favq=t=>{favQuery=t.value;const l=$('#favlist');if(l)l.innerHTML=mineList(t.dataset.slot)};
 A['f-pick']=b=>{const e=pickMap[b.dataset.id];if(!e)return;addEntry(b.dataset.slot,e);closeSheet();toast('Ajouté : '+e.name);render()};

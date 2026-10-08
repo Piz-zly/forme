@@ -1,5 +1,30 @@
 # 7. La suite
 
+Pour agrandir encore : une ligne `F(...)` dans `tools/gen_aliments.py`, un appel
+`rec(...)` dans `tools/gen_recettes.py` (les aliments d'une recette doivent exister
+dans sa table `ALIM`, qui est séparée de celle de la recherche), puis relancer les
+scripts et `./src/build.sh`. Pensé pour s'agrandir ainsi, sans toucher au reste.
+
+## Bibliothèque du Scan : fait en 2026.10.08-11 (doublons et aliments de base en -12), à essayer sur son téléphone
+
+Demandé : une bibliothèque des aliments scannés, triés en sections et sous-sections
+(exemple donné : VPO = viandes / poissons / œufs), « pareil avec les autres
+aliments ». À valider avec lui : les noms des sections, les sous-sections qui
+manquent, les produits mal rangés (corriger les règles de `SLIB_RULES`). Les
+catégories Open Food Facts (`tags`) ne sont enregistrées que pour les produits
+scannés **après** cette version : les anciens sont rangés d'après leur nom
+seulement. Pas essayé sur téléphone.
+
+## Chercher un aliment : fait en 2026.10.08-9, à essayer sur son téléphone
+
+Demandé : « ajouter au Repas des aliments basic sans code barre, comme les œufs.
+En les cherchant avec une barre de recherche. » 163 aliments, voir
+`tools/gen_aliments.py`. À valider avec lui : les aliments qu'il cherche et qui
+manquent (les ajouter), et si les valeurs moyennes lui conviennent. Les valeurs
+du cacao diffèrent un peu entre `gen_recettes.py` et `gen_aliments.py` : à
+harmoniser si besoin. Pas essayé sur téléphone (clavier Android, défilement de
+la feuille).
+
 ## Recettes : fait en 2026.10.08-8, restent à valider avec lui
 
 Demandé mot pour mot : « pour les repas il me faudrait un sous onglet avec des
@@ -16,7 +41,7 @@ partir d'une table de valeurs moyennes par aliment, dans `tools/gen_recettes.py`
 Choix faits sans lui poser la question, à lui confirmer :
 
 - Une recette = **une portion**, avec un choix ½ / 1 / 1,5 / 2 sur la fiche.
-- **35 recettes** au départ, aucune allergie ni aliment exclu connu. Pas de
+- **35 recettes** au départ (74 depuis 2026.10.08-10), aucune allergie ni aliment exclu connu. Pas de
   matériel particulier (poêle, four, micro-ondes, mixeur).
 - Il peut **ajouter ses propres recettes** (valeurs saisies à la main).
 - Ajouter une recette au journal la marque aussi « préparée ».
@@ -59,5 +84,5 @@ champs vides, et c'est le signe qu'il faut passer à l'import de fichier.
   absolus de l'atelier d'origine. À adapter avant toute réexécution.
 - Deux imperfections assumées sur la coloration des muscles, décrites dans
   `docs/04-images.md`.
-- Les tests couvrent Poids, Muscu, le partage entrant et les recettes (`tests/t8.py`).
+- Les tests couvrent Poids, Muscu, le partage entrant et les recettes (`tests/t8.py`) et l'ajout d'un aliment par la recherche (`tests/t9.py`).
   Ni le journal du Repas ni l'onglet Scan n'ont de test de bout en bout.

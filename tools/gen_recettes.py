@@ -78,8 +78,26 @@ ALIM = {
  'h_verts':  ('haricots verts',                  30,  2.0,  4.0,  0.2, {}),
  'salade':   ('salade verte',                    15,  1.3,  1.5,  0.2, {}),
  'avocat':   ('avocat',                         165,  2.0,  2.0, 15.0, {}),
+ # --- ajouts 2026.10.08-10
+ 'dinde_e':  ('escalope de dinde crue',         105, 24.0,  0.0,  1.0, {}),
+ 'porc':     ('filet mignon de porc cru',       120, 21.0,  0.0,  4.0, {}),
+ 'sardines': ('sardines à l’huile égouttées',   210, 24.0,  0.0, 12.0, {}),
+ 'saumon_f': ('saumon fumé',                    185, 22.0,  0.0, 11.0, {'tr': 30}),
+ 'chevre':   ('fromage de chèvre',              270, 18.0,  1.0, 22.0, {}),
+ 'ricotta':  ('ricotta',                        150, 11.0,  3.0, 10.0, {}),
+ 'emmental': ('emmental râpé',                  380, 28.0,  0.5, 29.0, {'cas': 7}),
+ 'creme':    ('crème légère 15 %',              155,  2.8,  3.8, 15.0, {'cas': 15}),
+ 'lait_coco':('lait de coco',                   190,  1.8,  3.0, 19.0, {'cas': 15}),
+ 'nouilles': ('nouilles de riz sèches',         360,  6.0, 80.0,  0.6, {}),
+ 'semoule':  ('semoule crue',                   360, 12.5, 73.0,  1.5, {}),
+ 'carotte':  ('carotte',                         36,  0.8,  7.0,  0.2, {}),
+ 'chou_f':   ('chou-fleur',                      25,  2.0,  3.0,  0.3, {}),
+ 'poireau':  ('poireau',                         30,  2.0,  5.0,  0.3, {}),
+ 'mais':     ('maïs',                            90,  3.0, 15.0,  1.5, {}),
+ 'compote':  ('compote sans sucre ajouté',       45,  0.4, 10.0,  0.1, {}),
+ 'ananas':   ('ananas',                          50,  0.5, 11.0,  0.1, {}),
 }
-VIANDE = {'poulet','dinde_h','boeuf5','thon','saumon','cabillaud','crevettes','jambon'}
+VIANDE = {'poulet','dinde_h','boeuf5','thon','saumon','cabillaud','crevettes','jambon','dinde_e','porc','sardines','saumon_f'}
 
 # Chaque recette : id, nom, repas, minutes, a l'avance, ingredients, etapes, astuce
 # repas : bk petit-dejeuner, lu dejeuner, di diner, sn collation
@@ -301,6 +319,247 @@ rec('poulet_tikka', 'Poulet façon tikka au yaourt, riz et concombre', ['lu','di
   "Cuis le riz ; coupe le concombre en dés.",
   "Sers le poulet sur le riz avec le concombre."],
  'Mariné la veille, il est encore plus tendre.', avance=True)
+
+# ================================================================ AJOUTS 2026.10.08-10
+# ------------------------------------------------------------ petit-dejeuner (suite)
+rec('oeufs_saumon', 'Œufs brouillés au saumon fumé', ['bk','lu'], 10,
+ [('oeuf',3,'u'),('saumon_f',40,'g'),('pain_c',2,'tr'),('creme',1,'cas')],
+ ["Bats les œufs avec la crème, du sel et du poivre.",
+  "Verse dans une poêle antiadhésive à feu doux et remue sans cesse avec une spatule : ils doivent rester crémeux, 3 à 4 minutes.",
+  "Fais griller le pain.",
+  "Pose les œufs sur les tartines, ajoute le saumon fumé en lanières et un peu d’aneth ou de ciboulette."],
+ 'Retire la poêle du feu quand les œufs sont encore un peu humides : ils finissent de cuire tout seuls.')
+rec('pain_perdu', 'Pain perdu protéiné aux fruits rouges', ['bk','sn'], 12,
+ [('pain_c',2,'tr'),('oeuf',2,'u'),('lait',80,'ml'),('skyr',100,'g'),('f_rouges',80,'g'),('miel',1,'cac')],
+ ["Bats les œufs avec le lait dans une assiette creuse.",
+  "Trempe les tranches de pain 30 secondes de chaque côté, pour qu’elles s’imbibent sans se défaire.",
+  "Fais-les dorer 2 à 3 minutes de chaque côté dans une poêle antiadhésive.",
+  "Sers avec le skyr, les fruits rouges et un filet de miel."],
+ 'Idéal avec du pain de la veille, un peu sec.')
+rec('omelette_chevre', 'Omelette champignons et chèvre', ['bk','lu','di'], 12,
+ [('oeuf',3,'u'),('champi',100,'g'),('chevre',30,'g'),('pain_c',1,'tr')],
+ ["Fais dorer les champignons émincés 5 minutes dans une poêle antiadhésive, avec sel et poivre. Retire-les.",
+  "Verse les œufs battus dans la même poêle.",
+  "Quand l’omelette prend, garnis d’une moitié de champignons et de chèvre émietté, puis replie.",
+  "Sers avec le pain complet grillé."])
+rec('crepes_prot', 'Crêpes protéinées, fromage blanc et fraises', ['bk','sn'], 15,
+ [('oeuf',2,'u'),('avoine',40,'g'),('whey',20,'g'),('lait',100,'ml'),('fb0',100,'g'),('fraises',80,'g')],
+ ["Mixe les œufs, les flocons d’avoine, la whey et le lait jusqu’à obtenir une pâte fluide.",
+  "Laisse reposer 5 minutes.",
+  "Fais cuire de fines crêpes dans une poêle antiadhésive, 1 minute de chaque côté.",
+  "Garnis de fromage blanc et de fraises, puis roule ou plie."],
+ 'La pâte se garde 24 h au frais.', avance=True)
+rec('smoothie_bowl', 'Smoothie bowl banane-fraise', ['bk','sn'], 5,
+ [('banane',1,'u'),('fraises',100,'g'),('skyr',150,'g'),('whey',20,'g'),('avoine',20,'g')],
+ ["Mixe la banane, les fraises surgelées, le skyr et la whey jusqu’à une texture épaisse, comme une glace.",
+  "Verse dans un bol : si c’est trop liquide, ajoute quelques fraises surgelées.",
+  "Parsème de flocons d’avoine."],
+ 'Avec des fruits surgelés, pas besoin de glaçons ni de sucre.')
+rec('toast_ricotta', 'Toasts ricotta, fruits rouges et miel', ['bk','sn'], 5,
+ [('pain_c',2,'tr'),('ricotta',120,'g'),('f_rouges',80,'g'),('miel',1,'cac'),('skyr',80,'g')],
+ ["Fais griller le pain.",
+  "Mélange la ricotta et le skyr pour une crème plus légère, puis étale-la sur les toasts.",
+  "Ajoute les fruits rouges et un filet de miel."])
+rec('oeufs_cocotte', 'Œufs cocotte épinards-feta', ['bk','lu','di'], 20,
+ [('oeuf',2,'u'),('epinards',100,'g'),('feta',30,'g'),('pain_c',1,'tr'),('creme',1,'cas')],
+ ["Chauffe le four à 180 °C. Fais tomber les épinards 2 minutes à la poêle et presse-les.",
+  "Répartis-les dans deux ramequins avec la feta émiettée et la crème.",
+  "Casse un œuf dans chaque ramequin, sale légèrement et poivre.",
+  "Enfourne 10 à 12 minutes, jusqu’à ce que le blanc soit pris. Sers avec le pain grillé."])
+rec('wrap_petitdej', 'Wrap œuf-jambon-fromage', ['bk','lu'], 10,
+ [('wrap',1,'u'),('oeuf',2,'u'),('jambon',1,'tr'),('mozza_l',30,'g'),('tomate',60,'g')],
+ ["Brouille les œufs 2 minutes dans une poêle antiadhésive.",
+  "Réchauffe le wrap 20 secondes de chaque côté.",
+  "Garnis d’œufs, de jambon, de mozzarella en lamelles et de tomate en rondelles.",
+  "Plie le wrap, puis fais-le dorer 1 minute dans la poêle pour que le fromage fonde."])
+
+# ------------------------------------------------------------ collations (suite)
+rec('cottage_ananas', 'Cottage cheese, ananas et amandes', ['sn'], 3,
+ [('cottage',200,'g'),('ananas',100,'g'),('amandes',10,'g')],
+ ["Mets le cottage cheese dans un bol.",
+  "Ajoute l’ananas en petits dés et les amandes concassées."])
+rec('grec_pomme', 'Yaourt grec, pomme et amandes', ['sn','bk'], 4,
+ [('grec0',200,'g'),('pomme',1,'u'),('amandes',10,'g'),('miel',1,'cac')],
+ ["Coupe la pomme en petits dés.",
+  "Verse le yaourt dans un bol, ajoute la pomme et les amandes concassées.",
+  "Finis par un filet de miel et de la cannelle."])
+rec('flan_prot', 'Flan œuf-vanille protéiné', ['sn','bk'], 35,
+ [('oeuf',2,'u'),('lait',150,'ml'),('whey',20,'g'),('miel',1,'cac')],
+ ["Chauffe le four à 160 °C.",
+  "Mixe les œufs, le lait, la whey, le miel et une pincée de vanille.",
+  "Verse dans deux ramequins et enfourne 25 minutes, jusqu’à ce que le flan soit pris mais un peu tremblotant.",
+  "Laisse refroidir, puis garde au frais."],
+ 'Il se mange tiède ou froid et se garde 3 jours au frais.', avance=True)
+rec('rillettes_thon', 'Rillettes de thon au fromage blanc', ['sn','lu'], 8,
+ [('thon',100,'g'),('fb0',60,'g'),('pain_c',1,'tr'),('concombre',60,'g')],
+ ["Écrase le thon égoutté à la fourchette.",
+  "Mélange avec le fromage blanc, du citron, du poivre et des herbes.",
+  "Tartine sur le pain grillé et accompagne de bâtonnets de concombre."],
+ 'Elles se gardent 2 jours au frais dans une boîte fermée.', avance=True)
+rec('skyr_compote', 'Skyr, compote et flocons d’avoine', ['sn','bk'], 3,
+ [('skyr',200,'g'),('compote',100,'g'),('avoine',20,'g')],
+ ["Verse le skyr dans un bol.",
+  "Ajoute la compote et les flocons d’avoine, et parsème de cannelle."])
+rec('banana_split', 'Banana split protéiné', ['sn'], 5,
+ [('banane',1,'u'),('skyr',150,'g'),('cacao',1,'cac'),('amandes',10,'g')],
+ ["Coupe la banane en deux dans le sens de la longueur.",
+  "Mélange le skyr et le cacao pour obtenir une crème chocolatée.",
+  "Dépose la crème sur la banane et ajoute les amandes concassées."])
+rec('crumble_micro', 'Crumble pomme-avoine express', ['sn','bk'], 6,
+ [('pomme',1,'u'),('avoine',30,'g'),('whey',20,'g'),('cacahuete',1,'cas')],
+ ["Coupe la pomme en dés et mets-la 2 minutes au micro-ondes dans un bol, avec de la cannelle.",
+  "Mélange à part les flocons d’avoine, la whey, le beurre de cacahuète et une cuillère d’eau pour former des miettes.",
+  "Parsème sur la pomme tiède et remets 1 minute au micro-ondes."])
+
+# ------------------------------------------------------------ dejeuner / diner (suite)
+rec('poulet_coco', 'Poulet curry-coco, riz et poivron', ['lu','di'], 25,
+ [('poulet',150,'g'),('lait_coco',60,'ml'),('riz',70,'g'),('poivron',80,'g'),('oignon',40,'g')],
+ ["Cuis le riz.",
+  "Fais dorer l’oignon et le poivron en lamelles 4 minutes, puis ajoute le poulet en dés et cuis 6 minutes.",
+  "Ajoute une cuillère à café de curry, le lait de coco, sel et poivre, et laisse mijoter 5 minutes.",
+  "Sers sur le riz."],
+ 'Le lait de coco est riche : 60 ml suffisent pour une sauce onctueuse.')
+rec('poulet_four', 'Poulet rôti au four et légumes', ['lu','di'], 35,
+ [('poulet',160,'g'),('courgette',150,'g'),('poivron',100,'g'),('pdt',200,'g'),('huile',1,'cac')],
+ ["Chauffe le four à 200 °C. Coupe les pommes de terre en petits cubes et les légumes en morceaux.",
+  "Mélange le tout avec l’huile, du sel, du paprika et des herbes sur une plaque, et enfourne 10 minutes.",
+  "Ajoute le poulet en gros morceaux assaisonnés et poursuis 20 minutes en retournant à mi-cuisson."],
+ 'Tout cuit sur une seule plaque : peu de vaisselle.')
+rec('brochettes_dinde', 'Brochettes de dinde et taboulé de semoule', ['lu','di'], 25,
+ [('dinde_e',150,'g'),('semoule',60,'g'),('tomate',100,'g'),('concombre',80,'g'),('huile',1,'cac')],
+ ["Coupe la dinde en cubes, assaisonne (paprika, ail, sel) et enfile sur des piques.",
+  "Verse la semoule dans un bol avec une quantité égale d’eau bouillante, couvre 5 minutes, puis égrène à la fourchette.",
+  "Ajoute les tomates et le concombre en dés, l’huile, du citron et de la menthe.",
+  "Fais cuire les brochettes 8 à 10 minutes à la poêle ou au four, en les retournant."])
+rec('porc_moutarde', 'Filet mignon à la moutarde, patate douce et haricots verts', ['lu','di'], 35,
+ [('porc',150,'g'),('patate_d',250,'g'),('h_verts',150,'g'),('creme',1,'cas')],
+ ["Cuis les patates douces en cubes 20 minutes à la vapeur ou à l’eau, puis écrase-les grossièrement.",
+  "Dore le filet mignon en tranches 3 minutes de chaque côté, puis réserve.",
+  "Dans la même poêle, mélange la moutarde et la crème, puis remets la viande 2 minutes.",
+  "Cuis les haricots verts 8 minutes et sers le tout."])
+rec('saumon_teriyaki', 'Saumon laqué soja-miel, riz et brocoli', ['lu','di'], 25,
+ [('saumon',130,'g'),('riz',70,'g'),('brocoli',150,'g'),('soja',1,'cas'),('miel',1,'cac')],
+ ["Cuis le riz. Mélange la sauce soja, le miel et un peu d’ail ou de gingembre.",
+  "Fais cuire le saumon 4 minutes côté peau, retourne, nappe de sauce et laisse caraméliser 2 minutes.",
+  "Cuis le brocoli 5 minutes à la vapeur.",
+  "Sers le saumon sur le riz avec le brocoli."])
+rec('cabillaud_papillote', 'Cabillaud en papillote, pommes de terre et légumes', ['di','lu'], 30,
+ [('cabillaud',170,'g'),('pdt',200,'g'),('courgette',100,'g'),('tomate',100,'g'),('huile',1,'cac')],
+ ["Chauffe le four à 200 °C. Coupe les pommes de terre en fines rondelles et fais-les précuire 8 minutes à l’eau.",
+  "Pose sur une feuille de papier cuisson : pommes de terre, courgette en rondelles, tomate, puis le cabillaud.",
+  "Arrose d’huile et de citron, sale et poivre, ferme en papillote.",
+  "Enfourne 15 à 18 minutes."])
+rec('salade_riz_thon', 'Salade de riz au thon et maïs', ['lu','di'], 15,
+ [('riz',70,'g'),('thon',110,'g'),('mais',60,'g'),('tomate',100,'g'),('concombre',60,'g'),('huile',1,'cac')],
+ ["Cuis le riz et rince-le à l’eau froide pour le refroidir.",
+  "Mélange avec le thon émietté, le maïs, la tomate et le concombre en dés.",
+  "Assaisonne avec l’huile, du citron, du sel et du poivre."],
+ 'Se prépare la veille et se transporte facilement.', avance=True)
+rec('salade_crevettes', 'Salade crevettes-avocat', ['lu','di'], 10,
+ [('crevettes',150,'g'),('avocat',80,'g'),('salade',80,'g'),('tomate',100,'g'),('pain_c',1,'tr')],
+ ["Dispose la salade et les tomates en quartiers dans une assiette.",
+  "Ajoute l’avocat en lamelles et les crevettes décortiquées.",
+  "Assaisonne de citron, d’un peu de sel et de poivre ; sers avec le pain."])
+rec('wok_poulet_nouilles', 'Wok de poulet et nouilles de riz', ['lu','di'], 20,
+ [('poulet',150,'g'),('nouilles',70,'g'),('poivron',80,'g'),('carotte',80,'g'),('soja',1,'cas')],
+ ["Fais tremper les nouilles dans l’eau chaude selon le paquet, puis égoutte.",
+  "Saute le poulet en lamelles 5 minutes dans une poêle ou un wok bien chaud.",
+  "Ajoute les légumes en bâtonnets et cuis 4 minutes.",
+  "Ajoute les nouilles et la sauce soja, mélange 2 minutes."])
+rec('nouilles_crevettes', 'Nouilles sautées aux crevettes et à l’œuf', ['lu','di'], 20,
+ [('crevettes',120,'g'),('nouilles',70,'g'),('oeuf',1,'u'),('brocoli',100,'g'),('soja',1,'cas'),('cacahuete',1,'cac')],
+ ["Fais tremper les nouilles, égoutte-les.",
+  "Saute le brocoli en petits bouquets 4 minutes, pousse sur le côté et brouille l’œuf.",
+  "Ajoute les crevettes, les nouilles, la sauce soja et le beurre de cacahuète, mélange 2 minutes."],
+ 'Un trait de citron vert à la fin donne un goût de pad thaï.')
+rec('tortilla', 'Tortilla espagnole légère', ['lu','di'], 30,
+ [('oeuf',4,'u'),('pdt',200,'g'),('oignon',60,'g'),('huile',1,'cac')],
+ ["Coupe les pommes de terre en fines rondelles et l’oignon en lamelles.",
+  "Fais-les cuire à couvert 12 minutes dans une poêle avec l’huile, en remuant, jusqu’à ce qu’elles soient tendres.",
+  "Mélange-les aux œufs battus, sale et poivre, puis reverse dans la poêle.",
+  "Cuis 5 minutes à feu doux, retourne à l’aide d’une assiette et termine 3 minutes."],
+ 'Se mange aussi froide, coupée en parts.', avance=True)
+rec('quiche_sans_pate', 'Quiche sans pâte jambon-poireau', ['lu','di'], 40,
+ [('oeuf',3,'u'),('jambon',2,'tr'),('poireau',150,'g'),('fb0',100,'g'),('mozza_l',30,'g')],
+ ["Chauffe le four à 180 °C. Fais fondre le poireau en rondelles 8 minutes à la poêle.",
+  "Mélange les œufs, le fromage blanc, le jambon en dés, sel et poivre.",
+  "Ajoute le poireau, verse dans un plat, parsème de mozzarella.",
+  "Enfourne 25 minutes."],
+ 'Se garde 3 jours au frais : parfaite pour préparer des repas à l’avance.', avance=True)
+rec('courgettes_farcies', 'Courgettes farcies à la dinde', ['lu','di'], 40,
+ [('dinde_h',150,'g'),('courgette',300,'g'),('passata',100,'g'),('mozza_l',30,'g'),('oignon',40,'g')],
+ ["Chauffe le four à 200 °C. Coupe les courgettes en deux et creuse-les à la cuillère.",
+  "Fais revenir l’oignon, la chair de courgette et la dinde 8 minutes. Ajoute le coulis, sel, poivre et herbes.",
+  "Garnis les courgettes, parsème de mozzarella.",
+  "Enfourne 25 minutes."])
+rec('gratin_chou_fleur', 'Gratin de chou-fleur au jambon', ['lu','di'], 35,
+ [('chou_f',250,'g'),('jambon',3,'tr'),('emmental',2,'cas'),('creme',2,'cas'),('oeuf',1,'u')],
+ ["Chauffe le four à 200 °C. Cuis le chou-fleur en bouquets 8 minutes à l’eau bouillante, puis égoutte.",
+  "Dispose-le dans un plat avec le jambon en lanières.",
+  "Mélange la crème et l’œuf, sale, poivre et muscade, et verse sur le tout. Parsème d’emmental.",
+  "Enfourne 20 minutes."])
+rec('lasagnes_express', 'Lasagnes express bœuf-courgette', ['lu','di'], 35,
+ [('boeuf5',120,'g'),('passata',150,'g'),('courgette',200,'g'),('pates',40,'g'),('mozza_l',40,'g')],
+ ["Chauffe le four à 200 °C. Fais revenir le bœuf 5 minutes, ajoute le coulis et assaisonne.",
+  "Coupe la courgette en lamelles fines dans la longueur.",
+  "Dans un petit plat, alterne lamelles de courgette, sauce et pâtes à lasagnes (ou pâtes cuites en couche).",
+  "Termine par la mozzarella et enfourne 20 minutes."],
+ 'La courgette remplace une partie des pâtes pour alléger.')
+rec('curry_pois_chiches', 'Curry de pois chiches, épinards et lait de coco', ['lu','di'], 25,
+ [('pois_ch',200,'g'),('epinards',100,'g'),('lait_coco',50,'ml'),('riz',60,'g'),('oignon',50,'g'),('passata',100,'g')],
+ ["Cuis le riz. Fais revenir l’oignon 4 minutes avec du curry et du cumin.",
+  "Ajoute le coulis, les pois chiches égouttés et le lait de coco, et laisse mijoter 10 minutes.",
+  "Ajoute les épinards en fin de cuisson : ils fondent en 2 minutes.",
+  "Sers sur le riz."],
+ 'Un bon plat végétarien qui se réchauffe très bien.', avance=True)
+rec('burrito_bowl', 'Bowl façon burrito', ['lu','di'], 25,
+ [('boeuf5',120,'g'),('h_rouges',80,'g'),('riz',60,'g'),('mais',50,'g'),('tomate',80,'g'),('avocat',40,'g'),('grec0',40,'g')],
+ ["Cuis le riz. Fais dorer le bœuf 6 minutes avec du paprika, du cumin et de l’ail.",
+  "Réchauffe les haricots rouges et le maïs.",
+  "Dans un bol, dispose le riz, la viande, les haricots, le maïs, la tomate en dés et l’avocat.",
+  "Termine avec une cuillère de yaourt grec à la place de la crème."])
+rec('soupe_lentilles', 'Soupe de lentilles corail et carottes', ['lu','di'], 25,
+ [('lentilles',70,'g'),('carotte',150,'g'),('oignon',50,'g'),('feta',30,'g'),('pain_c',1,'tr')],
+ ["Fais revenir l’oignon 3 minutes, ajoute les carottes en rondelles, les lentilles et du cumin.",
+  "Couvre d’eau (environ 500 ml) et laisse cuire 15 minutes.",
+  "Mixe à ta convenance, sale et poivre.",
+  "Sers avec la feta émiettée et le pain grillé."],
+ 'Elle se congèle très bien.', avance=True)
+rec('tofu_cacahuete', 'Tofu sauté sauce soja-cacahuète', ['lu','di'], 25,
+ [('tofu',200,'g'),('riz',60,'g'),('brocoli',150,'g'),('cacahuete',1,'cas'),('soja',1,'cas')],
+ ["Cuis le riz. Coupe le tofu en cubes et fais-le dorer 8 minutes dans une poêle antiadhésive.",
+  "Cuis le brocoli 5 minutes à la vapeur.",
+  "Mélange le beurre de cacahuète, la sauce soja et 2 cuillères à soupe d’eau chaude pour la sauce.",
+  "Assemble dans un bol et nappe de sauce."])
+rec('tacos_poulet', 'Tacos de poulet et fromage blanc', ['lu','di'], 20,
+ [('wrap',2,'u'),('poulet',120,'g'),('fb0',60,'g'),('mozza_l',20,'g'),('tomate',80,'g'),('salade',40,'g')],
+ ["Coupe le poulet en lamelles et fais-le dorer 6 minutes avec du paprika et du cumin.",
+  "Mélange le fromage blanc avec du citron, de l’ail et du sel pour faire la sauce.",
+  "Garnis les wraps de poulet, de salade, de tomate, de fromage et de sauce, puis plie.",
+  "Passe-les 1 minute à la poêle pour les dorer."])
+rec('tartines_sardines', 'Tartines sardines-tomate', ['lu','di'], 8,
+ [('sardines',90,'g'),('pain_c',2,'tr'),('tomate',100,'g'),('avocat',40,'g')],
+ ["Fais griller le pain.",
+  "Écrase l’avocat sur les tartines, ajoute la tomate en rondelles puis les sardines égouttées.",
+  "Poivre, citron et herbes fraîches."])
+rec('pates_saumon', 'Pâtes au saumon et aux épinards', ['lu','di'], 25,
+ [('pates',70,'g'),('saumon',120,'g'),('epinards',100,'g'),('creme',2,'cas')],
+ ["Cuis les pâtes.",
+  "Fais cuire le saumon en dés 5 minutes à la poêle, ajoute les épinards 2 minutes.",
+  "Ajoute la crème, du citron, du sel et du poivre.",
+  "Mélange avec les pâtes égouttées."])
+rec('boeuf_poivrons', 'Bœuf sauté aux poivrons et riz', ['lu','di'], 20,
+ [('boeuf5',150,'g'),('poivron',100,'g'),('oignon',50,'g'),('riz',70,'g'),('soja',1,'cas')],
+ ["Cuis le riz.",
+  "Fais revenir l’oignon et le poivron en lamelles 4 minutes.",
+  "Ajoute le bœuf émietté et cuis 6 minutes à feu vif.",
+  "Déglace avec la sauce soja et sers sur le riz."])
+rec('poulet_parmigiana', 'Poulet gratiné à la tomate et pâtes', ['lu','di'], 30,
+ [('poulet',150,'g'),('passata',100,'g'),('mozza_l',40,'g'),('pates',60,'g')],
+ ["Chauffe le four à 200 °C. Cuis les pâtes.",
+  "Fais dorer le poulet en escalopes 3 minutes de chaque côté, puis pose-le dans un plat.",
+  "Nappe de coulis assaisonné (ail, basilic) et de mozzarella.",
+  "Enfourne 12 minutes et sers avec les pâtes."])
 
 # ---------------------------------------------------------------- calcul
 def calc(ing):

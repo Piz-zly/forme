@@ -12,8 +12,11 @@ js2.js   →  onglet Poids, onglet Repas
 js2b.js  →  carte Journée, reprise des pesées
 js2c.js  →  RECIPES : les recettes embarquées (GÉNÉRÉ par tools/gen_recettes.py, ne pas éditer)
 js2d.js  →  sous-onglets Recettes et Déjà faites du Repas : classement, fiche, ajout au journal, recettes perso
+js2e.js  →  FOODS : les aliments de base (GÉNÉRÉ par tools/gen_aliments.py, ne pas éditer)
+js2f.js  →  onglet « Chercher » de la feuille Ajouter : recherche, choix de la quantité, ajout
 js3.js   →  onglet Muscu : données, accueil, séance, sélecteur, fin de séance, progression
 js3b.js  →  minuteur de repos, fiche d'exercice, routines
+js4b.js  →  bibliothèque des produits scannés (sections, classement, fiche) — chargé AVANT js4.js
 js4.js   →  onglet Scan, codes-barres, note produit, réglages, démarrage
 js5.js   →  uniquement version téléphone : caméra, Open Food Facts, partage, service worker
 ```
@@ -113,6 +116,60 @@ arcs sont proportionnels aux kilos, pas au nombre de paliers.
 **Graphique** (`js1.js`, `chart`) — SVG fait maison : grille, échelle « ronde »
 via `niceStep`, points pour les pesées, courbe pour la moyenne 7 jours, ligne
 d'objectif, et une ligne de lecture qui suit le doigt (`onPick`).
+
+**Bibliothèque du Scan** (`js4b.js`) — sous-onglet « Bibliothèque » de l'onglet Scan
+(`scanSub`, `scanSeg`). `SLIB` décrit les 11 sections et leurs sous-sections ;
+chaque catégorie est écrite `section.sous-section` (`vpo.poisson`). `libGuess(p)`
+rend `p.cat` si elle existe, sinon applique `SLIB_RULES` dans l'ordre : la première
+règle dont le mot-clé du nom (sans accents) **ou** la catégorie Open Food Facts
+(`p.tags`) correspond gagne, donc les cas précis passent avant les cas généraux
+(« barre protéinée » avant « barre », « pain au chocolat » avant « chocolat »…).
+Pour améliorer le classement : ajouter un mot à la règle concernée, ou une règle au
+bon endroit, puis lancer `tests/t10.py` (40 produits fictifs). Rien n'est enregistré
+tant qu'il n'a pas rangé lui-même un produit : un meilleur classement profite donc
+à tous les produits déjà scannés. Une fiche s'ouvre en feuille (`lib-open`) avec le
+choix du rangement (`<select>` groupé par section), et la suppression.
+`js4b.js` est chargé **avant** `js4.js` car celui-ci lance le premier rendu en fin de
+fichier : les `const`/`let` de la bibliothèque doivent déjà exister.
+**Doublons** : `libBuild` regroupe les fiches qui ont le même rangement, les mêmes
+calories/protéines/glucides/lipides (`libSig`) et des noms proches une fois la marque et
+les mots vides retirés (au moins 60 % de mots communs, `libSame`). Les produits sans
+aucune valeur (eau à 0 kcal) ne sont jamais fusionnés. La ligne affichée est la plus
+récemment scannée, avec « ×2 » et les marques ; la fiche liste toutes les fiches du
+groupe ; ranger ou retirer le produit s'applique à tout le groupe. L'état n'est pas
+modifié : c'est un regroupement à l'affichage, donc réversible.
+Les feuilles du Scan sont enveloppées dans `.sc` (accent vert, le calque est hors de
+`#app`). À la lecture d'une étiquette par Claude, `libPrompt()` lui demande aussi
+la catégorie (liste fermée), vérifiée par `libOk`.
+
+**Aliments de base rangés** — chaque aliment de `js2e.js` a une catégorie
+`section.sous-section` (celles de `SLIB`, `js4b.js`), écrite dans `tools/gen_aliments.py`
+(le script refuse un rangement inconnu). Les puces de « Chercher » sont « Courants »
+puis les sections (nom court `s` de `SLIB`, ex. « VPO ») ; une section affiche ses
+aliments par sous-section ; une recherche reste une liste à plat. `tests/t11.py` vérifie
+que tout aliment apparaît dans sa section et que les règles de classement de la
+bibliothèque donnent le même rangement que la table (≥ 95 %) : si les deux divergent,
+corriger la règle de `SLIB_RULES` ou la catégorie de l'aliment.
+
+**Chercher** (`js2f.js`, données `js2e.js`) — premier onglet de `addSheet()` (js2.js),
+ouvert par défaut (`A['f-add']` remet la recherche à zéro). `foodSearch` ignore
+accents, majuscules, `œ`/`oe` et le pluriel (« oeufs » trouve « Œuf entier ») ; tous
+les mots tapés doivent être présents ; le début du nom passe avant le début d'un
+mot, lui-même avant le milieu ; les aliments « courants » (`top`) gagnent un
+demi-point. Sans texte, on affiche les courants ou la catégorie choisie. Taper
+met à jour la liste en place (`foodRefresh`) pour ne pas fermer le clavier.
+Un clic sur un aliment (`b-pick`) passe à l'écran de quantité : grammes/ml, ou une
+unité usuelle (`u` : œuf, tranche, càs, portion…) avec 1 par défaut ; changer
+d'unité garde la même masse. `bDraw` recalcule en place. L'entrée ajoutée au
+journal est écrite en toutes lettres (« 2 œufs », « 150 g de riz basmati cuit »,
+« 1 càs d'huile d'olive ») ; la case « Garder dans mes favoris » l'ajoute à
+`S.foods`. Les valeurs sont des moyennes **rédigées pour l'application** dans
+`tools/gen_aliments.py` (rien n'est recopié d'une base) : ajouter un aliment =
+ajouter un appel `F(...)` puis relancer le script et le build. Dans le script, une
+unité est `(libellé 'sing|plur', grammes, 's'|'d')` : `s` si le libellé est
+l'aliment lui-même (« 2 œufs »), `d` sinon (« 2 tranches de pain »). Attention :
+les regex de `js2f.js` utilisent des codes `\u` plutôt que des caractères
+accentués collés, car `forme.html` n'a pas de `<meta charset>`.
 
 **Recettes** (`js2d.js`) — le reste de la journée affichée (`rcRem`) est comparé à
 chaque recette. Une recette « tient » si elle ne dépasse ni les calories restantes

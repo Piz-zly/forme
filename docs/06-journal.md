@@ -5,6 +5,69 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 
 ---
 
+### 2026.10.08-12 — Pas de doublon, aliments de base rangés
+
+- Bibliothèque du Scan : un même produit scanné sous deux marques, avec les mêmes
+  apports énergétiques, n'apparaît qu'une fois (« ×2 »). Le rangement et la
+  suppression s'appliquent aux deux fiches. Les apports différents restent séparés.
+- Les aliments de base du Repas sont rangés par **section et sous-section**, comme
+  les produits scannés : puces VPO, Laitiers, Fruits & légumes, Féculents, Sucré,
+  Huiles & sauces, Boissons, Plats, Apéritif, Sport ; chaque section liste ses
+  aliments par sous-section.
+- Nouvelles sous-sections : Sucre & sirops, Boissons protéinées ; « Pâtes, riz,
+  semoule & farine » et « Café, thé & boissons chaudes » renommées.
+- Meilleur classement automatique (blanc d'œuf, semoule, thon à l'huile, pain à
+  burger, crêpes, sirop d'érable…), vérifié sur les 321 aliments.
+- Nouveau test : `tests/t11.py`.
+
+---
+
+### 2026.10.08-11 — Bibliothèque des produits scannés
+
+- Nouveau sous-onglet **Bibliothèque** dans Scan : tous les produits scannés,
+  rangés en **11 sections** et leurs sous-sections. Exemple : *Viandes, poissons,
+  œufs* → Viandes, Charcuteries, Poissons & fruits de mer, Œufs. Autres sections :
+  produits laitiers, fruits & légumes, féculents & céréales, produits sucrés,
+  huiles-sauces-condiments, boissons, plats préparés, apéritif & en-cas, sport &
+  compléments, autres.
+- Le rangement est automatique (nom du produit et catégorie Open Food Facts). Un
+  produit mal rangé se corrige dans sa fiche (liste « Rangé dans »).
+- Recherche dans la bibliothèque, « Tout ouvrir / Tout fermer », compteurs par
+  section, suppression d'un produit.
+- L'onglet Scanner n'affiche plus que les 5 derniers produits, avec un bouton
+  vers la bibliothèque.
+- Les feuilles du Scan sont vertes.
+- Nouveau test : `tests/t10.py`.
+
+---
+
+### 2026.10.08-10 — Plus d'aliments et plus de recettes
+
+- Aliments de base : de 163 à **321**. Nouvelle catégorie **Plats & en-cas**
+  (pizza, burger, frites, croissant, sushi, quiche, desserts…), plus de viandes,
+  poissons, fromages, légumes, fruits secs, graines, boissons et poudres de protéines.
+- Recettes : de 35 à **74** (8 petits-déjeuners, 7 collations, 24 déjeuners/dîners
+  de plus), toujours simples et protéinées (15 g de protéines minimum chacune).
+- Nouveaux tests : `tests/t8.py` attend 74 recettes dont 21 collations.
+
+---
+
+### 2026.10.08-9 — Chercher un aliment
+
+- Nouvel onglet **Chercher** dans « Ajouter » du Repas (ouvert par défaut) : une
+  barre de recherche dans 163 aliments de base sans code-barres (œufs, laitages,
+  viandes, poissons, féculents, légumes, fruits, gras, boissons).
+- Les courants s'affichent d'abord ; des puces par catégorie ; la recherche
+  ignore accents, majuscules et pluriel.
+- Quantité en grammes (ou ml) ou en unité usuelle (œuf, tranche, càs, portion…),
+  puces rapides, calories et macros calculées en direct.
+- « Garder dans mes favoris » en un appui.
+- La feuille « Ajouter » est maintenant orange comme le Repas.
+- Valeurs moyennes indicatives, rédigées pour l'application.
+- Nouveau test : `tests/t9.py`.
+
+---
+
 ### 2026.10.08-8 — Recettes
 
 - L'onglet Repas a trois sous-onglets : **Journal**, **Recettes**, **Déjà faites**.

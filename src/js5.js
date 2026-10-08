@@ -5,7 +5,7 @@ function offAdd(tags){
     .map(t=>({name:t.toUpperCase(),risk:ADD_HIGH.test(t)?'high':ADD_MOD.test(t)?'moderate':'low'}));
 }
 async function offLookup(code){
-  const f='product_name,product_name_fr,brands,nutriments,additives_tags,nutrition_data_per';
+  const f='product_name,product_name_fr,brands,nutriments,additives_tags,nutrition_data_per,categories_tags';
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),9000);
   try{
     const r=await fetch('https://world.openfoodfacts.org/api/v2/product/'+code+'.json?fields='+f,{signal:ctl.signal});
@@ -18,7 +18,7 @@ async function offLookup(code){
     const salt=n['salt_100g']!=null?g('salt'):g('sodium')*2.5;
     return{id:uid(),date:today(),name:String(d.product_name_fr||d.product_name||'Produit '+code),brand:String(d.brands||'').split(',')[0].trim(),code,src:'off',
       per:{kcal:Math.round(kcal),fat:g('fat'),sat:g('saturated-fat'),carbs:g('carbohydrates'),sugar:g('sugars'),salt,fiber:g('fiber'),prot:g('proteins'),fv},
-      additives:offAdd(d.additives_tags)};
+      additives:offAdd(d.additives_tags),tags:(Array.isArray(d.categories_tags)?d.categories_tags:[]).slice(-12).map(t=>String(t).replace(/^[a-z]{2}:/,''))};
   }catch(_){return null}finally{clearTimeout(to)}
 }
 function liveBtn(ctx,slot){

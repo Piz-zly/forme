@@ -17,7 +17,7 @@ applications par une seule, organisée en quatre onglets :
 | **Poids** | Better Weight | Pesées, courbe, cercle de progression par paliers, pas et calories du jour |
 | **Repas** | Yazio | Journal alimentaire, calories et macros, objectifs calculés selon le poids ; sous-onglets **Recettes** (classées selon le reste du jour) et **Déjà faites** |
 | **Muscu** | Hevy | Séances, séries, charges, routines préparées à l'avance, minuteur de repos, progression |
-| **Scan** | Yuka | Lecture de codes-barres, fiche produit, note de qualité nutritionnelle |
+| **Scan** | Yuka | Lecture de codes-barres, fiche produit, note de qualité nutritionnelle ; sous-onglet **Bibliothèque** (produits scannés rangés par section et sous-section) |
 
 Elle existe en deux versions bâties depuis les mêmes sources :
 
@@ -80,14 +80,18 @@ paliers de 2,5 kg.
 │   ├── js2b.js                ← carte « Journée » (pas, dépense, apport) + reprise des pesées
 │   ├── js2c.js                ← les recettes embarquées — GÉNÉRÉ par tools/gen_recettes.py, ne pas éditer
 │   ├── js2d.js                ← sous-onglets Recettes et Déjà faites du Repas
+│   ├── js2e.js                ← les aliments de base — GÉNÉRÉ par tools/gen_aliments.py, ne pas éditer
+│   ├── js2f.js                ← onglet « Chercher » (recherche d'aliments, quantité) de la feuille Ajouter
 │   ├── js3.js                 ← onglet Muscu : bibliothèque d'exercices, séance, progression
 │   ├── js3b.js                ← minuteur de repos, fiche d'exercice animée, routines
+│   ├── js4b.js                ← bibliothèque des produits scannés : sections, classement auto, fiche (chargé AVANT js4.js)
 │   ├── js4.js                 ← onglet Scan, codes-barres, note produit, réglages, démarrage
 │   ├── js5.js                 ← propre au téléphone : caméra, Open Food Facts, partage, hors ligne
 │   └── build.sh               ← assemble le tout
 │
 ├── tools/                     ← scripts d'atelier, lancés à la main, hors application
 │   ├── gen_recettes.py        ← fabrique src/js2c.js : recettes, macros calculées
+│   ├── gen_aliments.py        ← fabrique src/js2e.js : 321 aliments de base, rangés par section.sous-section, unités usuelles
 │   ├── exercices_map.py       ← correspondance nom français → illustration
 │   ├── paint.py               ← colore en rouge les muscles sur les illustrations
 │   └── gen_schemas_muscles.py ← génère les schémas anatomiques de img2/
@@ -97,7 +101,10 @@ paliers de 2,5 kg.
 │   ├── t5.py  partage entrant des pas, mise en page de la fiche
 │   ├── t6.py  routines : création, édition, démarrage
 │   ├── t7.py  bascule muscles en rouge / image simple
-│   └── t8.py  recettes : classement, fiche, journal, recettes faites, recette perso
+│   ├── t8.py  recettes : classement, fiche, journal, recettes faites, recette perso
+│   ├── t9.py  Chercher : recherche d'aliments, unités, ajout au journal, favoris
+│   ├── t10.py bibliothèque du Scan : classement de 40 produits fictifs, doublons, rangement, suppression
+│   └── t11.py aliments de base rangés par section ; cohérence avec les règles de la bibliothèque
 │
 ├── ill/                       ← illustrations des mouvements (288 fichiers, CC0)
 ├── img2/                      ← schémas anatomiques par exercice (MIT)
@@ -186,10 +193,11 @@ le demande : il avance sujet par sujet.
 
 ## 7. État au 8 octobre 2026
 
-- Version construite dans ce dossier : **2026.10.08-8** (recettes). Dernière version publiée sur GitHub : 2026.10.08-7, **à pousser**.
+- Version construite dans ce dossier : **2026.10.08-12** (doublons, aliments de base rangés par section). Publiée sur GitHub le 8 octobre 2026 (tout ce qui précède l'est aussi : recettes, Chercher, bibliothèque).
 - Site : `https://piz-zly.github.io/forme/` — dépôt : `github.com/Piz-zly/forme`
 - Les quatre onglets fonctionnent. Il utilise l'application tous les jours sur son
   téléphone et a validé le scan de codes-barres, les routines et les illustrations.
-- Sous-onglet **Recettes** réalisé en 2026.10.08-8 : construit et testé (`tests/t8.py`),
-  **pas encore publié** ni essayé sur son téléphone. Voir `docs/07-a-faire.md` pour
+- Sous-onglet **Recettes** (2026.10.08-8) : publié sur GitHub, pas encore essayé sur
+  son téléphone. Onglet **Chercher** (-9, agrandi en -10), bibliothèque du Scan (-11) et rangement par
+  section (-12) : testés (`tests/t9.py` à `t11.py`), **pas encore essayés sur son téléphone**. Voir `docs/07-a-faire.md` pour
   les choix à lui confirmer.
