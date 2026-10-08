@@ -1,0 +1,7 @@
+# fichiers d'atelier, jamais publiés
+*.pt
+__pycache__/
+.DS_Store
+Thumbs.db
+# sauvegardes de données personnelles : ne doivent jamais arriver ici
+forme-sauvegarde-*.json
