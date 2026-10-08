@@ -142,6 +142,28 @@ paliers de 2,5 kg.
   chemins sont relatifs, et le service worker a déjà mis en cache ces chemins.
 - Ajouter des fichiers lourds. L'application doit rester installable et rapide.
 
+### Ce dossier et GitHub
+
+Ce dossier est une **copie du dépôt** `github.com/Piz-zly/forme`, posée sur
+l'ordinateur de l'utilisateur. Il n'y a pas de `.git` : c'est volontaire, il n'a
+pas à manipuler git.
+
+- **Rafraîchir le dossier** depuis la dernière version publiée :
+
+  ```bash
+  cd "<ce dossier>"
+  curl -sSL -o /tmp/forme.tar.gz \
+    https://codeload.github.com/Piz-zly/forme/tar.gz/refs/heads/main
+  tar xzf /tmp/forme.tar.gz --strip-components=1 -C .
+  ```
+
+- **Travailler depuis ce dossier** : modifier `src/`, lancer `./src/build.sh`,
+  tester. Pour publier, les fichiers doivent repartir vers le dépôt ; sans git
+  ici, le plus simple est de refaire la modification côté dépôt, ou d'y recopier
+  les fichiers changés.
+- Le dossier n'est **pas** ce que sert GitHub Pages : le site vient du dépôt. Une
+  modification faite ici et jamais poussée ne changera rien sur le téléphone.
+
 ### Comment lui parler
 
 Il est novice. Annoncer ce qui change en termes d'usage, pas de code : « la barre
