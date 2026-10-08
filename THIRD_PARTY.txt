@@ -1,9 +1,16 @@
 Forme - licences des éléments tiers
 
-1) Schémas musculaires : tracés vectoriels issus de react-body-highlighter
+1) Illustrations des mouvements : Open Exercise Illustrations
+   https://github.com/hitmanrepo/open-exercise-illustrations
+   Licence CC0 1.0 Universal (domaine public). Images générées par IA, utilisables librement,
+   y compris commercialement, sans attribution obligatoire. Elles n'ont pas été validées par un
+   coach ni par un professionnel de santé.
+2) Schémas musculaires : tracés vectoriels issus de react-body-highlighter
    Copyright (c) 2020 GV79 - licence MIT (https://github.com/giavinh79/react-body-highlighter)
-2) Photos de mouvement : Free Exercise DB (yuhonas) - domaine public (Unlicense)
 3) Lecture des codes-barres : ZXing (@zxing/library) - Apache License 2.0
-4) Polices : Bricolage Grotesque et Figtree - SIL Open Font License (Google Fonts)
+4) Fiches produits : Open Food Facts - données sous Open Database License (ODbL)
+5) Polices : Bricolage Grotesque et Figtree - SIL Open Font License (Google Fonts)
 
-Licence MIT (react-body-highlighter) : la permission est accordée, gratuitement, d'utiliser, copier, modifier et distribuer ce logiciel, sous réserve de conserver la mention de copyright ci-dessus. Le logiciel est fourni "tel quel", sans garantie.
+Licence MIT (react-body-highlighter) : la permission est accordée, gratuitement, d'utiliser,
+copier, modifier et distribuer ce logiciel, sous réserve de conserver la mention de copyright
+ci-dessus. Le logiciel est fourni "tel quel", sans garantie.

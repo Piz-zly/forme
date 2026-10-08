@@ -201,9 +201,9 @@ textarea.inp{padding:12px 14px;min-height:96px;resize:vertical}
 .abar{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px}
 .abar i{display:block;width:14px;border-radius:4px}
 .abar span{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase}
-.thumb{object-fit:cover}
-.mov{position:relative;width:100%;aspect-ratio:3/2;border-radius:16px;overflow:hidden;background:var(--surface2)}
-.mov img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
+.thumb{object-fit:cover;background:#090C12}
+.mov{position:relative;width:100%;aspect-ratio:3/2;border-radius:16px;overflow:hidden;background:#090C12}
+.mov img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .3s}
 .mov img.on{opacity:1}
 .movcap{position:absolute;left:10px;bottom:10px;background:rgba(10,12,16,.72);color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
 .rbar{position:fixed;left:12px;right:12px;bottom:calc(72px + env(safe-area-inset-bottom,0px));z-index:25;max-width:536px;margin-inline:auto;display:flex;align-items:stretch;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:6px;box-shadow:0 10px 30px rgba(10,14,25,.18);overflow:hidden}
@@ -251,7 +251,7 @@ textarea.inp{padding:12px 14px;min-height:96px;resize:vertical}
 <script>
 (function(){'use strict';
 /* ===== utils ===== */
-const APP_VER='2026.10.08-5';
+const APP_VER='2026.10.08-6';
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
@@ -420,8 +420,8 @@ function render(){
   const app=$('#app');app.dataset.tab=tab;
   $('#title').innerHTML=esc(TITLES[tab])+'<span>.</span>';
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===tab)));
-  if(sheetOpen()&&!VIEWS.keepSheet)return renderBehind();
   renderBehind();
+  if(typeof syncRestBar==='function')syncRestBar();
 }
 function renderBehind(){const f=VIEWS[tab];if(f){const st=window.scrollY;$('#view').innerHTML=f();VIEWS[tab+'_after']&&VIEWS[tab+'_after']();}}
 document.querySelector('.tabbar').addEventListener('click',e=>{
@@ -785,12 +785,13 @@ A['seed-go']=()=>{
 A['seed-no']=()=>{S.settings.seeded=1;persist('settings');render()};
 /* ===== GYM ===== */
 const LIB=[['Pectoraux',['Développé couché','Développé incliné barre','Développé incliné haltères','Développé couché haltères','Développé décliné','Développé couché machine','Écarté haltères','Écarté poulie','Pec deck','Pompes','Dips']],['Dos',['Tractions','Tractions supination','Tirage vertical','Tirage vertical prise serrée','Rowing barre','Rowing haltère','Tirage horizontal','Rowing T-bar','Soulevé de terre','Pull-over poulie','Shrugs haltères']],['Épaules',['Développé militaire','Développé haltères assis','Arnold press','Élévations latérales','Élévations frontales','Oiseau','Face pull']],['Biceps',['Curl barre','Curl haltères','Curl marteau','Curl pupitre','Curl incliné','Curl poulie']],['Triceps',['Extension poulie','Extension poulie corde','Barre au front','Dips banc','Extension nuque haltère','Extension verticale poulie','Développé serré']],['Jambes',['Squat','Squat avant','Goblet squat','Hack squat','Presse à cuisses','Fentes','Fentes marchées','Leg extension','Leg curl','Leg curl assis','Soulevé de terre roumain','Hip thrust','Mollets debout','Mollets assis']],['Abdos',['Crunch','Crunch poulie','Relevé de jambes','Gainage']]];
-/* images : Free Exercise DB (domaine public, Unlicense) */
+/* muscles sollicités par exercice */
 const EXI={"Développé couché":{"i":"barbell-bench-press-medium-grip","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé incliné barre":{"i":"barbell-incline-bench-press-medium-grip","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé incliné haltères":{"i":"incline-dumbbell-press","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé couché haltères":{"i":"dumbbell-bench-press","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé décliné":{"i":"decline-barbell-bench-press","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé couché machine":{"i":"machine-bench-press","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Écarté haltères":{"i":"dumbbell-flyes","m":["Pectoraux"],"s":[]},"Écarté poulie":{"i":"cable-crossover","m":["Pectoraux"],"s":["Épaules"]},"Pec deck":{"i":"butterfly","m":["Pectoraux"],"s":[]},"Pompes":{"i":"pushups","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Dips":{"i":"parallel-bar-dip","m":["Triceps"],"s":["Pectoraux","Épaules"]},"Tractions":{"i":"pullups","m":["Grand dorsal"],"s":["Biceps","Milieu du dos"]},"Tractions supination":{"i":"chin-up","m":["Grand dorsal"],"s":["Biceps","Avant-bras","Milieu du dos"]},"Tirage vertical":{"i":"wide-grip-lat-pulldown","m":["Grand dorsal"],"s":["Biceps","Milieu du dos","Épaules"]},"Tirage vertical prise serrée":{"i":"close-grip-front-lat-pulldown","m":["Grand dorsal"],"s":["Biceps","Milieu du dos","Épaules"]},"Rowing barre":{"i":"bent-over-barbell-row","m":["Milieu du dos"],"s":["Biceps","Grand dorsal","Épaules"]},"Rowing haltère":{"i":"one-arm-dumbbell-row","m":["Milieu du dos"],"s":["Biceps","Grand dorsal","Épaules"]},"Tirage horizontal":{"i":"seated-cable-rows","m":["Milieu du dos"],"s":["Biceps","Grand dorsal","Épaules"]},"Rowing T-bar":{"i":"t-bar-row-with-handle","m":["Milieu du dos"],"s":["Biceps","Grand dorsal"]},"Soulevé de terre":{"i":"barbell-deadlift","m":["Lombaires"],"s":["Mollets","Avant-bras","Fessiers"]},"Pull-over poulie":{"i":"straight-arm-pulldown","m":["Grand dorsal"],"s":[]},"Shrugs haltères":{"i":"dumbbell-shrug","m":["Trapèzes"],"s":[]},"Développé militaire":{"i":"standing-military-press","m":["Épaules"],"s":["Triceps"]},"Développé haltères assis":{"i":"dumbbell-shoulder-press","m":["Épaules"],"s":["Triceps"]},"Élévations latérales":{"i":"side-lateral-raise","m":["Épaules"],"s":[]},"Élévations frontales":{"i":"front-dumbbell-raise","m":["Épaules"],"s":[]},"Oiseau":{"i":"reverse-flyes","m":["Épaules"],"s":[]},"Face pull":{"i":"face-pull","m":["Épaules"],"s":["Milieu du dos"]},"Arnold press":{"i":"arnold-dumbbell-press","m":["Épaules"],"s":["Triceps"]},"Curl barre":{"i":"barbell-curl","m":["Biceps"],"s":["Avant-bras"]},"Curl haltères":{"i":"dumbbell-bicep-curl","m":["Biceps"],"s":["Avant-bras"]},"Curl marteau":{"i":"hammer-curls","m":["Biceps"],"s":[]},"Curl pupitre":{"i":"preacher-curl","m":["Biceps"],"s":[]},"Curl incliné":{"i":"alternate-incline-dumbbell-curl","m":["Biceps"],"s":["Avant-bras"]},"Curl poulie":{"i":"standing-biceps-cable-curl","m":["Biceps"],"s":[]},"Extension poulie":{"i":"triceps-pushdown","m":["Triceps"],"s":[]},"Extension poulie corde":{"i":"triceps-pushdown-rope-attachment","m":["Triceps"],"s":[]},"Barre au front":{"i":"ez-bar-skullcrusher","m":["Triceps"],"s":["Avant-bras"]},"Dips banc":{"i":"bench-dips","m":["Triceps"],"s":["Pectoraux","Épaules"]},"Extension nuque haltère":{"i":"standing-dumbbell-triceps-extension","m":["Triceps"],"s":[]},"Extension verticale poulie":{"i":"cable-rope-overhead-triceps-extension","m":["Triceps"],"s":[]},"Développé serré":{"i":"close-grip-barbell-bench-press","m":["Triceps"],"s":["Pectoraux","Épaules"]},"Squat":{"i":"barbell-squat","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Squat avant":{"i":"front-barbell-squat","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Goblet squat":{"i":"goblet-squat","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Hack squat":{"i":"barbell-hack-squat","m":["Quadriceps"],"s":["Mollets","Avant-bras","Ischio-jambiers"]},"Presse à cuisses":{"i":"leg-press","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Fentes":{"i":"dumbbell-lunges","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Fentes marchées":{"i":"barbell-walking-lunge","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Leg extension":{"i":"leg-extensions","m":["Quadriceps"],"s":[]},"Leg curl":{"i":"lying-leg-curls","m":["Ischio-jambiers"],"s":[]},"Leg curl assis":{"i":"seated-leg-curl","m":["Ischio-jambiers"],"s":[]},"Soulevé de terre roumain":{"i":"romanian-deadlift","m":["Ischio-jambiers"],"s":["Mollets","Fessiers","Lombaires"]},"Hip thrust":{"i":"barbell-hip-thrust","m":["Fessiers"],"s":["Mollets","Ischio-jambiers"]},"Mollets debout":{"i":"standing-calf-raises","m":["Mollets"],"s":[]},"Mollets assis":{"i":"seated-calf-raise","m":["Mollets"],"s":[]},"Crunch":{"i":"crunches","m":["Abdominaux"],"s":[]},"Relevé de jambes":{"i":"hanging-leg-raise","m":["Abdominaux"],"s":[]},"Crunch poulie":{"i":"cable-crunch","m":["Abdominaux"],"s":[]},"Gainage":{"i":"plank","m":["Abdominaux"],"s":[]}};
 function thumb(name,size){
-  const e=EXI[name],st=size?'style="width:'+size+'px;height:'+size+'px"':'';
-  return e?'<img class="thumb" '+st+' src="img/'+e.i+'-0.jpg" alt="" loading="lazy" decoding="async">':'<div class="thumb ph" '+st+' aria-hidden="true">'+esc((name||'?').trim().charAt(0).toUpperCase())+'</div>';
+  const id=ILL[name],st=size?'style="width:'+size+'px;height:'+size+'px"':'';
+  return id?'<img class="thumb" '+st+' src="ill/'+id+'-t.webp" alt="" loading="lazy" decoding="async">':'<div class="thumb ph" '+st+' aria-hidden="true">'+esc((name||'?').trim().charAt(0).toUpperCase())+'</div>';
 }
+
 let gymTab='sessions',gymOpen=false,progEx=null,progMetric='top',exQuery='',restEnd=0;
 const fmtKg=v=>nf(v,2);
 const e1rm=(kg,reps)=>reps<=1?kg:kg*(1+reps/30);
@@ -1015,6 +1016,9 @@ A['g-exinfo']=b=>{
   <div class="sec">Le mouvement</div>
   <div class="exinfo"><figure><img src="img/${e.i}-0.jpg" alt="Position de départ"><figcaption>Départ</figcaption></figure><figure><img src="img/${e.i}-1.jpg" alt="Position d’arrivée"><figcaption>Arrivée</figcaption></figure></div>`);
 };
+/* ===== ILLUSTRATIONS DES MOUVEMENTS (open-exercise-illustrations, CC0) ===== */
+const ILL={"Développé couché": "bench-press", "Développé incliné barre": "incline-bench-press", "Développé incliné haltères": "incline-dumbbell-press", "Développé couché haltères": "dumbbell-chest-press", "Développé décliné": "decline-bench-press", "Développé couché machine": "chest-press-machine", "Écarté haltères": "dumbbell-fly", "Écarté poulie": "cable-crossover", "Pec deck": "pec-deck", "Pompes": "push-up", "Dips": "dips", "Tractions": "pull-up", "Tractions supination": "chin-up", "Tirage vertical": "lat-pulldown", "Tirage vertical prise serrée": "close-grip-lat-pulldown", "Rowing barre": "bent-over-row", "Rowing haltère": "dumbbell-row", "Tirage horizontal": "seated-cable-row", "Rowing T-bar": "t-bar-row", "Soulevé de terre": "deadlift", "Pull-over poulie": "straight-arm-pulldown", "Shrugs haltères": "dumbbell-shrug", "Développé militaire": "overhead-press", "Développé haltères assis": "dumbbell-shoulder-press", "Arnold press": "arnold-press", "Élévations latérales": "lateral-raises", "Élévations frontales": "front-raises", "Oiseau": "rear-delt-fly", "Face pull": "face-pulls", "Curl barre": "barbell-curl", "Curl haltères": "biceps-curl", "Curl marteau": "hammer-curls", "Curl pupitre": "preacher-curl", "Curl incliné": "incline-dumbbell-curl", "Curl poulie": "cable-curl", "Extension poulie": "tricep-pushdowns", "Extension poulie corde": "tricep-pushdowns", "Barre au front": "skull-crushers", "Dips banc": "bench-dip", "Extension nuque haltère": "overhead-triceps-extension", "Extension verticale poulie": "cable-overhead-triceps-extension", "Développé serré": "close-grip-bench-press", "Squat": "squat", "Squat avant": "front-squat", "Goblet squat": "goblet-squat", "Hack squat": "hack-squat", "Presse à cuisses": "leg-press", "Fentes": "dumbbell-lunge", "Fentes marchées": "dumbbell-lunge", "Leg extension": "leg-extension", "Leg curl": "leg-curl", "Leg curl assis": "seated-leg-curl", "Soulevé de terre roumain": "romanian-deadlift", "Hip thrust": "hip-thrusts", "Mollets debout": "calf-raises", "Mollets assis": "seated-calf-raise", "Crunch": "crunches", "Crunch poulie": "cable-crunch", "Relevé de jambes": "hanging-leg-raise", "Gainage": "plank"};
+const ILL1=new Set(['plank']);
 /* ===== MINUTEUR DE REPOS : barre fixe, accessible au pouce pendant toute la séance ===== */
 let restTotal=0,restBarState='',restRang=false;
 const mmss=s=>Math.floor(s/60)+':'+pad(s%60);
@@ -1075,24 +1079,24 @@ A['mov-toggle']=()=>{
   const b=$('#movbtn');if(b)b.textContent=p==='0'?'▶ Reprendre':'❚❚ Pause';
 };
 A['g-exinfo']=b=>{
-  const n=b.dataset.name,e=EXI[n];
-  if(!e){openSheet(`<h3>${esc(n)}</h3><div class="muted" style="margin-bottom:12px">Pas d’illustration pour cet exercice.</div><button class="btn block" data-act="close">Fermer</button>`);return}
-  openSheet(`<h3>${esc(n)}</h3>
-  <div class="mov" id="mov" data-f="0" data-play="1">
-    <img src="img/${e.i}-0.jpg" alt="Position de départ" class="on"><img src="img/${e.i}-1.jpg" alt="Position d’arrivée">
-    <span class="movcap" id="movcap">Départ</span></div>
-  <div class="row sb" style="margin:10px 0 16px"><button class="chip" id="movbtn" data-act="mov-toggle">❚❚ Pause</button>
-    <span class="small muted">Les deux positions s’enchaînent</span></div>
-  <div class="sec">Muscles sollicités</div>
+  const n=b.dataset.name,id=ILL[n],e=EXI[n];
+  if(!id&&!e){openSheet(`<h3>${esc(n)}</h3><div class="muted" style="margin-bottom:12px">Pas d’illustration pour cet exercice.</div><button class="btn block" data-act="close">Fermer</button>`);return}
+  const one=!id||ILL1.has(id);
+  const movie=id?`<div class="mov" id="mov" data-f="0" data-play="${one?'0':'1'}">
+    <img src="ill/${id}-0.webp" alt="Position de départ" class="on">${one?'':`<img src="ill/${id}-1.webp" alt="Position d’arrivée">`}
+    <span class="movcap" id="movcap">${one?'Position tenue':'Départ'}</span></div>
+  ${one?'':`<div class="row sb" style="margin:10px 0 16px"><button class="chip" id="movbtn" data-act="mov-toggle">❚❚ Pause</button><span class="small muted">Les deux positions s’enchaînent</span></div>`}`:'';
+  openSheet(`<h3>${esc(n)}</h3>${movie}
+  ${e?`<div class="sec" style="margin-top:${one||!id?'14px':'0'}">Muscles sollicités</div>
   <div class="row" style="align-items:flex-start;gap:14px;margin-bottom:6px">
     <img class="mmap" style="width:46%;max-width:150px" src="img2/${e.i}-m.png" alt="Schéma des muscles : ${esc(e.m.join(', '))}">
     <div class="grow" style="min-width:0">
       <div class="small muted" style="margin-bottom:4px">Principaux</div>
       <div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:10px">${e.m.map(m=>`<span class="pill bad">${esc(m)}</span>`).join('')}</div>
       ${e.s.length?`<div class="small muted" style="margin-bottom:4px">Secondaires</div><div class="row" style="flex-wrap:wrap;gap:6px">${e.s.map(m=>`<span class="pill neutral">${esc(m)}</span>`).join('')}</div>`:''}
-    </div></div>
+    </div></div>`:''}
   <button class="btn ghost block" style="margin-top:14px" data-act="close">Fermer</button>`);
-  playMov();
+  if(!one)playMov();
 };
 
 /* ===== ROUTINES : préparer ses séances à l’avance ===== */
@@ -1428,7 +1432,7 @@ A.settings=()=>{
   <div class="grid2"><button class="btn ghost" data-act="exp">Exporter</button><label class="btn ghost" style="cursor:pointer">Restaurer<input type="file" accept=".json,application/json" data-ch="imp" class="hidden"></label></div>
   <div id="expout"></div>${typeof A.upd==='function'?'<div class="sec" style="margin-top:22px">Application</div><button class="btn ghost block" data-act="upd">Vérifier les mises à jour</button>':''}
   <div class="small muted" style="margin-top:14px">Version ${APP_VER}</div>
-  <div class="small muted" style="margin-top:8px">Photos des exercices : Free Exercise DB (domaine public). Schémas musculaires : tracés de react-body-highlighter, © 2020 GV79, licence MIT. Lecture des codes-barres : ZXing. <a href="THIRD_PARTY.txt" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700">Licences</a></div>`);
+  <div class="small muted" style="margin-top:8px">Illustrations des mouvements : Open Exercise Illustrations (CC0, domaine public). Schémas musculaires : tracés de react-body-highlighter, © 2020 GV79, licence MIT. Lecture des codes-barres : ZXing. <a href="THIRD_PARTY.txt" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700">Licences</a></div>`);
   gprev();
 };
 function gprev(){
