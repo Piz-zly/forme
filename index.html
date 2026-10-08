@@ -201,6 +201,22 @@ textarea.inp{padding:12px 14px;min-height:96px;resize:vertical}
 .abar{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px}
 .abar i{display:block;width:14px;border-radius:4px}
 .abar span{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase}
+.thumb{object-fit:cover}
+.mov{position:relative;width:100%;aspect-ratio:3/2;border-radius:16px;overflow:hidden;background:var(--surface2)}
+.mov img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
+.mov img.on{opacity:1}
+.movcap{position:absolute;left:10px;bottom:10px;background:rgba(10,12,16,.72);color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+.rbar{position:fixed;left:12px;right:12px;bottom:calc(72px + env(safe-area-inset-bottom,0px));z-index:25;max-width:536px;margin-inline:auto;display:flex;align-items:stretch;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:6px;box-shadow:0 10px 30px rgba(10,14,25,.18);overflow:hidden}
+.rbar.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.rbar i{position:absolute;left:0;top:0;bottom:0;background:rgba(127,127,127,.28);width:100%;pointer-events:none;transition:width 1s linear}
+.rbar .rgo{flex:1;min-height:48px;border-radius:13px;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:16px}
+.rbar .rdur{min-height:48px;padding:0 14px;border-radius:13px;background:var(--surface2);color:var(--ink);font-weight:800;font-variant-numeric:tabular-nums}
+.rbar .rmain{position:relative;min-height:48px;padding:0 12px;border-radius:13px;background:rgba(127,127,127,.26);color:inherit;font-weight:800;font-size:15px}
+.rbar .rclock{position:relative;flex:1;min-height:48px;border-radius:13px;background:none;color:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.rbar .rclock b{font:800 22px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.durs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.dur{min-height:52px;border-radius:14px;background:var(--surface2);font-weight:800;font-size:16px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.dur.on{background:var(--accent);color:var(--on-accent)}
 </style>
 <style>#live{position:fixed;inset:0;z-index:100;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center}
 #live video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -228,7 +244,7 @@ textarea.inp{padding:12px 14px;min-height:96px;resize:vertical}
 <script>
 (function(){'use strict';
 /* ===== utils ===== */
-const APP_VER='2026.10.08-2';
+const APP_VER='2026.10.08-4';
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
@@ -766,7 +782,7 @@ const LIB=[['Pectoraux',['Développé couché','Développé incliné barre','Dé
 const EXI={"Développé couché":{"i":"barbell-bench-press-medium-grip","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé incliné barre":{"i":"barbell-incline-bench-press-medium-grip","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé incliné haltères":{"i":"incline-dumbbell-press","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé couché haltères":{"i":"dumbbell-bench-press","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé décliné":{"i":"decline-barbell-bench-press","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé couché machine":{"i":"machine-bench-press","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Écarté haltères":{"i":"dumbbell-flyes","m":["Pectoraux"],"s":[]},"Écarté poulie":{"i":"cable-crossover","m":["Pectoraux"],"s":["Épaules"]},"Pec deck":{"i":"butterfly","m":["Pectoraux"],"s":[]},"Pompes":{"i":"pushups","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Dips":{"i":"parallel-bar-dip","m":["Triceps"],"s":["Pectoraux","Épaules"]},"Tractions":{"i":"pullups","m":["Grand dorsal"],"s":["Biceps","Milieu du dos"]},"Tractions supination":{"i":"chin-up","m":["Grand dorsal"],"s":["Biceps","Avant-bras","Milieu du dos"]},"Tirage vertical":{"i":"wide-grip-lat-pulldown","m":["Grand dorsal"],"s":["Biceps","Milieu du dos","Épaules"]},"Tirage vertical prise serrée":{"i":"close-grip-front-lat-pulldown","m":["Grand dorsal"],"s":["Biceps","Milieu du dos","Épaules"]},"Rowing barre":{"i":"bent-over-barbell-row","m":["Milieu du dos"],"s":["Biceps","Grand dorsal","Épaules"]},"Rowing haltère":{"i":"one-arm-dumbbell-row","m":["Milieu du dos"],"s":["Biceps","Grand dorsal","Épaules"]},"Tirage horizontal":{"i":"seated-cable-rows","m":["Milieu du dos"],"s":["Biceps","Grand dorsal","Épaules"]},"Rowing T-bar":{"i":"t-bar-row-with-handle","m":["Milieu du dos"],"s":["Biceps","Grand dorsal"]},"Soulevé de terre":{"i":"barbell-deadlift","m":["Lombaires"],"s":["Mollets","Avant-bras","Fessiers"]},"Pull-over poulie":{"i":"straight-arm-pulldown","m":["Grand dorsal"],"s":[]},"Shrugs haltères":{"i":"dumbbell-shrug","m":["Trapèzes"],"s":[]},"Développé militaire":{"i":"standing-military-press","m":["Épaules"],"s":["Triceps"]},"Développé haltères assis":{"i":"dumbbell-shoulder-press","m":["Épaules"],"s":["Triceps"]},"Élévations latérales":{"i":"side-lateral-raise","m":["Épaules"],"s":[]},"Élévations frontales":{"i":"front-dumbbell-raise","m":["Épaules"],"s":[]},"Oiseau":{"i":"reverse-flyes","m":["Épaules"],"s":[]},"Face pull":{"i":"face-pull","m":["Épaules"],"s":["Milieu du dos"]},"Arnold press":{"i":"arnold-dumbbell-press","m":["Épaules"],"s":["Triceps"]},"Curl barre":{"i":"barbell-curl","m":["Biceps"],"s":["Avant-bras"]},"Curl haltères":{"i":"dumbbell-bicep-curl","m":["Biceps"],"s":["Avant-bras"]},"Curl marteau":{"i":"hammer-curls","m":["Biceps"],"s":[]},"Curl pupitre":{"i":"preacher-curl","m":["Biceps"],"s":[]},"Curl incliné":{"i":"alternate-incline-dumbbell-curl","m":["Biceps"],"s":["Avant-bras"]},"Curl poulie":{"i":"standing-biceps-cable-curl","m":["Biceps"],"s":[]},"Extension poulie":{"i":"triceps-pushdown","m":["Triceps"],"s":[]},"Extension poulie corde":{"i":"triceps-pushdown-rope-attachment","m":["Triceps"],"s":[]},"Barre au front":{"i":"ez-bar-skullcrusher","m":["Triceps"],"s":["Avant-bras"]},"Dips banc":{"i":"bench-dips","m":["Triceps"],"s":["Pectoraux","Épaules"]},"Extension nuque haltère":{"i":"standing-dumbbell-triceps-extension","m":["Triceps"],"s":[]},"Extension verticale poulie":{"i":"cable-rope-overhead-triceps-extension","m":["Triceps"],"s":[]},"Développé serré":{"i":"close-grip-barbell-bench-press","m":["Triceps"],"s":["Pectoraux","Épaules"]},"Squat":{"i":"barbell-squat","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Squat avant":{"i":"front-barbell-squat","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Goblet squat":{"i":"goblet-squat","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Hack squat":{"i":"barbell-hack-squat","m":["Quadriceps"],"s":["Mollets","Avant-bras","Ischio-jambiers"]},"Presse à cuisses":{"i":"leg-press","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Fentes":{"i":"dumbbell-lunges","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Fentes marchées":{"i":"barbell-walking-lunge","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Leg extension":{"i":"leg-extensions","m":["Quadriceps"],"s":[]},"Leg curl":{"i":"lying-leg-curls","m":["Ischio-jambiers"],"s":[]},"Leg curl assis":{"i":"seated-leg-curl","m":["Ischio-jambiers"],"s":[]},"Soulevé de terre roumain":{"i":"romanian-deadlift","m":["Ischio-jambiers"],"s":["Mollets","Fessiers","Lombaires"]},"Hip thrust":{"i":"barbell-hip-thrust","m":["Fessiers"],"s":["Mollets","Ischio-jambiers"]},"Mollets debout":{"i":"standing-calf-raises","m":["Mollets"],"s":[]},"Mollets assis":{"i":"seated-calf-raise","m":["Mollets"],"s":[]},"Crunch":{"i":"crunches","m":["Abdominaux"],"s":[]},"Relevé de jambes":{"i":"hanging-leg-raise","m":["Abdominaux"],"s":[]},"Crunch poulie":{"i":"cable-crunch","m":["Abdominaux"],"s":[]},"Gainage":{"i":"plank","m":["Abdominaux"],"s":[]}};
 function thumb(name,size){
   const e=EXI[name],st=size?'style="width:'+size+'px;height:'+size+'px"':'';
-  return e?'<img class="thumb" '+st+' src="img2/'+e.i+'-t.png" alt="" loading="lazy" decoding="async">':'<div class="thumb ph" '+st+' aria-hidden="true">'+esc((name||'?').trim().charAt(0).toUpperCase())+'</div>';
+  return e?'<img class="thumb" '+st+' src="img/'+e.i+'-0.jpg" alt="" loading="lazy" decoding="async">':'<div class="thumb ph" '+st+' aria-hidden="true">'+esc((name||'?').trim().charAt(0).toUpperCase())+'</div>';
 }
 let gymTab='sessions',gymOpen=false,progEx=null,progMetric='top',exQuery='',restEnd=0;
 const fmtKg=v=>nf(v,2);
@@ -840,20 +856,16 @@ function sessionView(){
     <div class="sets"><div class="h">#</div><div class="h">Avant</div><div class="h">kg</div><div class="h">Reps</div><div class="h">OK</div>${rows}</div>
     <button class="btn soft block" style="margin-top:12px;min-height:44px" data-act="g-addset" data-e="${ei}">${ICON.plus} Série</button></div>`;
   }).join('');
-  const rest=restEnd>Date.now()?restBox():'';
   return `<div class="row sb" style="margin-bottom:10px"><button class="chip" data-act="g-back">${ICON.chevL} Séances</button><span class="num" id="elapsed" style="font-weight:800;font-size:20px"></span><button class="btn" style="min-height:44px" data-act="g-finish">Terminer</button></div>
   <div class="field"><input class="inp" data-in="sname" value="${esc(a.name)}" aria-label="Nom de la séance" style="font-weight:700"></div>
-  <div id="restslot">${rest}</div>
   ${exs||'<div class="card empty">Ajoute ton premier exercice.</div>'}
   <button class="btn block" data-act="g-addex">${ICON.plus} Ajouter un exercice</button>
   <button class="btn danger block" style="margin-top:10px" data-act="g-cancel">Abandonner la séance</button>`;
 }
-const restBox=()=>`<div class="rest" id="restbox"><div><div class="small" style="opacity:.7;font-weight:700">REPOS</div><b id="restclock"></b></div><div class="row" style="gap:8px"><button data-act="g-rest-add">+15 s</button><button data-act="g-rest-skip">Passer</button></div></div>`;
 function tick(){
   const a=S.active,el=$('#elapsed');
   if(a&&el){const s=Math.floor((Date.now()-a.start)/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60);el.textContent=(h?h+':'+pad(m):m)+':'+pad(s%60)}
-  const rc=$('#restclock');
-  if(rc){const left=Math.ceil((restEnd-Date.now())/1000);if(left<=0){const bx=$('#restbox');if(bx)bx.remove();restEnd=0;toast('Repos terminé');try{navigator.vibrate&&navigator.vibrate(200)}catch(_){}}else rc.textContent=Math.floor(left/60)+':'+pad(left%60)}
+  if(typeof syncRestBar==='function')syncRestBar();
 }
 VIEWS.gym_after=tick;
 I.sname=t=>{if(S.active){S.active.name=t.value;persist('active')}};
@@ -866,13 +878,12 @@ A['g-check']=b=>{
     if(s.reps===''&&p)s.reps=String(num(p.reps));
     if(s.reps===''||num(s.reps)<=0){toast('Indique les répétitions');return}
     if(s.kg==='')s.kg='0';
-    s.done=true;restEnd=Date.now()+S.settings.rest*1000;
+    s.done=true;startRest(S.settings.rest);
   }else s.done=false;
   persist('active');render();
 };
 A['g-addset']=b=>{const e=S.active.exercises[+b.dataset.e],l=e.sets[e.sets.length-1];e.sets.push({kg:l?l.kg:'',reps:l?l.reps:'',done:false});persist('active');render()};
-A['g-rest-add']=()=>{restEnd=Math.max(restEnd,Date.now())+15000;tick()};
-A['g-rest-skip']=()=>{restEnd=0;const bx=$('#restbox');if(bx)bx.remove()};
+A['g-rest-skip']=()=>{restEnd=0;syncRestBar()};
 A['g-exmenu']=b=>{
   const ei=b.dataset.e,e=S.active.exercises[+ei];
   openSheet(`<h3>${esc(e.name)}</h3><div class="grid2"><button class="btn ghost" data-act="g-rmset" data-e="${ei}">Retirer la dernière série</button><button class="btn danger" data-act="g-rmex" data-e="${ei}">Retirer l’exercice</button></div>`);
@@ -991,6 +1002,85 @@ A['g-exinfo']=b=>{
   ${e.s.length?`<div class="sec">Muscles secondaires</div><div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:14px">${e.s.map(m=>`<span class="pill neutral">${esc(m)}</span>`).join('')}</div>`:''}
   <div class="sec">Le mouvement</div>
   <div class="exinfo"><figure><img src="img/${e.i}-0.jpg" alt="Position de départ"><figcaption>Départ</figcaption></figure><figure><img src="img/${e.i}-1.jpg" alt="Position d’arrivée"><figcaption>Arrivée</figcaption></figure></div>`);
+};
+/* ===== MINUTEUR DE REPOS : barre fixe, accessible au pouce pendant toute la séance ===== */
+let restTotal=0,restBarState='',restRang=false;
+const mmss=s=>Math.floor(s/60)+':'+pad(s%60);
+function startRest(sec){restTotal=sec;restEnd=Date.now()+sec*1000;restRang=false;syncRestBar()}
+function syncRestBar(){
+  let el=$('#rbar');
+  const want=(tab==='gym'&&gymOpen&&S.active)?(restEnd>Date.now()?'on':'idle'):'';
+  if(!want){if(el)el.remove();restBarState='';return}
+  if(!el||restBarState!==want){
+    if(el)el.remove();
+    el=document.createElement('div');el.id='rbar';el.className='rbar'+(want==='on'?' on':'');
+    el.innerHTML=want==='on'
+      ?`<i id="rfill"></i><button class="rmain" data-act="g-rest-less" aria-label="Enlever 15 secondes">−15</button>
+        <button class="rclock" data-act="g-rest-dur" aria-label="Changer la durée du repos"><span class="small" style="opacity:.75;font-weight:700">REPOS</span><b id="rclk">0:00</b></button>
+        <button class="rmain" data-act="g-rest-more" aria-label="Ajouter 15 secondes">+15</button>
+        <button class="rmain" data-act="g-rest-skip">Passer</button>`
+      :`<button class="rgo" data-act="g-rest-go">⏱ Démarrer le repos</button>
+        <button class="rdur" data-act="g-rest-dur" aria-label="Changer la durée du repos"><span id="rdef">${mmss(S.settings.rest)}</span> ▾</button>`;
+    document.body.appendChild(el);restBarState=want;
+  }
+  if(want==='on'){
+    const ms=restEnd-Date.now(),left=Math.ceil(ms/1000);
+    if(left<=0){
+      if(!restRang){restRang=true;toast('Repos terminé');try{navigator.vibrate&&navigator.vibrate([200,90,200])}catch(_){}}
+      restEnd=0;syncRestBar();return;
+    }
+    const c=$('#rclk');if(c)c.textContent=mmss(left);
+    const f=$('#rfill');if(f&&restTotal)f.style.width=clamp(ms/(restTotal*1000)*100,0,100)+'%';
+  }else{const d=$('#rdef');if(d)d.textContent=mmss(S.settings.rest)}
+}
+A['g-rest-go']=()=>startRest(S.settings.rest);
+A['g-rest-more']=()=>{restEnd=Math.max(restEnd,Date.now())+15000;restTotal+=15;syncRestBar()};
+A['g-rest-less']=()=>{restEnd=Math.max(Date.now()+1000,restEnd-15000);syncRestBar()};
+A['g-rest-dur']=()=>{
+  const opts=[30,45,60,90,120,150,180,240];
+  openSheet(`<h3>Durée du repos</h3><p class="muted small" style="margin:-8px 0 14px">La durée choisie démarre le repos et devient ta durée par défaut après chaque série validée.</p>
+  <div class="durs">${opts.map(s=>`<button class="dur${s===S.settings.rest?' on':''}" data-act="g-rest-set" data-s="${s}">${mmss(s)}</button>`).join('')}</div>
+  <button class="btn ghost block" style="margin-top:14px" data-act="close">Fermer</button>`);
+};
+A['g-rest-set']=b=>{S.settings.rest=+b.dataset.s;persist('settings');closeSheet();startRest(S.settings.rest)};
+
+/* ===== FICHE D’EXERCICE : le mouvement en images qui s’enchaînent ===== */
+let movT=null;
+function playMov(){
+  clearInterval(movT);
+  movT=setInterval(()=>{
+    const w=$('#mov');
+    if(!w||!document.body.contains(w)){clearInterval(movT);movT=null;return}
+    if(w.dataset.play==='0')return;
+    const n=w.dataset.f==='1'?'0':'1';w.dataset.f=n;
+    w.querySelectorAll('img').forEach((im,i)=>im.classList.toggle('on',String(i)===n));
+    const c=$('#movcap');if(c)c.textContent=n==='1'?'Arrivée':'Départ';
+  },950);
+}
+A['mov-toggle']=()=>{
+  const w=$('#mov');if(!w)return;
+  const p=w.dataset.play==='0'?'1':'0';w.dataset.play=p;
+  const b=$('#movbtn');if(b)b.textContent=p==='0'?'▶ Reprendre':'❚❚ Pause';
+};
+A['g-exinfo']=b=>{
+  const n=b.dataset.name,e=EXI[n];
+  if(!e){openSheet(`<h3>${esc(n)}</h3><div class="muted" style="margin-bottom:12px">Pas d’illustration pour cet exercice.</div><button class="btn block" data-act="close">Fermer</button>`);return}
+  openSheet(`<h3>${esc(n)}</h3>
+  <div class="mov" id="mov" data-f="0" data-play="1">
+    <img src="img/${e.i}-0.jpg" alt="Position de départ" class="on"><img src="img/${e.i}-1.jpg" alt="Position d’arrivée">
+    <span class="movcap" id="movcap">Départ</span></div>
+  <div class="row sb" style="margin:10px 0 16px"><button class="chip" id="movbtn" data-act="mov-toggle">❚❚ Pause</button>
+    <span class="small muted">Les deux positions s’enchaînent</span></div>
+  <div class="sec">Muscles sollicités</div>
+  <div class="row" style="align-items:flex-start;gap:14px;margin-bottom:6px">
+    <img class="mmap" style="width:46%;max-width:150px" src="img2/${e.i}-m.png" alt="Schéma des muscles : ${esc(e.m.join(', '))}">
+    <div class="grow" style="min-width:0">
+      <div class="small muted" style="margin-bottom:4px">Principaux</div>
+      <div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:10px">${e.m.map(m=>`<span class="pill bad">${esc(m)}</span>`).join('')}</div>
+      ${e.s.length?`<div class="small muted" style="margin-bottom:4px">Secondaires</div><div class="row" style="flex-wrap:wrap;gap:6px">${e.s.map(m=>`<span class="pill neutral">${esc(m)}</span>`).join('')}</div>`:''}
+    </div></div>
+  <button class="btn ghost block" style="margin-top:14px" data-act="close">Fermer</button>`);
+  playMov();
 };
 /* ===== SCAN ===== */
 let scanFiles=[],scanUrls=[],scanBusy=false,scanCur=null,hasVision=false,maxImgs=3,dl=null,scanErr='';
@@ -1418,6 +1508,39 @@ A.upd=async()=>{
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(_){}
 window.ZX_URL='vendor/zxing.min.js';
+
+/* ===== PARTAGE ENTRANT : pas et calories envoyés depuis l’application de podomètre ===== */
+function parseShared(txt){
+  const t=' '+String(txt||'').replace(/[    ]/g,' ').toLowerCase()+' ';
+  const grab=re=>{
+    const m=t.match(re);if(!m)return 0;
+    let r=String(m[1]).trim().replace(/[ ']/g,'').replace(/[.,](?=\d{3}(\D|$))/g,'').replace(',','.');
+    const n=parseFloat(r);return isFinite(n)&&n>0?Math.round(n):0;
+  };
+  const steps=grab(/([\d][\d .,']*)\s*(?:pas|steps|schritte|passi|pasos|krok)/)||grab(/(?:pas|steps|pasos)\s*[:=]?\s*([\d][\d .,']*)/);
+  const kcal =grab(/([\d][\d .,']*)\s*(?:kcal|calories|calorie|cal\b)/)||grab(/(?:kcal|calories|cal)\s*[:=]?\s*([\d][\d .,']*)/);
+  return {steps,kcal};
+}
+A['share-open']=()=>{};
+function shareSheet(raw,s,k){
+  const d=today(),found=s||k;
+  openSheet(`<h3>Reçu de ton podomètre</h3>
+  <p class="muted small" style="margin:-8px 0 14px">${found?'Vérifie les deux chiffres, corrige-les si besoin, puis enregistre la journée du '+esc(fmtShort(d))+'.':'Je n’ai pas reconnu de chiffres dans ce partage. Recopie-les à la main pour la journée du '+esc(fmtShort(d))+'.'}</p>
+  <div class="field"><label for="apas">Pas</label><input class="inp" id="apas" inputmode="numeric" value="${s||''}" placeholder="Ex : 8 400"></div>
+  <div class="field"><label for="akcal">Calories dépensées (kcal)</label><input class="inp" id="akcal" inputmode="numeric" value="${k||''}" placeholder="Ex : 2 450"></div>
+  <button class="btn block" data-act="act-save" data-d="${d}">Enregistrer la journée</button>
+  <button class="btn ghost block" style="margin-top:10px" data-act="close">Annuler</button>
+  ${raw?`<div class="sec" style="margin-top:18px">Texte reçu</div><div class="small muted" style="overflow-wrap:anywhere">${esc(raw).slice(0,400)}</div>`:''}`);
+}
+(function(){
+  const q=new URLSearchParams(location.search);
+  if(!q.has('shared')&&!q.has('text')&&!q.has('title')&&!q.has('url'))return;
+  const raw=[q.get('title'),q.get('text'),q.get('url')].filter(Boolean).join(' · ');
+  try{window.history.replaceState(null,'',location.pathname)}catch(_){}
+  const {steps,kcal}=parseShared(raw);
+  tab='weight';S.ui.tab='weight';saveLocal();render();
+  setTimeout(()=>shareSheet(raw,steps,kcal),250);
+})();
 })();
 </script>
 </body></html>
