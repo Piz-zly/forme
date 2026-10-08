@@ -151,11 +151,19 @@ pas à manipuler git.
 - **Rafraîchir le dossier** depuis la dernière version publiée :
 
   ```bash
-  cd "<ce dossier>"
   curl -sSL -o /tmp/forme.tar.gz \
     https://codeload.github.com/Piz-zly/forme/tar.gz/refs/heads/main
-  tar xzf /tmp/forme.tar.gz --strip-components=1 -C .
+  rm -rf /tmp/forme-new && mkdir -p /tmp/forme-new
+  tar xzf /tmp/forme.tar.gz --strip-components=1 -C /tmp/forme-new
+  cp -r /tmp/forme-new/. "<ce dossier>"
   ```
+
+  On passe par un dossier temporaire et `cp` : extraire directement par-dessus
+  échoue. Quand une IA accède à ce dossier depuis une conversation, la
+  **suppression de fichiers y est interdite par défaut**, et `tar` doit effacer
+  un fichier avant de le réécrire. `cp` se contente de réécrire par-dessus, ce
+  qui passe. Un fichier retiré du dépôt restera donc dans le dossier : le
+  supprimer à la main si besoin.
 
 - **Travailler depuis ce dossier** : modifier `src/`, lancer `./src/build.sh`,
   tester. Pour publier, les fichiers doivent repartir vers le dépôt ; sans git
