@@ -5,6 +5,47 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 
 ---
 
+### 2026.10.08-16 — Lune et nuages plus détaillés (à essayer sur le téléphone)
+
+- Lune : cratères ombrés (ombre intérieure, rebord éclairé, trait d'encre, piton central), un cratère à
+  rayons clairs, mers pointillées, cupules, hachures croisées dans l'ombre, liseré lumineux en haut à gauche.
+- Nuages : deux plans (lobes du fond plus sombres), trois arcs par lobe et un reflet, bande rayée et
+  perlée, grande et petite volute, traînées effilées, halo rose-violet, éclats autour. Plus grands.
+- Flou derrière les cartes réduit (5 px, 4 px pour le niveau) pour laisser deviner les détails.
+- Lune tracée en coordonnées entières et traits regroupés : décor ~100 ko (avant compression).
+
+### 2026.10.08-15 — Ambiance Lune par défaut (à essayer sur le téléphone)
+
+- Demandé : quelque chose dans l'esprit de son fond d'écran, « sombre assez éclairé avec des notes de violet ».
+  On reprend l'atmosphère seulement (nuit étoilée, lune, nuages japonais, violet) : ni le personnage ni
+  l'illustration, qui ne sont pas à nous.
+- Nouvelle ambiance **Lune**, par défaut : ciel violet nuit éclairé par une grande lune lavande dessinée au
+  trait d'encre (en haut à droite), nuages en volutes, étoiles qui scintillent. Cartes en verre violet.
+  Le niveau s'affiche dans une petite lune ; les titres de section ont une étoile.
+- Réglages → Ambiance : **Lune**, **Sakura**, **Néon** (l'ancienne « Nuit »). Valeurs de `S.settings.theme` :
+  `lune` (ou vide), `sakura`, `nuit` ; `data-theme` sur `<html>` : `lune`, `light`, `dark`.
+- Décor : `tools/gen_decor.py` assemble `gen_sakura.py` et `gen_lune.py` dans `src/p1.html`.
+- Manifeste et `theme-color` : #16112E.
+
+### 2026.10.08-14 — Ambiance Sakura (claire), Nuit en option (à essayer sur le téléphone)
+
+- Nouvelle ambiance par défaut, claire : ciel pâle, branches de cerisier en fleurs, mont Fuji estompé et
+  quelques pétales qui tombent en fond (`.deco`, dessin original généré par `tools/gen_sakura.py`, aucune
+  image tierce). Cartes et barre d'onglets translucides ; l'en-tête devient dépoli quand on fait défiler.
+- Police des titres et chiffres : Zen Maru Gothic (Google Fonts, comme Figtree).
+- Le niveau s'affiche dans une fleur de cerisier ; les titres de section ont une petite fleur.
+- L'ambiance sombre de la -13 reste disponible : Réglages → Ambiance → « Nuit · sombre »
+  (`S.settings.theme = 'nuit'`, appliquée par `applyTheme()` dans `js1.js` via `data-theme="dark"`).
+- Couleurs du manifeste et `theme-color` : #FFF8F8.
+
+### 2026.10.08-13 — Look « jeu vidéo » (à essayer sur le téléphone)
+
+- Thème sombre par défaut (le clair reste disponible via `data-theme="light"`), couleurs néon par onglet, polices Baloo 2 + Figtree.
+- Boutons en relief, cartes à bord marqué, barres d'XP lumineuses, lueur sur les anneaux, barre d'onglets vitrée.
+- Nouveau bandeau de niveau en haut de chaque onglet (`hudHtml` dans `js2.js`) : un niveau par palier de poids franchi, barre = avancement vers le palier suivant.
+- Couleurs du manifeste et de `theme-color` alignées sur le fond sombre.
+- Suite prévue : série de jours (streak), résumé de la semaine, coach « Maître » (personnage original).
+
 ### 2026.10.08-12 — Pas de doublon, aliments de base rangés
 
 - Bibliothèque du Scan : un même produit scanné sous deux marques, avec les mêmes

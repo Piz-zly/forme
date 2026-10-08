@@ -94,7 +94,10 @@ paliers de 2,5 kg.
 │   ├── gen_aliments.py        ← fabrique src/js2e.js : 321 aliments de base, rangés par section.sous-section, unités usuelles
 │   ├── exercices_map.py       ← correspondance nom français → illustration
 │   ├── paint.py               ← colore en rouge les muscles sur les illustrations
-│   └── gen_schemas_muscles.py ← génère les schémas anatomiques de img2/
+│   ├── gen_schemas_muscles.py ← génère les schémas anatomiques de img2/
+│   ├── gen_decor.py           ← écrit le décor de fond dans src/p1.html (lance les deux suivants)
+│   ├── gen_lune.py            ← décor Lune : ciel étoilé, lune au trait d'encre, nuages en volutes
+│   └── gen_sakura.py          ← décor Sakura : branches de cerisier, mont Fuji
 │
 ├── tests/                     ← tests de bout en bout (Playwright, Chromium)
 │   ├── t4.py  séance, minuteur de repos, fiche d'exercice
@@ -193,7 +196,9 @@ le demande : il avance sujet par sujet.
 
 ## 7. État au 8 octobre 2026
 
-- Version construite dans ce dossier : **2026.10.08-12** (doublons, aliments de base rangés par section). Publiée sur GitHub le 8 octobre 2026 (tout ce qui précède l'est aussi : recettes, Chercher, bibliothèque).
+- Version publiée : **2026.10.08-16**, poussée sur GitHub le 8 octobre 2026 au soir (ambiances
+  Lune par défaut, Sakura et Néon dans Réglages → Ambiance ; bandeau de niveau en haut de chaque onglet).
+  Les versions -13 à -16 ne sont **pas encore essayées sur son téléphone**.
 - Site : `https://piz-zly.github.io/forme/` — dépôt : `github.com/Piz-zly/forme`
 - Les quatre onglets fonctionnent. Il utilise l'application tous les jours sur son
   téléphone et a validé le scan de codes-barres, les routines et les illustrations.

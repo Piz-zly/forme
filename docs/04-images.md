@@ -105,3 +105,12 @@ la même bibliothèque depuis un CDN, faute de pouvoir servir un fichier local.
    collection d'illustrations.
 4. Produire les cinq fichiers de `ill/` avec les outils ci-dessus.
 5. Reconstruire, tester, publier.
+
+
+## Décors de fond (ambiances Lune et Sakura)
+
+Dessins originaux, tracés par des scripts : `tools/gen_lune.py` (ciel étoilé, lune au trait d'encre,
+nuages en volutes) et `tools/gen_sakura.py` (branches de cerisier, mont Fuji). `tools/gen_decor.py`
+les assemble dans `src/p1.html`. Aucune image tierce, rien à déclarer dans `THIRD_PARTY.txt`.
+Les images de référence envoyées par l'utilisateur (photos, fond d'écran tiré d'un manga) n'ont servi
+qu'à l'ambiance : on n'en reprend ni les personnages ni la composition.

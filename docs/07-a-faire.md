@@ -56,10 +56,18 @@ recettes favorites, un filtre « sans viande de porc / sans lactose » si besoin
 
 ## Demandé plus tôt, en attente
 
-**L'esthétique.** Il a dit vouloir en parler plus tard, et qu'il ajouterait
-« probablement des icônes » pour les repas. Les icônes actuelles sont
-volontairement rangées dans une seule table, `SLOT_ICONS` en tête de
-`src/js2.js`, faciles à remplacer sans toucher au reste.
+**L'esthétique : faite en 2026.10.08-13 à -16, à essayer sur son téléphone.** Trois ambiances au
+choix (Réglages → Ambiance) : **Lune** par défaut (nuit violette éclairée, lune, nuages japonais, inspirée
+de l'ambiance de son fond d'écran sans en reprendre le personnage), **Sakura** (claire, cerisiers),
+**Néon** (sombre, style jeu vidéo). Bandeau de niveau : un niveau par palier de poids franchi. Les icônes de
+repas sont toujours dans `SLOT_ICONS` en tête de `src/js2.js`. À lui demander : quelle ambiance il garde,
+si les cartes doivent laisser voir davantage le décor.
+
+**Motivation : demandée le 8 octobre, à faire, dans cet ordre s'il le confirme.**
+- **Série de jours** (jours d'affilée avec une pesée, un repas noté ou une séance).
+- **Résumé de la semaine** (poids perdu, séances, jours dans l'objectif, petit mot d'encouragement).
+- **Coach « Maître »** : petit personnage chibi qui l'encourage, façon BitePal. Il a demandé Toji Fushiguro
+  (Jujutsu Kaisen) : refusé, personnage protégé. Faire un personnage **original**, dessiné par nous.
 
 **L'import d'un fichier de podomètre.** Proposé, non retenu pour l'instant : il a
 choisi le menu Partager. À ressortir si le partage de Step Counter Pedometer

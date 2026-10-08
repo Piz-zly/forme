@@ -110,3 +110,8 @@ garde tout dans le navigateur du téléphone.
 13. Pas de doublon dans la bibliothèque (même produit de deux marques, mêmes apports)
     et les aliments de base du Repas rangés selon les mêmes sections et sous-sections
     (2026.10.08-12).
+14. Travailler le graphisme et ce qui motive à utiliser l'application : style jeu vidéo à niveaux, série de
+    jours, résumé de la semaine, un coach chibi « Maître » (2026.10.08-13).
+15. Une ambiance claire avec des branches de cerisier en fond (2026.10.08-14).
+16. Une ambiance dans l'esprit de son fond d'écran : sombre mais éclairée, notes de violet (2026.10.08-15),
+    puis plus de détails dans la lune et les nuages (2026.10.08-16).

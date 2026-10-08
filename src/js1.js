@@ -1,5 +1,5 @@
 /* ===== utils ===== */
-const APP_VER='2026.10.08-12';
+const APP_VER='2026.10.08-16';
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
@@ -164,14 +164,23 @@ const xToDate=x=>{const d=new Date(x*864e5);return d.getUTCFullYear()+'-'+pad(d.
 const TITLES={weight:'Poids',food:'Repas',gym:'Muscu',scan:'Scan'};
 const VIEWS={};
 let tab=S.ui&&TITLES[S.ui.tab]?S.ui.tab:'weight';
+/* ambiance choisie dans Réglages : Lune (par défaut), Sakura (clair) ou Nuit (néon) */
+const THEMES={lune:['lune','#16112E'],sakura:['light','#FFF8F8'],nuit:['dark','#0A0A1F']};
+function applyTheme(){
+  const [th,col]=THEMES[S.settings.theme]||THEMES.lune,r=document.documentElement;
+  if(r.dataset.theme===th)return;
+  r.dataset.theme=th;const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=col;
+}
 function render(){
+  applyTheme();
   const app=$('#app');app.dataset.tab=tab;
   $('#title').innerHTML=esc(TITLES[tab])+'<span>.</span>';
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===tab)));
   renderBehind();
   if(typeof syncRestBar==='function')syncRestBar();
 }
-function renderBehind(){const f=VIEWS[tab];if(f){const st=window.scrollY;$('#view').innerHTML=f();VIEWS[tab+'_after']&&VIEWS[tab+'_after']();}}
+function renderBehind(){const h=$('#hud');if(h&&typeof hudHtml==='function')h.innerHTML=hudHtml();const f=VIEWS[tab];if(f){const st=window.scrollY;$('#view').innerHTML=f();VIEWS[tab+'_after']&&VIEWS[tab+'_after']();}}
+addEventListener('scroll',()=>document.body.classList.toggle('scrolled',window.scrollY>6),{passive:true});
 document.querySelector('.tabbar').addEventListener('click',e=>{
   const b=e.target.closest('.tab');if(!b)return;
   if(tab===b.dataset.t){window.scrollTo({top:0,behavior:'smooth'});return}

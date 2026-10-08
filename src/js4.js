@@ -276,6 +276,8 @@ A.settings=()=>{
   <div class="sec" style="margin-top:6px">Activité</div>
   <div class="grid2">${f('gst','Objectif de pas / jour',g.steps||10000)}</div>
   <button class="btn block" data-act="set-save">Enregistrer</button>
+  <div class="sec" style="margin-top:22px">Ambiance</div>
+  <div id="themes" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${[['lune','Lune'],['sakura','Sakura'],['nuit','Néon']].map(([v,l])=>`<button class="chip" style="justify-content:center;min-height:44px" data-act="set-theme" data-v="${v}" aria-pressed="${(THEMES[g.theme]?g.theme:'lune')===v}">${l}</button>`).join('')}</div>
   <div class="sec" style="margin-top:22px">Sauvegarde</div>
   <p class="small muted" style="margin:0 0 10px">${syncState==='ok'?'Tes données sont enregistrées en privé sur ton compte, en plus de ce téléphone.':'Tes données restent sur cet appareil. Fais une sauvegarde de temps en temps.'}</p>
   <div class="grid2"><button class="btn ghost" data-act="exp">Exporter</button><label class="btn ghost" style="cursor:pointer">Restaurer<input type="file" accept=".json,application/json" data-ch="imp" class="hidden"></label></div>
@@ -292,6 +294,10 @@ function gprev(){
   el.textContent='Pour '+nf(w)+' kg : '+p+' g de protéines, '+f+' g de lipides, '+(c<0?'calories insuffisantes':c+' g de glucides')+'.';
 }
 I.gcalc=()=>gprev();
+A['set-theme']=b=>{
+  S.settings.theme=b.dataset.v;persist('settings');applyTheme();
+  document.querySelectorAll('#themes .chip').forEach(c=>c.setAttribute('aria-pressed',String(c===b)));
+};
 A['set-save']=()=>{
   const g=S.settings,v=id=>num($('#'+id).value);
   g.auto=$('#ga').checked;if(v('gst')>0)g.steps=Math.round(v('gst'));if(v('gpk')>0)g.pkg=v('gpk');if(v('gfk')>0)g.fkg=v('gfk');

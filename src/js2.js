@@ -58,6 +58,22 @@ function ringCard(arr){
   <div class="small muted" style="text-align:center;margin-bottom:12px">Départ ${nf(start,1)} kg · ${nf(Math.abs(start-cur),1)} kg parcourus sur ${nf(total,1)}</div>
   <div class="pals">${chips}</div></div>`;
 }
+
+/* bandeau de niveau : un niveau par palier de poids franchi, la barre d'XP = avancement vers le palier suivant */
+const LVL_NAMES=['Recrue','Apprenti','Aventurier','Guerrier','Vétéran','Gladiateur','Champion','Héros','Titan','Légende','Immortel'];
+function hudHtml(){
+  const g=S.settings.goalW,step=S.settings.step||2.5,arr=sortedW();
+  const box=(lv,name,right,pct,sub)=>'<div class="lvl" aria-label="Niveau '+lv+'">'+lv+'</div><div class="xp"><div class="xpt"><b>'+esc(name)+'</b><span>'+right+'</span></div><div class="bar"><i style="width:'+pct+'%"></i></div><div class="xps">Niveau '+lv+(sub?' · '+sub:'')+'</div></div>';
+  if(!g||!arr.length)return box(1,LVL_NAMES[0],'0 XP',0,'pèse-toi pour gagner tes premiers points');
+  const start=S.settings.startW||arr[0].y,cur=arr[arr.length-1].y,dir=start>g?-1:1,total=Math.abs(start-g);
+  if(total<0.05)return '';
+  const ms=milestones(start,g,step),bounds=[start].concat(ms),N=ms.length;
+  let reached=0;ms.forEach(v=>{if(dir<0?cur<=v+0.05:cur>=v-0.05)reached++});
+  const lv=reached+1,name=LVL_NAMES[Math.min(reached,LVL_NAMES.length-1)];
+  if(reached>=N)return box(lv,name,'MAX',100,'objectif atteint, bravo');
+  const lo=bounds[reached],hi=bounds[reached+1],pct=Math.round(clamp(Math.abs(cur-lo)/Math.abs(hi-lo),0,1)*100),left=Math.abs(cur-hi);
+  return box(lv,name,pct+' %','' +pct,'encore <b class="num">'+nf(left,1)+' kg</b> avant '+nf(hi,2)+' kg');
+}
 VIEWS.weight=()=>{
   const arr=sortedW(),d=wDate||today();
   if(wVal==null)wVal=S.weights[d]??(arr.length?arr[arr.length-1].y:70);

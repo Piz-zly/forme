@@ -85,7 +85,15 @@ Un clic sur le fond (`.scrim`) ferme la feuille. `A.close` est déjà câblé.
 ## Le style
 
 Tout est dans `p1.html`, dans un seul `<style>`, avec des variables CSS sur
-`:root`. Le thème sombre suit `prefers-color-scheme`.
+`:root`. Trois ambiances, choisies dans Réglages (`S.settings.theme`) et appliquées par
+`applyTheme()` au début de `render()` (`data-theme` sur `<html>`) : **Lune** (par défaut, variables de
+`:root`), **Sakura** (`[data-theme="light"]`) et **Néon** (`[data-theme="dark"]`, réglage `nuit`).
+Elles ne suivent pas `prefers-color-scheme`. Les jetons `--panel`, `--tile`, `--press`, `--well`,
+`--glow`, `--depth-mix`, `--lift-mix`, `--timer` changent avec l'ambiance ; les règles propres à Sakura
+et Néon sont en fin de feuille, préfixées par leur `[data-theme]`. Le décor de fond (`.deco`, avec `.sk`
+pour Sakura et `.ln` pour Lune) est en tête de `p1.html` entre `<!-- deco:debut -->` et
+`<!-- deco:fin -->`, écrit par `python3 tools/gen_decor.py` ; `#app` passe au-dessus (`z-index:1`).
+Le bandeau de niveau est `#hud`, rempli par `hudHtml()` (`js2.js`).
 
 Règle forte : **une seule couleur d'accent à la fois**, donnée par l'onglet actif.
 `render()` écrit `#app[data-tab]`, et le CSS redéfinit `--accent` en conséquence :
