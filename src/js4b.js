@@ -109,18 +109,21 @@ function libBuild(list){
   for(const k in out)out[k].sort((a,b)=>a.p.name.localeCompare(b.p.name,'fr'));
   return out;
 }
+const LIBVOC={};
 function libGroups(){
   const q=normTxt(libQ).trim();
   const g=libBuild(S.scans);
   if(!q)return g;
-  for(const k in g){g[k]=g[k].filter(x=>x.all.some(p=>normTxt(p.name+' '+(p.brand||'')).includes(q)));if(!g[k].length)delete g[k]}
+  const key=p=>normTxt((p.name||'')+' '+(p.brand||''));
+  const t=fzAlts(libQ,fzCache(LIBVOC,S.scans.length,()=>S.scans.map(key)));   /* fautes tolérées : js2f.js */
+  for(const k in g){g[k]=g[k].filter(x=>x.all.some(p=>fzScore(key(p),t)!==null));if(!g[k].length)delete g[k]}
   return g;
 }
 const libGroupOf=p=>{const g=libBuild(S.scans)[libGuess(p)]||[];return g.find(x=>x.all.some(y=>y.id===p.id))||{p,all:[p]}};
 const libDistinct=()=>Object.values(libBuild(S.scans)).reduce((a,l)=>a+l.length,0);
 function libRow(x){
   const p=x.p,e=evalProduct(p),brands=[...new Set(x.all.map(y=>(y.brand||'').trim()).filter(Boolean))];
-  return `<button class="li" data-act="lib-open" data-id="${p.id}"><span class="badge num" style="width:40px;height:40px;font-size:16px;background:${e.color}">${e.score}</span><div class="grow"><div class="t">${esc(p.name)}${x.all.length>1?` <span class="pill neutral" style="margin-left:4px">×${x.all.length}</span>`:''}</div><div class="small muted">${esc(brands.join(' · '))}${brands.length?' · ':''}${nf(p.per.kcal,0)} kcal / 100 g</div></div>${ICON.chev}</button>`;
+  return `<button class="li"${libQ.trim()?'':` data-ak="${p.id}"`} data-act="lib-open" data-id="${p.id}"><span class="badge num" style="width:40px;height:40px;font-size:16px;background:${e.color}">${e.score}</span><div class="grow"><div class="t">${esc(p.name)}${x.all.length>1?` <span class="pill neutral" style="margin-left:4px">×${x.all.length}</span>`:''}</div><div class="small muted">${esc(brands.join(' · '))}${brands.length?' · ':''}${nf(p.per.kcal,0)} kcal / 100 g</div></div>${ICON.chev}</button>`;
 }
 function libSections(){
   const g=libGroups(),searching=!!libQ.trim();
@@ -129,7 +132,7 @@ function libSections(){
     const total=subs.reduce((a,x)=>a+x[2].length,0);
     if(searching&&!total)return '';
     const open=total&&(searching||libOpen.has(s.id));
-    return `<div class="libsec${total?'':' libempty'}"><button class="libh" data-act="lib-sec" data-s="${s.id}" aria-expanded="${!!open}" ${total?'':'disabled'}><span class="grow">${esc(s.n)}</span><span class="pill neutral">${total}</span><span class="libchev">${ICON.chev}</span></button>${open?`<div class="libbody">${subs.map(([k,n,list])=>`<div class="sec libsub">${esc(n)} <span class="muted">· ${list.length}</span></div><div class="list">${list.map(libRow).join('')}</div>`).join('')}</div>`:''}</div>`;
+    return `<div class="libsec${total?'':' libempty'}"><button class="libh" data-act="lib-sec" data-s="${s.id}" aria-expanded="${!!open}" ${total?'':'disabled'}><span class="grow">${esc(s.n)}</span><span class="pill neutral">${total}</span><span class="libchev">${ICON.chev}</span></button>${open?`<div class="libbody">${subs.map(([k,n,list])=>`<div class="sec libsub">${esc(n)} <span class="muted">· ${list.length}</span></div><div class="list" data-ag="lib:${s.id}.${k}">${list.map(libRow).join('')}</div>`).join('')}</div>`:''}</div>`;
   }).join('');
   return out||'<div class="empty">Aucun produit ne correspond.</div>';
 }

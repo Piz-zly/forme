@@ -1,28 +1,76 @@
 
 /* ===== CHERCHER : aliments de base sans code-barres =====
    Premier onglet de la feuille « Ajouter » du Repas. Cherche dans FOODS (js2e.js,
-   généré) sans tenir compte des accents ni des majuscules, puis demande la quantité
+   généré : noms familiers, unités usuelles) puis dans la table Ciqual (CIQUAL, js2g.js,
+   généré : grammes seulement) sans tenir compte des accents ni des majuscules, puis demande la quantité
    (grammes, ou une unité usuelle : œuf, tranche, càs…) avec le calcul en direct. */
 /* Sections : les memes que la bibliotheque du Scan (SLIB, js4b.js). Chaque aliment a une categorie « section.sous-section ». */
 const foodCats=()=>[['top','Courants']].concat(SLIB.filter(c=>FOODS.some(f=>f.cat.split('.')[0]===c.id)).map(c=>[c.id,c.s]));
 const normTxt=s=>String(s??'').toLowerCase().replace(/œ/g,'oe').replace(/æ/g,'ae').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’'\-]/g,' ');
-FOODS.forEach(f=>{f._k=normTxt(f.n+' '+(f.a||''))});
+/* ---- fautes de frappe : Fuse.js (vendor/fuse.basic.min.js, Apache-2.0) ----
+   Toutes les recherches de l'appli cherchent d'abord exactement (mots dans n'importe quel ordre,
+   sans accents, pluriel retiré). Seul un mot tapé qui ne se trouve NULLE PART dans la liste est
+   complété par les mots les plus proches de son vocabulaire (« nateur » → « nature »). Une recherche
+   sans faute ne change donc pas, et ce qui est trouvé exactement passe devant ce qui est corrigé.
+   Chaque liste a son vocabulaire (mots distincts + index Fuse), fait une fois et refait seulement
+   si la liste change (fzCache). Sans Fuse (fichier absent), on garde la recherche exacte. */
+const FZ_T=0.34;          /* tolérance Fuse : 0 = exact, 1 = tout ; réglée avec tests/t14.py */
+const fzWords=q=>normTxt(q).split(/\s+/).filter(Boolean).map(w=>w.length>3&&/[sx]$/.test(w)?w.slice(0,-1):w);
+function fzVocab(keys){
+  const all='\n'+keys.join('\n'),words=[...new Set(all.split(/\s+/).filter(w=>w.length>2))];
+  return {all,fuse:typeof Fuse==='function'?new Fuse(words,{includeScore:true,threshold:FZ_T,ignoreLocation:true}):null};
+}
+/* nombre de fautes entre deux mots (lettre en trop, en moins, changée, ou deux lettres inversées) */
+function fzDist(a,b){
+  const m=a.length,n=b.length,d=[];
+  for(let i=0;i<=m;i++){d[i]=[i];for(let j=1;j<=n;j++)d[i][j]=i?0:j}
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){
+    const c=a[i-1]===b[j-1]?0:1;
+    d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+c);
+    if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])d[i][j]=Math.min(d[i][j],d[i-2][j-2]+1);
+  }
+  return d[m][n];
+}
+function fzCache(o,sig,keys){if(!o.v||o.sig!==sig){o.v=fzVocab(keys());o.sig=sig}return o.v}
+/* chaque mot tapé → [le mot, puis jusqu'à 3 corrections, de la plus proche à la moins proche].
+   Fuse propose des mots voisins ; on ne garde que ceux à 1 faute (mot de 4-5 lettres) ou 2 fautes
+   (6 lettres et plus, première lettre juste) : « nateur » → « nature », jamais « voiture » → « friture ». */
+function fzAlts(q,voc){
+  return fzWords(q).map(w=>{
+    if(w.length<4||!voc.fuse||voc.all.includes(w))return [w];
+    const max=w.length<6?1:2;
+    const r=voc.fuse.search(w,{limit:20}).map(x=>({w:x.item,d:fzDist(w,x.item),s:x.score})).filter(x=>x.d<=max&&(x.d<2||x.w[0]===w[0])).sort((a,b)=>a.d-b.d||a.s-b.s);
+    return [w].concat(r.slice(0,3).map(x=>x.w));
+  });
+}
+/* où le mot (ou une correction) se trouve dans key : [position, 0 si exact sinon rang de la correction] */
+function fzFind(key,alts){for(let j=0;j<alts.length;j++){const i=key.indexOf(alts[j]);if(i>=0)return [i,j]}return null}
+/* toute la requête : null si un mot manque, sinon une note (0 = tout exact ; plus c'est corrigé, plus c'est haut) */
+function fzScore(key,t){let s=0;for(const a of t){const m=fzFind(key,a);if(!m)return null;if(m[1])s+=2+m[1]}return s}
+
+/* Ciqual : mêmes objets que FOODS, marqués cq. Cherchés, mais pas listés par section (des centaines). */
+const CQFOODS=CIQUAL.map(([id,cat,n,k,p,c,f,ml])=>({id:'cq'+id,cat,n,k,p,c,f,ml,cq:1}));
+const ALLFOODS=FOODS.concat(CQFOODS);
+ALLFOODS.forEach(f=>{f._k=normTxt(f.n+' '+(f.a||''));f._nl=normTxt(f.n).length});
+const FOODVOC={},foodVoc=()=>fzCache(FOODVOC,ALLFOODS.length,()=>ALLFOODS.map(f=>f._k));
+setTimeout(foodVoc,1500);   /* vocabulaire prêt avant la première recherche, sans retarder l'ouverture */
 let bq='',bcat='top',bSel=null,bUnit=-1,bQty=100,bSlot='bk';   /* bUnit : -1 = grammes (ou ml), sinon rang dans f.u */
 
 /* ---- recherche ---- */
 function foodSearch(q){
-  /* tous les mots doivent se trouver ; « oeufs » trouve « œuf » (pluriel retiré) */
-  const t=normTxt(q).split(/\s+/).filter(Boolean).map(w=>w.length>3&&/[sx]$/.test(w)?w.slice(0,-1):w);
+  /* tous les mots doivent se trouver ; « oeufs » trouve « œuf » (pluriel retiré) ; fautes : fzAlts */
+  const t=fzAlts(q,foodVoc());
   if(!t.length)return[];
   const res=[];
-  for(const f of FOODS){
+  for(const f of ALLFOODS){
     let sc=0,ok=true;
-    for(const w of t){
-      const i=f._k.indexOf(w);
-      if(i<0){ok=false;break}
-      sc+=i===0?0:f._k[i-1]===' '?1:3;      /* début du nom, début d'un mot, ailleurs */
+    for(const a of t){
+      const m=fzFind(f._k,a);
+      if(!m){ok=false;break}
+      const i=m[0];
+      sc+=(i===0?0:f._k[i-1]===' '?1:3)+(m[1]?4+m[1]+(i>=f._nl?1:0):0);   /* début du nom, début d'un mot, ailleurs ; mot corrigé après (et dans le nom avant les mots-clés) */
     }
-    if(ok)res.push({f,sc:sc-(f.top?.5:0)});
+    if(ok)res.push({f,sc:sc-(f.top?.5:0)+(f.cq?1.5:0)});   /* les aliments familiers passent devant Ciqual */
   }
   return res.sort((a,b)=>a.sc-b.sc||a.f.n.length-b.f.n.length).slice(0,50).map(x=>x.f);
 }
@@ -32,7 +80,7 @@ function foodList(){
   return FOODS.filter(f=>f.cat.split('.')[0]===bcat).sort((a,b)=>a.n.localeCompare(b.n,'fr'));
 }
 function foodRow(f){
-  return `<button class="li" data-act="b-pick" data-id="${f.id}"><div class="grow"><div class="t">${esc(f.n)}</div><div class="small muted">P ${nf(f.p)} · G ${nf(f.c)} · L ${nf(f.f)} · pour 100 ${f.ml?'ml':'g'}</div></div><div style="text-align:right;flex:none"><b class="num" style="font-size:18px">${nf(f.k,0)}</b><div class="small muted">kcal</div></div></button>`;
+  return `<button class="li" data-act="b-pick" data-id="${f.id}"><div class="grow"><div class="t">${esc(f.n)}</div><div class="small muted">P ${nf(f.p)} · G ${nf(f.c)} · L ${nf(f.f)} · pour 100 ${f.ml?'ml':'g'}${f.cq?' · Ciqual':''}</div></div><div style="text-align:right;flex:none"><b class="num" style="font-size:18px">${nf(f.k,0)}</b><div class="small muted">kcal</div></div></button>`;
 }
 function foodRows(){
   const list=foodList();
@@ -42,16 +90,20 @@ function foodRows(){
     return (sec?sec.subs:[]).map(([k,n])=>{
       const l=list.filter(f=>f.cat===bcat+'.'+k);
       return l.length?`<div class="sec libsub">${esc(n)} <span class="muted">· ${l.length}</span></div><div class="list">${l.map(foodRow).join('')}</div>`:'';
-    }).join('');
+    }).join('')+cqMore(bcat);
   }
   return '<div class="list">'+list.map(foodRow).join('')+'</div>';
+}
+function cqMore(sec){
+  const n=CQFOODS.filter(f=>f.cat.split('.')[0]===sec).length;
+  return n?`<div class="small muted" id="bcqmore" style="margin-top:10px">+ ${n} aliments de la table Ciqual dans cette section : tape un mot pour les trouver.</div>`:'';
 }
 function foodSearchHtml(slot){
   const chips=foodCats().map(([k,n])=>`<button class="chip" data-act="b-cat" data-k="${k}" aria-pressed="${!bq.trim()&&bcat===k}">${n}</button>`).join('');
   return `<div class="field"><input class="inp" type="search" id="bqin" data-in="bq" placeholder="Ex : œuf, riz, poulet…" value="${esc(bq)}" aria-label="Chercher un aliment" autocomplete="off"></div>
   <div class="chips" id="bchips">${chips}</div>
   <div id="bres">${foodRows()}</div>
-  <div class="small muted" style="margin-top:12px">Valeurs moyennes pour 100 g, indicatives. Pour un produit de marque, utilise « Scanner ».</div>`;
+  <div class="small muted" style="margin-top:12px">Valeurs moyennes pour 100 g, indicatives. Plus de ${Math.floor(ALLFOODS.length/100)*100} aliments, dont la table Ciqual (Anses). Pour un produit de marque, utilise « Scanner ».</div>`;
 }
 /* Met à jour la liste et les puces sans refaire la feuille (le clavier reste ouvert). */
 function foodRefresh(){
@@ -82,7 +134,7 @@ function foodQtyHtml(){
   const f=bSel,units=[[-1,bBase(f)]].concat((f.u||[]).map((u,i)=>[i,u[0].split('|')[0]]));
   return `<button class="btn ghost" style="min-height:44px;margin-bottom:12px" data-act="b-back">${ICON.chevL} Retour</button>
   <div class="t" style="font:800 20px/1.2 var(--font-display);margin-bottom:2px">${esc(f.n)}</div>
-  <div class="small muted" style="margin-bottom:14px">Pour 100 ${bBase(f)} : ${nf(f.k,0)} kcal · P ${nf(f.p)} · G ${nf(f.c)} · L ${nf(f.f)}</div>
+  <div class="small muted" style="margin-bottom:14px">Pour 100 ${bBase(f)} : ${nf(f.k,0)} kcal · P ${nf(f.p)} · G ${nf(f.c)} · L ${nf(f.f)}${f.cq?'<br>Source : Anses, Table Ciqual 2025':''}</div>
   ${units.length>1?`<div class="seg rcslotseg" id="bunits" role="tablist" aria-label="Unité">${units.map(([i,n])=>`<button role="tab" data-act="b-unit" data-i="${i}" aria-selected="${bUnit===i}">${esc(n)}</button>`).join('')}</div>`:''}
   <div class="field"><label for="bqty">Quantité (<span id="bu">${esc(bUnit<0?bBase(f):f.u[bUnit][0].split('|')[1]||f.u[bUnit][0])}</span>)</label><input class="inp" id="bqty" data-in="bqty" inputmode="decimal" value="${String(bQty).replace('.',',')}"></div>
   <div class="chips" id="bquick">${bQuick()}</div>
@@ -103,7 +155,7 @@ function bDraw(typing){
   if(!typing)$('#bqty').value=String(bQty).replace('.',',');
 }
 A['b-pick']=b=>{
-  const f=FOODS.find(x=>x.id===b.dataset.id);if(!f)return;
+  const f=ALLFOODS.find(x=>x.id===b.dataset.id);if(!f)return;
   bSel=f;
   if(f.u&&f.u.length){bUnit=0;bQty=1}else{bUnit=-1;bQty=f.ml?200:100}
   addSheet(bSlot);bDraw();

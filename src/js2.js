@@ -92,7 +92,7 @@ VIEWS.weight=()=>{
   const hist=arr.slice().reverse(),shown=wAll?hist:hist.slice(0,14);
   const rows=shown.map((p,i)=>{
     const prev=hist[hist.indexOf(p)+1],dl=prev?p.y-prev.y:null;
-    return '<button class="li" data-act="w-edit" data-d="'+p.d+'"><div class="grow"><div class="t">'+esc(fmtDay(p.d))+'</div></div>'+
+    return '<button class="li" data-ak="w'+p.d+'" data-act="w-edit" data-d="'+p.d+'"><div class="grow"><div class="t">'+esc(fmtDay(p.d))+'</div></div>'+
       (dl!=null?'<span class="small muted num">'+(Math.abs(dl)<0.05?'=':sgn(dl))+'</span>':'')+
       '<b class="num" style="font-size:19px;min-width:64px;text-align:right">'+nf(p.y)+' kg</b></button>';
   }).join('');
@@ -119,7 +119,7 @@ VIEWS.weight=()=>{
     <div class="chartbox" id="wchart"></div>
     <div class="small muted" style="margin-top:8px">Points : pesées. Courbe : moyenne sur 7 jours, qui lisse les écarts du quotidien.</div>
   </div>${stats?'<div class="card">'+stats+'</div>':''}
-  <div class="card"><h2>Historique</h2><div class="list">${rows}</div>
+  <div class="card"><h2>Historique</h2><div class="list" data-ag="w:hist">${rows}</div>
     ${hist.length>14?`<button class="btn ghost block" style="margin-top:10px" data-act="w-all">${wAll?'Réduire':'Tout afficher ('+hist.length+')'}</button>`:''}</div>`
   :'<div class="card empty">Entre ton premier poids ci-dessus.<br>Le graphique et la tendance apparaîtront dès la 2e pesée.</div>'}`;
 };
@@ -166,6 +166,7 @@ const SLOT_ICONS={
   sn:'<circle cx="12" cy="12" r="8"/><circle cx="9" cy="10" r=".9" fill="currentColor"/><circle cx="14.5" cy="9" r=".9" fill="currentColor"/><circle cx="13" cy="14.5" r=".9" fill="currentColor"/>'
 };
 const slotIcon=k=>'<span class="sloticon" aria-hidden="true"><svg viewBox="0 0 24 24">'+(SLOT_ICONS[k]||'')+'</svg></span>';
+const FAVVOC={};
 let fDate=today(),addTab=null,aiItems=[],aiBusy=false,hasAI=false,sampleFn=null,pickMap={},favQuery='';
 const r1=v=>Math.round(num(v)*10)/10;
 const dayEntries=d=>S.meals[d]||[];
@@ -199,8 +200,8 @@ VIEWS.food=()=>{
   const mac=(l,v,goal)=>`<div class="macro"><div class="row sb small"><b>${l}</b><span class="num">${nf(v,0)} / ${nf(goal,0)} g</span></div><div class="bar"><i style="width:${clamp(v/goal*100,0,100)}%"></i></div></div>`;
   const slots=SLOTS.map(([k,name])=>{
     const es=list.filter(e=>e.slot===k),st=totals(es);
-    return `<div class="card slot"><div class="row sb" style="margin-bottom:4px"><h4 class="row" style="gap:10px">${slotIcon(k)}${name}</h4><span class="num muted">${nf(st.kcal,0)} kcal</span></div>
-    ${es.map(e=>`<button class="entry" data-act="f-edit" data-id="${e.id}"><div class="grow"><div class="t" style="font-weight:600;overflow-wrap:anywhere">${esc(e.name)}</div><div class="small muted">P ${nf(e.p,0)} · G ${nf(e.c,0)} · L ${nf(e.f,0)}</div></div><b class="num">${nf(e.kcal,0)}</b></button>`).join('')}
+    return `<div class="card slot" data-ag="m:${fDate}:${k}"><div class="row sb" style="margin-bottom:4px"><h4 class="row" style="gap:10px">${slotIcon(k)}${name}</h4><span class="num muted">${nf(st.kcal,0)} kcal</span></div>
+    ${es.map(e=>`<button class="entry" data-ak="${e.id}" data-act="f-edit" data-id="${e.id}"><div class="grow"><div class="t" style="font-weight:600;overflow-wrap:anywhere">${esc(e.name)}</div><div class="small muted">P ${nf(e.p,0)} · G ${nf(e.c,0)} · L ${nf(e.f,0)}</div></div><b class="num">${nf(e.kcal,0)}</b></button>`).join('')}
     <button class="addslot" data-act="f-add" data-slot="${k}">${ICON.plus} Ajouter</button></div>`;
   }).join('');
   return foodSeg()+`
@@ -225,9 +226,12 @@ function recents(){
 }
 function mineList(slot){
   pickMap={};
-  const q=favQuery.toLowerCase(),match=e=>!q||e.name.toLowerCase().includes(q);
+  /* accents, ordre des mots et fautes tolérés, comme dans Chercher (fzAlts, js2f.js) */
+  const q=favQuery.trim(),rl=recents();
+  const keys=S.foods.concat(rl).map(e=>normTxt(e.name)),t=q?fzAlts(q,fzCache(FAVVOC,keys.join('\n'),()=>keys)):[];
+  const match=e=>!q||fzScore(normTxt(e.name),t)!==null;
   const mk=(e,fav)=>{const id=uid();pickMap[id]=e;return `<div class="row" style="border-top:1px solid var(--line)"><button class="li" style="border:0" data-act="f-pick" data-id="${id}" data-slot="${slot}"><div class="grow"><div class="t">${esc(e.name)}</div><div class="small muted">P ${nf(e.p,0)} · G ${nf(e.c,0)} · L ${nf(e.f,0)}</div></div><b class="num">${nf(e.kcal,0)}</b></button>${fav?`<button class="iconbtn" style="box-shadow:none;background:none" data-act="fav-del" data-fid="${e.id}" data-slot="${slot}" aria-label="Retirer des favoris"><span style="font-size:22px;color:var(--muted)">×</span></button>`:''}</div>`};
-  const fav=S.foods.filter(match),rec=recents().filter(match);
+  const fav=S.foods.filter(match),rec=rl.filter(match);
   return (fav.length?'<div class="sec">Favoris</div>'+fav.map(e=>mk(e,true)).join(''):'')+(rec.length?'<div class="sec" style="margin-top:14px">Récents</div>'+rec.map(e=>mk(e,false)).join(''):'')+
     (!fav.length&&!rec.length?'<div class="empty">Rien pour l’instant. Ce que tu ajoutes apparaît ici pour le retrouver en un geste.</div>':'');
 }

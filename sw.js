@@ -1,6 +1,6 @@
 /* Forme : fonctionne hors ligne. Changer VERSION force la mise à jour chez tout le monde. */
-const VERSION='forme-2026.10.08-16';
-const SHELL=['./','index.html','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','vendor/zxing.min.js'];
+const VERSION='forme-2026.10.13-6';
+const SHELL=['./','index.html','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','vendor/zxing.min.js','vendor/fuse.basic.min.js'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(VERSION).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==VERSION).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{
