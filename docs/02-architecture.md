@@ -13,7 +13,9 @@ js2b.js  →  carte Journée
 js2c.js  →  RECIPES : les recettes embarquées (GÉNÉRÉ par tools/gen_recettes.py, ne pas éditer)
 js2d.js  →  sous-onglets Recettes et Déjà faites du Repas : classement, fiche, ajout au journal, recettes perso
 js2e.js  →  FOODS : les aliments de base (GÉNÉRÉ par tools/gen_aliments.py, ne pas éditer)
+js2g.js  →  CIQUAL : 3 203 aliments de la table Ciqual (GÉNÉRÉ par tools/gen_ciqual.py, ne pas éditer)
 js2f.js  →  onglet « Chercher » de la feuille Ajouter : recherche, choix de la quantité, ajout
+js3c.js  →  EXD : consignes, équipement, muscles, 115 exercices en plus (GÉNÉRÉ par tools/gen_exercices.py) — chargé AVANT js3.js
 js3.js   →  onglet Muscu : données, accueil, séance, sélecteur, fin de séance, progression
 js3b.js  →  minuteur de repos, fiche d'exercice, routines
 js4b.js  →  bibliothèque des produits scannés (sections, classement, fiche) — chargé AVANT js4.js
@@ -46,6 +48,18 @@ Le **Repas** a trois sous-onglets, pilotés par la variable `foodSub`
 (`'journal'`, `'recipes'`, `'done'`) : `VIEWS.food` affiche le journal, ou passe la
 main à `recipesView()` (`js2d.js`). Le choix n'est pas enregistré : on revient au
 journal à chaque ouverture de l'application.
+
+**Animations** (`js1b.js`, 2026.10.13-5) — outil maison chargé juste après `js1.js`. Il
+remplace `renderBehind` par une enveloppe : avant le dessin, `animSnap()` note la position des
+lignes marquées ; après, `animPlay()` les fait glisser (si elles ont bougé) ou apparaître (si elles
+sont nouvelles), et réinsère les lignes disparues sous forme de copie inerte qui se replie en 150 ms.
+Marquage : un conteneur `data-ag="portée:nom"` dont les enfants directs portent `data-ak="clé"` (clé
+unique dans l'écran). Rien ne s'anime si la portée n'existait pas avant (autre onglet, autre jour),
+au-delà de 60 lignes (`ANIM_MAX`), ou avec `prefers-reduced-motion: reduce`. Endroits marqués :
+journal (`m:jour:repas`, clé = id de l'entrée), pesées (`w:hist`, clé = `w` + date), routine
+(`r:id:x`, clé = nom#n), bibliothèque du Scan (`lib:section`, clé = id du produit, pas pendant une
+recherche). Pour animer une autre liste : poser ces deux attributs. Pour retirer l'outil : enlever
+`js1b.js` de `build.sh`, les attributs restent sans effet.
 
 ## Les actions
 
@@ -159,7 +173,26 @@ que tout aliment apparaît dans sa section et que les règles de classement de l
 bibliothèque donnent le même rangement que la table (≥ 95 %) : si les deux divergent,
 corriger la règle de `SLIB_RULES` ou la catégorie de l'aliment.
 
-**Chercher** (`js2f.js`, données `js2e.js`) — premier onglet de `addSheet()` (js2.js),
+**Table Ciqual** (`js2g.js`, 2026.10.13-1) — `CIQUAL` est une liste compacte
+`[code, rangement, nom, kcal, P, G, L, (1 = ml)]` ; `js2f.js` en fait des objets comme
+ceux de `FOODS` (`id` = `cq` + code, `cq:1`) dans `CQFOODS`, et cherche dans
+`ALLFOODS` = `FOODS` + `CQFOODS`. Un aliment Ciqual prend 1,5 point de pénalité : les
+aliments familiers passent devant à pertinence égale. Les puces de section ne listent
+que `FOODS` (sinon des centaines de lignes), suivies de « + N aliments de la table
+Ciqual » (`cqMore`). Pas d'unité usuelle : grammes, ou ml pour les boissons. La fiche
+affiche « Source : Anses, Table Ciqual 2025 » (exigé par la licence). Régénérer :
+`python3 tools/gen_ciqual.py <fichier .xlsx>` (le fichier vient de
+recherche.data.gouv.fr et ne va pas dans le dépôt). Testé par `tests/t12.py`.
+
+**Fautes de frappe** (`js2f.js`, 2026.10.13-4) — module commun aux quatre recherches (aliments,
+exercices `exPicker`, bibliothèque `libGroups`, favoris `mineList`). `fzWords` découpe et normalise
+(`normTxt`, pluriel retiré) ; `fzCache(objet, signature, clés)` garde un vocabulaire par liste (mots
+distincts + index `Fuse`), refait seulement si la signature change ; `fzAlts` laisse tel quel un mot
+présent dans la liste et propose sinon jusqu'à 3 voisins (Fuse, puis `fzDist` ≤ 1 ou 2, première
+lettre juste à 2 fautes) ; `fzScore` note une clé (0 = tout exact). Fuse.js est global (`vendor/`,
+chargé avant le script dans `index.html`, intégré dans `forme.html`) ; sans lui, recherche exacte.
+
+**Chercher** (`js2f.js`, données `js2e.js` et `js2g.js`) — premier onglet de `addSheet()` (js2.js),
 ouvert par défaut (`A['f-add']` remet la recherche à zéro). `foodSearch` ignore
 accents, majuscules, `œ`/`oe` et le pluriel (« oeufs » trouve « Œuf entier ») ; tous
 les mots tapés doivent être présents ; le début du nom passe avant le début d'un
@@ -199,6 +232,18 @@ dans `#view`, pour survivre aux rendus. `syncRestBar()` est appelée chaque seco
 par `tick()` et après chaque `render()` ; elle ne reconstruit le HTML que lorsque
 l'état change (au repos / en repos), sinon elle ne met à jour que le compteur et
 la jauge.
+
+**Exercices enrichis** (`js3c.js`, 2026.10.13-2) — `EXD[nom] = {eq, m, s, st, g?}`. En tête de `js3.js`,
+chaque entrée est fusionnée dans `EXI` (qui garde `i`, l'identifiant du schéma `img2/`, pour les 60
+d'origine) ; un exercice avec `g` est ajouté au groupe `g` de `LIB` (créé s'il manque : Avant-bras).
+Un exercice sans `i` n'a pas de schéma, sans entrée `ILL` pas d'illustration : la fiche et la vignette
+s'en passent. Le sélecteur (`exPicker`) a deux `<select data-ch>` (`exMus` : muscle principal, `exEq` :
+équipement) ; filtres actifs sans texte → liste par groupe, filtrée ; la recherche passe par `normTxt`
+(js2f.js). Régénérer : `python3 tools/gen_exercices.py <A.json> <B.json> [--relire]` ; `--relire`
+affiche toutes les consignes pour relecture. Testé par `tests/t13.py`.
+Familles de prises (2026.10.13-3) : `EXV[base] = [libellé, [[bouton, nom], …]]`, `GRIP[nom] = base`.
+`gripHidden(n)` retire les prises autres que la base de la liste ; `gripRow(nom, act, i)` dessine les
+boutons sur la carte (séance : `g-grip`, routine : `g-rgrip`), qui remplacent `e.name`.
 
 **Fiche d'exercice** (`js3b.js`) — deux `<img>` superposées en fondu, alternées
 toutes les 950 ms par `playMov()`. La boucle s'arrête d'elle-même quand l'élément

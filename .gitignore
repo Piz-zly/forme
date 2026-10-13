@@ -5,3 +5,5 @@ __pycache__/
 Thumbs.db
 # sauvegardes de données personnelles : ne doivent jamais arriver ici
 forme-sauvegarde-*.json
+# informations personnelles de l'utilisateur : restent sur son ordinateur
+perso.md

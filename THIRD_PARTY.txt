@@ -10,6 +10,35 @@ Forme - licences des éléments tiers
 3) Lecture des codes-barres : ZXing (@zxing/library) - Apache License 2.0
 4) Fiches produits : Open Food Facts - données sous Open Database License (ODbL)
 5) Polices : Bricolage Grotesque et Figtree - SIL Open Font License (Google Fonts)
+6) Aliments de la recherche du Repas (src/js2g.js) : Source : Anses, Table de composition
+   nutritionnelle des aliments Ciqual 2025 (https://doi.org/10.57745/RDMHWY).
+   Licence Ouverte Etalab 2.0 (https://www.etalab.gouv.fr/licence-ouverte-open-licence).
+   Données extraites (kcal, protéines, glucides, lipides) et rangées par tools/gen_ciqual.py ;
+   noms légèrement retouchés (ligature œ). L'Anses n'est pas associée à cette application.
+7) Consignes et équipement des exercices de Muscu (src/js3c.js, en partie) : exercises-dataset
+   https://github.com/hasaneyldrm/exercises-dataset - Copyright (c) 2026 Hasan Emir Yıldırım,
+   licence MIT, qui couvre le texte des consignes (dont la traduction française) et les données.
+   Texte français corrigé et en partie réécrit pour Forme (tools/gen_exercices.py).
+   LES IMAGES DE GYM VISUAL NE SONT PAS UTILISÉES. Les miniatures et animations de ce dépôt
+   (dossiers images/ et videos/, © Gym visual - https://gymvisual.com/) ne sont pas sous licence
+   MIT : elles n'ont été ni téléchargées, ni copiées, ni référencées par Forme. Les images de
+   Forme restent celles des points 1 et 2.
+9) Recherche tolérante aux fautes de frappe : Fuse.js v7.2.0 (fichier vendor/fuse.basic.min.js)
+   https://github.com/krisk/Fuse - Copyright (c) 2026 Kiro Risk - Apache License 2.0.
+   Texte complet de la licence : vendor/fuse-LICENSE.txt. Fichier non modifié.
+8) Liste des exercices et muscles sollicités (src/js3.js, src/js3c.js) : free-exercise-db
+   https://github.com/yuhonas/free-exercise-db - Unlicense (domaine public). Seules les données
+   texte sont utilisées, pas les photos du dépôt.
+
+Licence MIT (exercises-dataset) : Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation and data files (the "Software"),
+to deal in the Software without restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED. (Copyright (c) 2026 Hasan Emir Yıldırım ; la licence ne couvre pas les
+médias Gym visual.)
 
 Licence MIT (react-body-highlighter) : la permission est accordée, gratuitement, d'utiliser,
 copier, modifier et distribuer ce logiciel, sous réserve de conserver la mention de copyright

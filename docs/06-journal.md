@@ -5,6 +5,88 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 
 ---
 
+### 2026.10.13-5 — Animations douces, outil maison (à essayer sur le téléphone)
+
+- Demandé : des animations discrètes quand une ligne apparaît, disparaît ou change de place.
+  AutoAnimate **non retenu** : l'appli redessine l'écran entier à chaque action (il n'aurait rien
+  animé sans refaire le dessin de tous les onglets), et il n'existe qu'en module. Remplacé par un
+  outil maison, `src/js1b.js` (aucune dépendance, rien dans `THIRD_PARTY.txt`).
+- Quatre endroits : **journal du Repas** (aliment ajouté qui apparaît, aliment supprimé qui s'efface),
+  **routine** (exercice qui glisse quand on le monte ou le descend, ajouté, retiré), **pesées** (nouvelle
+  pesée), **bibliothèque du Scan** (produit retiré, sections qui se décalent, section ouverte). La séance
+  Muscu n'est **pas** animée, à sa demande (« ignore complètement la séance Muscu pour l'instant »).
+- Règles : apparence seulement (opacité, déplacement), 200 ms (150 ms pour un effacement) ; données
+  enregistrées et écran redessiné avant toute animation ; un effacement est une copie inerte (aucun
+  clic, aucune donnée) ; rien au-delà de 60 lignes, rien pendant une recherche, rien si le téléphone
+  demande de réduire les animations ; en cas d'erreur, l'appli dessine comme avant.
+- Test : `tests/t15.py` (chaque cas en mode normal puis « réduire les animations », deux suppressions
+  coup sur coup, plafond de 60 lignes).
+
+### 2026.10.13-4 — Recherches tolérantes aux fautes de frappe (à essayer sur le téléphone)
+
+- **Pourquoi une dépendance :** avec plus de 3 500 aliments et 175 exercices, une faute de frappe
+  (« saumom », « tracion ») ne trouvait plus rien, et Fuse.js (19 ko, sans dépendance, Apache-2.0)
+  propose les mots voisins de façon fiable sans qu'on ait à écrire et maintenir ce moteur nous-mêmes.
+- Version 7.2.0, la dernière livrée en fichier « navigateur » classique (les 7.3 à 7.5 n'existent
+  qu'en module) ; variante « basic ». Copiée dans `vendor/`, chargée par `index.html`, mise en cache
+  par `sw.js` ; intégrée telle quelle dans `forme.html` par `build.sh`.
+- Quatre recherches : Chercher (aliments, Ciqual comprise), Ajouter un exercice, bibliothèque du Scan,
+  Favoris/Récents du Repas. Toutes cherchent maintenant pareil : accents, œ/æ, apostrophes, tirets et
+  pluriel ignorés, mots dans n'importe quel ordre (avant : exercices et Scan cherchaient la phrase d'un
+  bloc ; les favoris ne géraient pas les accents).
+- Méthode : recherche exacte d'abord, inchangée. Seul un mot tapé introuvable dans la liste est remplacé
+  par des mots voisins proposés par Fuse.js, gardés seulement à 1 faute (4-5 lettres) ou 2 fautes
+  (6 lettres et plus, première lettre juste). Ce qui est trouvé sans correction passe toujours devant.
+- Mesures (`tests/t14.py`) : 15 recherches avec fautes réussies sur 15 (avant : 4) ; 12 recherches sans
+  faute identiques à avant ; rien pour « voiture », « ordinateur », « chaussure » ; 8 524 aliments
+  (5 000 fictifs ajoutés) : 2,7 ms par lettre tapée en moyenne, 12 ms au pire.
+- Exercices : à égalité, le nom le plus court passe devant (« Élévations latérales » avant « Élévation
+  latérale poulie »).
+
+### 2026.10.13-3 — Choix de la prise sur la carte de l'exercice (à essayer sur le téléphone)
+
+- Demandé : « pour les exercices avec beaucoup de prises différentes, pour éviter de surcharger
+  l'espace de recherche ».
+- 7 familles : Tirage vertical (Large, Serrée, Inversée, Neutre), Extension poulie (Barre, Corde,
+  Barre en V, Inversée), Tractions, Rowing barre, Curl barre (Normale, Inversée), Développé couché
+  (Normale, Large), Développé couché haltères (Normale, Neutre). La liste « Ajouter un exercice » ne
+  montre que le premier (« · 4 prises ») ; une recherche qui ne trouve qu'une prise (« corde ») la
+  montre directement.
+- Sur la carte, en séance comme en routine : « Prise : » suivi des boutons. Choisir une prise change
+  le nom de l'exercice : chaque prise garde son historique et sa progression, les séances passées
+  ne changent pas. Les séries déjà saisies restent.
+- Familles déclarées dans `tools/gen_exercices.py` (`FAMILLES`) → `EXV` dans `src/js3c.js`.
+
+### 2026.10.13-2 — 175 exercices en Muscu, avec consignes en français et filtres (à essayer sur le téléphone)
+
+- Piste 2 de `08-pistes-open-source.md`, après comparaison de deux sources sur 20 exercices et accord de
+  l'utilisateur. **Texte et données seulement** : aucune image ni GIF des sources.
+- **115 exercices en plus** (60 → 175), choisis parmi free-exercise-db (domaine public), noms écrits en
+  français ; nouveau groupe **Avant-bras**. Les nouveaux n'ont pas d'illustration : initiale à la place,
+  pas de schéma (aucun lien cassé).
+- **Fiche d'exercice** : « Comment faire » (consignes pas à pas en français), « Équipement », muscles.
+  Consignes : celles d'exercises-dataset (MIT) corrigées (« câble » → « poulie », « machine à traîneau » →
+  « presse », prises fausses), ou écrites pour Forme quand la source n'avait pas l'exercice ou se trompait
+  (28, dont face pull, hip thrust, gainage, curl marteau, presse).
+- **Ajouter un exercice** : deux menus « Tous les muscles » / « Tout équipement », combinables avec la
+  recherche ; la recherche ignore désormais les accents (« developpe »).
+- Muscles corrigés : soulevé de terre (+ ischio-jambiers), curl marteau (+ avant-bras), leg curl
+  (+ mollets), pompes (+ abdominaux). Les schémas `img2/` et l'illustration en rouge restent ceux d'avant.
+- Nouveaux : `tools/gen_exercices.py`, `src/js3c.js` (104 ko), `tests/t13.py`. Retiré : une ancienne
+  version inutilisée de la fiche dans `js3.js` (elle pointait vers un dossier `img/` inexistant).
+
+### 2026.10.13-1 — 3 203 aliments de la table Ciqual dans « Chercher » (à essayer sur le téléphone)
+
+- Piste 1 de `08-pistes-open-source.md`. La recherche du Repas trouve maintenant aussi les aliments de la
+  table Ciqual 2025 de l'Anses (Licence Ouverte Etalab 2.0) : maquereau, abats, fromages, plats…
+- Les 321 aliments familiers (noms simples, unités usuelles) passent devant ; les lignes Ciqual portent la
+  mention « Ciqual » et leur fiche « Source : Anses, Table Ciqual 2025 ». Quantité en grammes (ml pour
+  les boissons).
+- Les puces de section ne listent toujours que les aliments familiers, avec « + N aliments de la table
+  Ciqual dans cette section : tape un mot pour les trouver ».
+- Nouveaux : `tools/gen_ciqual.py`, `src/js2g.js` (256 ko), `tests/t12.py`. Application : 392 → 655 ko
+  avant compression.
+
 ### 2026.10.08-16 — Lune et nuages plus détaillés (à essayer sur le téléphone)
 
 - Lune : cratères ombrés (ombre intérieure, rebord éclairé, trait d'encre, piton central), un cratère à
@@ -173,7 +255,7 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 - Nouvelle carte dans Poids : pas, calories dépensées, calories mangées, balance,
   barre vers l'objectif de pas, sept derniers jours en bâtons.
 - Objectif de pas réglable.
-- Reprise des pesées de l'ancienne application (carte d'import, retirée du code depuis).
+- Reprise des pesées de l'ancienne application (carte d'import, retirée du code le 13 octobre 2026).
 - Le cercle affiche « Départ … kg · … kg parcourus sur … ».
 
 ### 2026.10.08-1 — Version installable

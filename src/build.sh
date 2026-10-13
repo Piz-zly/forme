@@ -22,13 +22,15 @@ V=$(grep -o "APP_VER='[^']*'" js1.js | cut -d"'" -f2)
 
 # --- verification de syntaxe ------------------------------------------------
 TMP="$(mktemp -d)"
-{ echo "(function(){'use strict';"; cat js1.js js2.js js2b.js js2c.js js2d.js js2e.js js2f.js js3.js js3b.js js4b.js js4.js js5.js; echo '})();'; } > "$TMP/all.js"
+{ echo "(function(){'use strict';"; cat js1.js js1b.js js2.js js2b.js js2c.js js2d.js js2e.js js2g.js js2f.js js3c.js js3.js js3b.js js4b.js js4.js js5.js; echo '})();'; } > "$TMP/all.js"
 if command -v node >/dev/null; then node --check "$TMP/all.js"; else echo "node absent : verification de syntaxe ignoree"; fi
 
 # --- version Claude (artefact) : pas de js5.js ------------------------------
 { cat p1.html
+  # Fuse.js (recherche tolerante aux fautes) : integre dans la page, l'artefact n'a pas acces aux fichiers
+  echo '<script>'; cat ../vendor/fuse.basic.min.js; echo '</script>'
   echo '<script>'; echo "(function(){'use strict';"
-  cat js1.js js2.js js2b.js js2c.js js2d.js js2e.js js2f.js js3.js js3b.js js4b.js js4.js
+  cat js1.js js1b.js js2.js js2b.js js2c.js js2d.js js2e.js js2g.js js2f.js js3c.js js3.js js3b.js js4b.js js4.js
   echo '})();'; echo '</script>'
 } > "$ROOT/forme.html"
 
@@ -49,8 +51,9 @@ cat <<'HEAD'
 HEAD
 sed 's#<link rel="preconnect" href="https://fonts.googleapis.com">##' p1.html \
  | python3 -c "import sys;s=sys.stdin.read();css=open('p1.pwa.css').read();print(s.replace('</style>','</style>\n<style>'+css+'</style>',1),end='')"
+echo '<script src="vendor/fuse.basic.min.js"></script>'   # Fuse.js : fichier local, mis en cache par sw.js
 echo '<script>'; echo "(function(){'use strict';"
-cat js1.js js2.js js2b.js js2c.js js2d.js js2e.js js2f.js js3.js js3b.js js4b.js js4.js js5.js
+cat js1.js js1b.js js2.js js2b.js js2c.js js2d.js js2e.js js2g.js js2f.js js3c.js js3.js js3b.js js4b.js js4.js js5.js
 echo '})();'; echo '</script>'; echo '</body></html>'
 } > "$ROOT/index.html"
 

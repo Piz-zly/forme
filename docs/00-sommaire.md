@@ -13,6 +13,7 @@ aspect.
 | 5 | [05-build-publication.md](05-build-publication.md) | Construire, tester, publier, mettre à jour le téléphone, service worker, installation |
 | 6 | [06-journal.md](06-journal.md) | Historique des versions |
 | 7 | [07-a-faire.md](07-a-faire.md) | Le prochain sujet, les demandes en attente, les dettes techniques |
+| 8 | [08-pistes-open-source.md](08-pistes-open-source.md) | Projets libres repérés pour améliorer Forme, leur licence, comment les intégrer et dans quel ordre |
 
 ## Les trois réflexes
 

@@ -5,6 +5,33 @@ Pour agrandir encore : une ligne `F(...)` dans `tools/gen_aliments.py`, un appel
 dans sa table `ALIM`, qui est séparée de celle de la recherche), puis relancer les
 scripts et `./src/build.sh`. Pensé pour s'agrandir ainsi, sans toucher au reste.
 
+## Animations douces : faites en 2026.10.13-5, à essayer sur son téléphone
+
+Journal du Repas, routine, pesées, bibliothèque du Scan (`src/js1b.js`). À voir avec lui : la
+fluidité sur son téléphone, si c'est assez discret ou trop discret. **Séance Muscu : volontairement non
+animée**, à reprendre seulement s'il le demande (séries validées, avec les précautions déjà notées :
+jamais de retard sur l'enregistrement ni sur le minuteur, pas d'effacement différé, focus des
+champs kg/reps). Favoris : écartés (peu utile).
+
+## Recherche tolérante aux fautes : faite en 2026.10.13-4, à essayer sur son téléphone
+
+Fuse.js dans les quatre recherches (aliments, exercices, bibliothèque du Scan, favoris). À voir avec lui :
+les fautes qu'il fait vraiment au clavier et qui ne sont pas rattrapées (les ajouter à `tests/t14.py`),
+ou au contraire des corrections qui le surprennent. Réglage : `FZ_T` et la règle des fautes dans
+`fzAlts` (`src/js2f.js`). Non testable ici : le clavier Android (correcteur automatique, saisie
+prédictive, majuscule automatique, glissement), qui peut lui-même modifier ce qui est tapé.
+
+## Exercices enrichis : fait en 2026.10.13-2, à essayer sur son téléphone
+
+175 exercices (115 nouveaux), consignes en français, équipement, filtres Muscle et Équipement. À voir
+avec lui : les exercices qui manquent ou qui sont en trop, les noms (« Face pull », « Hip thrust »,
+« Rack pull », « Good morning »… gardés en anglais comme en salle), la clarté des consignes. Les
+nouveaux exercices n'ont **pas d'illustration** : la collection Open Exercise Illustrations (CC0)
+en a peut-être d'autres à reprendre (`tools/exercices_map.py`, `docs/04-images.md`). Les schémas
+`img2/` ne montrent pas les muscles secondaires ajoutés (ischio-jambiers du soulevé de terre…) :
+il faudrait les régénérer avec `tools/gen_schemas_muscles.py`. Lisibilité des menus déroulants et des
+consignes à vérifier sur son écran.
+
 ## Bibliothèque du Scan : fait en 2026.10.08-11 (doublons et aliments de base en -12), à essayer sur son téléphone
 
 Demandé : une bibliothèque des aliments scannés, triés en sections et sous-sections

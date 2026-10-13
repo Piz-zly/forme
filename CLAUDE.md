@@ -35,6 +35,11 @@ unique, sur un téléphone Android (Chrome), en France.
 Il est **novice en programmation** : il ne lit pas le code, il décrit ce qu'il veut
 et juge le résultat sur son téléphone.
 
+**Informations personnelles** (modèle de téléphone, poids, objectif) : dans
+`perso.md`, à lire s'il existe. Ce fichier est dans `.gitignore` : le dépôt est
+public, **aucune donnée personnelle ne doit apparaître dans un fichier publié**
+(ni dans le code, ni dans les tests, ni dans `docs/`).
+
 ## 3. Règles à respecter sans exception
 
 1. **Les données restent chez lui.** Tout est dans le navigateur
@@ -45,13 +50,18 @@ et juge le résultat sur son téléphone.
    et proposer une source libre. Tout ce qui est embarqué doit être CC0, domaine
    public, MIT ou équivalent, et listé dans `THIRD_PARTY.txt`.
 3. **Ne jamais utiliser un mot de passe ou un jeton donné dans la conversation.**
-   On ne s'en sert pas, on ne crée pas de compte à sa place.
+   On ne s'en sert pas, on ne crée pas de compte à sa place. C'est lui qui se
+   connecte à GitHub, dans la fenêtre prévue.
 4. **Pas de conseil médical.** Les objectifs de macros, le Nutri-Score et les
    dépenses affichées sont indicatifs. Le dire quand c'est utile, sans alourdir.
 5. **Interface en français**, tutoiement, vocabulaire simple. Il dit « routine »,
    pas « modèle » ; « séance », pas « workout ».
-6. **Pas de dépendance ajoutée** sans raison forte. Une seule bibliothèque
-   externe aujourd'hui : ZXing, copiée en local dans `vendor/`.
+6. **Pas de dépendance ajoutée** sans raison forte. Deux bibliothèques
+   externes aujourd'hui, copiées en local dans `vendor/` : ZXing (codes-barres) et Fuse.js
+   (recherche tolérante aux fautes, depuis 2026.10.13-4). Données externes :
+   la table Ciqual (Anses, Etalab 2.0), extraite dans `src/js2g.js` ; le texte de deux bases
+   d'exercices (free-exercise-db, exercises-dataset), dans `src/js3c.js` — **jamais leurs images**
+   (celles d'exercises-dataset sont © Gym visual).
 
 ## 4. Arborescence
 
@@ -72,12 +82,15 @@ et juge le résultat sur son téléphone.
 │   ├── p1.html                ← titre, polices, variables CSS, feuille de style, structure
 │   ├── p1.pwa.css             ← CSS en plus, uniquement pour la version téléphone
 │   ├── js1.js                 ← utilitaires, état, stockage, synchro, graphique, navigation
+│   ├── js1b.js                ← animations douces (outil maison) autour du dessin des écrans — à retirer de build.sh pour s'en passer
 │   ├── js2.js                 ← onglet Poids (cercle, paliers) + onglet Repas
 │   ├── js2b.js                ← carte « Journée » (pas, dépense, apport)
 │   ├── js2c.js                ← les recettes embarquées — GÉNÉRÉ par tools/gen_recettes.py, ne pas éditer
 │   ├── js2d.js                ← sous-onglets Recettes et Déjà faites du Repas
 │   ├── js2e.js                ← les aliments de base — GÉNÉRÉ par tools/gen_aliments.py, ne pas éditer
+│   ├── js2g.js                ← 3 203 aliments de la table Ciqual (Anses) — GÉNÉRÉ par tools/gen_ciqual.py, ne pas éditer
 │   ├── js2f.js                ← onglet « Chercher » (recherche d'aliments, quantité) de la feuille Ajouter
+│   ├── js3c.js                ← consignes, équipement, muscles, 115 exercices en plus — GÉNÉRÉ par tools/gen_exercices.py (chargé AVANT js3.js)
 │   ├── js3.js                 ← onglet Muscu : bibliothèque d'exercices, séance, progression
 │   ├── js3b.js                ← minuteur de repos, fiche d'exercice animée, routines
 │   ├── js4b.js                ← bibliothèque des produits scannés : sections, classement auto, fiche (chargé AVANT js4.js)
@@ -88,6 +101,8 @@ et juge le résultat sur son téléphone.
 ├── tools/                     ← scripts d'atelier, lancés à la main, hors application
 │   ├── gen_recettes.py        ← fabrique src/js2c.js : recettes, macros calculées
 │   ├── gen_aliments.py        ← fabrique src/js2e.js : 321 aliments de base, rangés par section.sous-section, unités usuelles
+│   ├── gen_ciqual.py          ← fabrique src/js2g.js depuis le fichier Excel Ciqual 2025 (téléchargé, hors dépôt)
+│   ├── gen_exercices.py       ← fabrique src/js3c.js depuis exercises-dataset (texte, MIT) et free-exercise-db (domaine public)
 │   ├── exercices_map.py       ← correspondance nom français → illustration
 │   ├── paint.py               ← colore en rouge les muscles sur les illustrations
 │   ├── gen_schemas_muscles.py ← génère les schémas anatomiques de img2/
@@ -103,12 +118,16 @@ et juge le résultat sur son téléphone.
 │   ├── t8.py  recettes : classement, fiche, journal, recettes faites, recette perso
 │   ├── t9.py  Chercher : recherche d'aliments, unités, ajout au journal, favoris
 │   ├── t10.py bibliothèque du Scan : classement de 40 produits fictifs, doublons, rangement, suppression
-│   └── t11.py aliments de base rangés par section ; cohérence avec les règles de la bibliothèque
+│   ├── t11.py aliments de base rangés par section ; cohérence avec les règles de la bibliothèque
+│   ├── t12.py table Ciqual dans « Chercher » : recherche, ordre, fiche, ml
+│   ├── t13.py exercices enrichis : filtres muscle et équipement, fiche avec consignes, pas d'image cassée
+│   ├── t14.py recherches tolérantes aux fautes : 15 fautes, non-régression, vitesse sur 8 500 aliments
+│   └── t15.py animations : apparition, effacement, déplacement, « réduire les animations », plafond
 │
 ├── ill/                       ← illustrations des mouvements (288 fichiers, CC0)
 ├── img2/                      ← schémas anatomiques par exercice (MIT)
 ├── icons/                     ← icônes de l'application
-└── vendor/zxing.min.js        ← lecteur de codes-barres (Apache-2.0)
+└── vendor/                    ← zxing.min.js (codes-barres) et fuse.basic.min.js (fautes de frappe), Apache-2.0
 ```
 
 ## 5. Sommaire de la documentation
@@ -122,6 +141,7 @@ et juge le résultat sur son téléphone.
 | `docs/05-build-publication.md` | Construire, tester, publier, mettre à jour le téléphone |
 | `docs/06-journal.md` | Historique des versions |
 | `docs/07-a-faire.md` | La suite : recettes, esthétique, idées en attente |
+| `docs/08-pistes-open-source.md` | Projets libres repérés (Ciqual, free-exercise-db, Fuse.js, AutoAnimate, canvas-confetti) : licences, intégration, ordre conseillé — rien d'intégré |
 
 ## 6. Méthode de travail
 
@@ -202,3 +222,16 @@ le demande : il avance sujet par sujet.
   son téléphone. Onglet **Chercher** (-9, agrandi en -10), bibliothèque du Scan (-11) et rangement par
   section (-12) : testés (`tests/t9.py` à `t11.py`), **pas encore essayés sur son téléphone**. Voir `docs/07-a-faire.md` pour
   les choix à lui confirmer.
+- **2026.10.13-1** (13 octobre 2026) : la recherche « Chercher » du Repas inclut 3 203 aliments de la
+  table Ciqual (piste 1 de `docs/08-pistes-open-source.md`). Construite et testée (`tests/t4.py` à
+  `t12.py`) dans le dossier local, **pas encore poussée sur GitHub** au moment de l'écrire.
+- **2026.10.13-2** (13 octobre 2026) : Muscu passe de 60 à 175 exercices, fiche avec consignes en
+  français et équipement, filtres Muscle et Équipement (piste 2). Testée (`tests/t4.py` à `t13.py`)
+  dans le dossier local ; **ne rien publier sur GitHub sans son accord**.
+- **2026.10.13-3** : choix de la prise (Large, Serrée…) sur la carte de 7 exercices, qui n'apparaissent
+  plus qu'une fois dans la liste. Testée (`tests/t4.py` à `t13.py`), non publiée.
+- **2026.10.13-4** : recherches tolérantes aux fautes de frappe (Fuse.js) dans les aliments, les
+  exercices, la bibliothèque du Scan et les favoris. Testée (`tests/t4.py` à `t14.py`), non publiée.
+- **2026.10.13-5** : animations douces (outil maison `src/js1b.js`, AutoAnimate non retenu) dans le
+  journal du Repas, la routine, les pesées et la bibliothèque du Scan ; la séance Muscu n'est pas
+  animée, à sa demande. Testée (`tests/t4.py` à `t15.py`), non publiée.

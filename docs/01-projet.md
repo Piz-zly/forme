@@ -6,11 +6,11 @@ Une seule personne utilise cette application : son propriétaire. Il n'est pas
 développeur et ne lit pas le code. Il décrit ce qu'il veut dans ses mots, essaie
 le résultat sur son téléphone, et dit ce qui va ou ne va pas.
 
-- Téléphone Android, navigateur Chrome.
+- Téléphone Android, navigateur Chrome (modèle : `perso.md`, non publié).
 - Pays : France. Interface en français, tutoiement, virgule décimale, kilos et
   kilocalories.
 - Il utilise aussi **Step Counter Pedometer** pour ses pas, application séparée.
-- Objectif de poids par paliers de 2,5 kg.
+- Objectif de poids par paliers de 2,5 kg (chiffres : `perso.md`, non publié).
 
 ## Pourquoi cette application
 
