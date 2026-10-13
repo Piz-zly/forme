@@ -2,12 +2,31 @@
 const LIB=[['Pectoraux',['Développé couché','Développé incliné barre','Développé incliné haltères','Développé couché haltères','Développé décliné','Développé couché machine','Écarté haltères','Écarté poulie','Pec deck','Pompes','Dips']],['Dos',['Tractions','Tractions supination','Tirage vertical','Tirage vertical prise serrée','Rowing barre','Rowing haltère','Tirage horizontal','Rowing T-bar','Soulevé de terre','Pull-over poulie','Shrugs haltères']],['Épaules',['Développé militaire','Développé haltères assis','Arnold press','Élévations latérales','Élévations frontales','Oiseau','Face pull']],['Biceps',['Curl barre','Curl haltères','Curl marteau','Curl pupitre','Curl incliné','Curl poulie']],['Triceps',['Extension poulie','Extension poulie corde','Barre au front','Dips banc','Extension nuque haltère','Extension verticale poulie','Développé serré']],['Jambes',['Squat','Squat avant','Goblet squat','Hack squat','Presse à cuisses','Fentes','Fentes marchées','Leg extension','Leg curl','Leg curl assis','Soulevé de terre roumain','Hip thrust','Mollets debout','Mollets assis']],['Abdos',['Crunch','Crunch poulie','Relevé de jambes','Gainage']]];
 /* muscles sollicités par exercice */
 const EXI={"Développé couché":{"i":"barbell-bench-press-medium-grip","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé incliné barre":{"i":"barbell-incline-bench-press-medium-grip","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé incliné haltères":{"i":"incline-dumbbell-press","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé couché haltères":{"i":"dumbbell-bench-press","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé décliné":{"i":"decline-barbell-bench-press","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Développé couché machine":{"i":"machine-bench-press","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Écarté haltères":{"i":"dumbbell-flyes","m":["Pectoraux"],"s":[]},"Écarté poulie":{"i":"cable-crossover","m":["Pectoraux"],"s":["Épaules"]},"Pec deck":{"i":"butterfly","m":["Pectoraux"],"s":[]},"Pompes":{"i":"pushups","m":["Pectoraux"],"s":["Épaules","Triceps"]},"Dips":{"i":"parallel-bar-dip","m":["Triceps"],"s":["Pectoraux","Épaules"]},"Tractions":{"i":"pullups","m":["Grand dorsal"],"s":["Biceps","Milieu du dos"]},"Tractions supination":{"i":"chin-up","m":["Grand dorsal"],"s":["Biceps","Avant-bras","Milieu du dos"]},"Tirage vertical":{"i":"wide-grip-lat-pulldown","m":["Grand dorsal"],"s":["Biceps","Milieu du dos","Épaules"]},"Tirage vertical prise serrée":{"i":"close-grip-front-lat-pulldown","m":["Grand dorsal"],"s":["Biceps","Milieu du dos","Épaules"]},"Rowing barre":{"i":"bent-over-barbell-row","m":["Milieu du dos"],"s":["Biceps","Grand dorsal","Épaules"]},"Rowing haltère":{"i":"one-arm-dumbbell-row","m":["Milieu du dos"],"s":["Biceps","Grand dorsal","Épaules"]},"Tirage horizontal":{"i":"seated-cable-rows","m":["Milieu du dos"],"s":["Biceps","Grand dorsal","Épaules"]},"Rowing T-bar":{"i":"t-bar-row-with-handle","m":["Milieu du dos"],"s":["Biceps","Grand dorsal"]},"Soulevé de terre":{"i":"barbell-deadlift","m":["Lombaires"],"s":["Mollets","Avant-bras","Fessiers"]},"Pull-over poulie":{"i":"straight-arm-pulldown","m":["Grand dorsal"],"s":[]},"Shrugs haltères":{"i":"dumbbell-shrug","m":["Trapèzes"],"s":[]},"Développé militaire":{"i":"standing-military-press","m":["Épaules"],"s":["Triceps"]},"Développé haltères assis":{"i":"dumbbell-shoulder-press","m":["Épaules"],"s":["Triceps"]},"Élévations latérales":{"i":"side-lateral-raise","m":["Épaules"],"s":[]},"Élévations frontales":{"i":"front-dumbbell-raise","m":["Épaules"],"s":[]},"Oiseau":{"i":"reverse-flyes","m":["Épaules"],"s":[]},"Face pull":{"i":"face-pull","m":["Épaules"],"s":["Milieu du dos"]},"Arnold press":{"i":"arnold-dumbbell-press","m":["Épaules"],"s":["Triceps"]},"Curl barre":{"i":"barbell-curl","m":["Biceps"],"s":["Avant-bras"]},"Curl haltères":{"i":"dumbbell-bicep-curl","m":["Biceps"],"s":["Avant-bras"]},"Curl marteau":{"i":"hammer-curls","m":["Biceps"],"s":[]},"Curl pupitre":{"i":"preacher-curl","m":["Biceps"],"s":[]},"Curl incliné":{"i":"alternate-incline-dumbbell-curl","m":["Biceps"],"s":["Avant-bras"]},"Curl poulie":{"i":"standing-biceps-cable-curl","m":["Biceps"],"s":[]},"Extension poulie":{"i":"triceps-pushdown","m":["Triceps"],"s":[]},"Extension poulie corde":{"i":"triceps-pushdown-rope-attachment","m":["Triceps"],"s":[]},"Barre au front":{"i":"ez-bar-skullcrusher","m":["Triceps"],"s":["Avant-bras"]},"Dips banc":{"i":"bench-dips","m":["Triceps"],"s":["Pectoraux","Épaules"]},"Extension nuque haltère":{"i":"standing-dumbbell-triceps-extension","m":["Triceps"],"s":[]},"Extension verticale poulie":{"i":"cable-rope-overhead-triceps-extension","m":["Triceps"],"s":[]},"Développé serré":{"i":"close-grip-barbell-bench-press","m":["Triceps"],"s":["Pectoraux","Épaules"]},"Squat":{"i":"barbell-squat","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Squat avant":{"i":"front-barbell-squat","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Goblet squat":{"i":"goblet-squat","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Hack squat":{"i":"barbell-hack-squat","m":["Quadriceps"],"s":["Mollets","Avant-bras","Ischio-jambiers"]},"Presse à cuisses":{"i":"leg-press","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Fentes":{"i":"dumbbell-lunges","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Fentes marchées":{"i":"barbell-walking-lunge","m":["Quadriceps"],"s":["Mollets","Fessiers","Ischio-jambiers"]},"Leg extension":{"i":"leg-extensions","m":["Quadriceps"],"s":[]},"Leg curl":{"i":"lying-leg-curls","m":["Ischio-jambiers"],"s":[]},"Leg curl assis":{"i":"seated-leg-curl","m":["Ischio-jambiers"],"s":[]},"Soulevé de terre roumain":{"i":"romanian-deadlift","m":["Ischio-jambiers"],"s":["Mollets","Fessiers","Lombaires"]},"Hip thrust":{"i":"barbell-hip-thrust","m":["Fessiers"],"s":["Mollets","Ischio-jambiers"]},"Mollets debout":{"i":"standing-calf-raises","m":["Mollets"],"s":[]},"Mollets assis":{"i":"seated-calf-raise","m":["Mollets"],"s":[]},"Crunch":{"i":"crunches","m":["Abdominaux"],"s":[]},"Relevé de jambes":{"i":"hanging-leg-raise","m":["Abdominaux"],"s":[]},"Crunch poulie":{"i":"cable-crunch","m":["Abdominaux"],"s":[]},"Gainage":{"i":"plank","m":["Abdominaux"],"s":[]}};
+/* Consignes, équipement, muscles corrigés et exercices en plus : EXD (js3c.js, généré par tools/gen_exercices.py).
+   Un exercice en plus a un groupe g : il rejoint LIB. Sans e.i, il n'a pas de schéma img2/. */
+Object.keys(EXD).forEach(n=>{
+  const d=EXD[n];EXI[n]=Object.assign(EXI[n]||{},d);
+  if(d.g){let g=LIB.find(x=>x[0]===d.g);if(!g)LIB.push(g=[d.g,[]]);if(!g[1].includes(n))g[1].push(n)}
+});
+/* Familles de prises (EXV, js3c.js) : la liste ne montre que le premier exercice de la famille ;
+   la prise se choisit sur la carte de la séance ou de la routine (gripRow), ce qui change le nom de
+   l'exercice : chaque prise garde donc son historique. */
+const GRIP={};Object.keys(EXV).forEach(b=>EXV[b][1].forEach(([,n])=>{GRIP[n]=b}));
+const gripHidden=n=>!!GRIP[n]&&GRIP[n]!==n;
+function gripRow(name,act,i){
+  const b=GRIP[name];if(!b)return '';
+  const [lab,opts]=EXV[b];
+  return `<div class="row gripr" style="flex-wrap:wrap;gap:6px;margin:10px 0 2px;align-items:center"><span class="small muted" style="margin-right:2px">${lab} :</span>${opts.map(([t,n])=>`<button class="chip" style="min-height:40px;padding:0 12px" data-act="${act}" data-i="${i}" data-n="${esc(n)}" aria-pressed="${n===name}">${esc(t)}</button>`).join('')}</div>`;
+}
+const EX_MUS=['Pectoraux','Grand dorsal','Milieu du dos','Lombaires','Trapèzes','Épaules','Biceps','Triceps','Avant-bras','Quadriceps','Ischio-jambiers','Fessiers','Mollets','Adducteurs','Abducteurs','Abdominaux'].filter(m=>Object.values(EXI).some(e=>e.m.includes(m)));
+const EX_EQ=[...new Set(Object.values(EXI).map(e=>e.eq).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
+
 function thumb(name,size){
   const id=ILL[name],st=size?'style="width:'+size+'px;height:'+size+'px"':'';
   return id?'<img class="thumb" '+st+' src="ill/'+id+'-t.webp" alt="" loading="lazy" decoding="async">':'<div class="thumb ph" '+st+' aria-hidden="true">'+esc((name||'?').trim().charAt(0).toUpperCase())+'</div>';
 }
 
-let gymTab='sessions',gymOpen=false,progEx=null,progMetric='top',exQuery='',restEnd=0;
+let gymTab='sessions',gymOpen=false,progEx=null,progMetric='top',exQuery='',exMus='',exEq='',restEnd=0;
 const fmtKg=v=>nf(v,2);
 const e1rm=(kg,reps)=>reps<=1?kg:kg*(1+reps/30);
 const setVol=s=>num(s.kg)*num(s.reps);
@@ -78,7 +97,7 @@ function sessionView(){
       <input inputmode="numeric" data-in="set" data-e="${ei}" data-s="${si}" data-f="reps" value="${esc(s.reps)}" placeholder="${p?nf(num(p.reps),0):'reps'}" aria-label="Répétitions série ${si+1}">
       <button class="ck" data-act="g-check" data-e="${ei}" data-s="${si}" aria-pressed="${s.done}" aria-label="Série ${si+1} faite">${ICON.check}</button></div>`;
     }).join('');
-    return `<div class="card ex"><div class="hd"><button class="thumbbtn" data-act="g-exinfo" data-name="${esc(e.name)}" aria-label="Voir l’exercice ${esc(e.name)}">${thumb(e.name,48)}</button><b style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(e.name)}</b><button class="iconbtn" style="width:40px;height:40px;box-shadow:none;background:var(--surface2)" data-act="g-exmenu" data-e="${ei}" aria-label="Options de l’exercice"><span style="font-size:20px;line-height:1">⋯</span></button></div>
+    return `<div class="card ex"><div class="hd"><button class="thumbbtn" data-act="g-exinfo" data-name="${esc(e.name)}" aria-label="Voir l’exercice ${esc(e.name)}">${thumb(e.name,48)}</button><b style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(e.name)}</b><button class="iconbtn" style="width:40px;height:40px;box-shadow:none;background:var(--surface2)" data-act="g-exmenu" data-e="${ei}" aria-label="Options de l’exercice"><span style="font-size:20px;line-height:1">⋯</span></button></div>${gripRow(e.name,'g-grip',ei)}
     <div class="sets"><div class="h">#</div><div class="h">Avant</div><div class="h">kg</div><div class="h">Reps</div><div class="h">OK</div>${rows}</div>
     <button class="btn soft block" style="margin-top:12px;min-height:44px" data-act="g-addset" data-e="${ei}">${ICON.plus} Série</button></div>`;
   }).join('');
@@ -119,30 +138,53 @@ A['g-rmex']=b=>{S.active.exercises.splice(+b.dataset.e,1);persist('active');clos
 A['g-cancel']=()=>confirmSheet('Abandonner la séance ?','Tout ce que tu as saisi sera perdu.','Abandonner',()=>{S.active=null;restEnd=0;gymOpen=false;persist('active');render()});
 
 /* exercise picker */
+/* filtre muscle (principal) et équipement ; un exercice créé à la main n'a ni l'un ni l'autre */
+const EXVOC={};
+const exOk1=n=>{const e=EXI[n];return(!exMus||!!e&&e.m.includes(exMus))&&(!exEq||!!e&&e.eq===exEq)};
+const exOk=n=>EXV[n]?EXV[n][1].some(([,m])=>exOk1(m)):exOk1(n);
+function exFilters(){
+  const sel=(k,lab,all,v,list)=>`<select class="inp" data-ch="${k}" aria-label="${lab}" style="flex:1;min-width:0;min-height:44px;padding:0 10px">
+    <option value="">${all}</option>${list.map(x=>`<option value="${esc(x)}"${x===v?' selected':''}>${esc(x)}</option>`).join('')}</select>`;
+  return `<div class="row" id="exfilt" style="gap:8px;margin:-4px 0 12px">${sel('exmus','Filtrer par muscle','Tous les muscles',exMus,EX_MUS)}${sel('exeq','Filtrer par équipement','Tout équipement',exEq,EX_EQ)}</div>`;
+}
 function exPicker(){
-  const q=exQuery.toLowerCase().trim(),all=allExNames();
+  const q=normTxt(exQuery).trim(),all=allExNames(),filt=!!(exMus||exEq);
   const tgt=routEdit&&!(S.active&&gymOpen)?curRoutine():S.active;
-  const used=new Set(tgt?tgt.exercises.map(e=>e.name):[]);
-  const row=n=>{const e=EXI[n];return `<button class="li" data-act="g-pickex" data-name="${esc(n)}" ${used.has(n)?'style="opacity:.5"':''}>${thumb(n)}<div class="grow"><div class="t">${esc(n)}</div>${e?'<div class="small muted">'+esc(e.m.join(', '))+'</div>':''}</div>${used.has(n)?'<span class="small muted">ajouté</span>':''}</button>`};
+  const used=new Set(tgt?tgt.exercises.flatMap(e=>[e.name,GRIP[e.name]]):[]);
+  const row=n=>{const e=EXI[n],v=EXV[n];return `<button class="li" data-act="g-pickex" data-name="${esc(n)}" ${used.has(n)?'style="opacity:.5"':''}>${thumb(n)}<div class="grow"><div class="t">${esc(n)}</div>${e?'<div class="small muted">'+esc(e.m.join(', ')+(e.eq?' · '+e.eq:'')+(v?' · '+v[1].length+' '+v[0].toLowerCase()+'s':''))+'</div>':''}</div>${used.has(n)?'<span class="small muted">ajouté</span>':''}</button>`};
   const create=q&&!all.some(n=>n.toLowerCase()===q)?`<button class="btn soft block" style="margin-bottom:10px" data-act="g-newex" data-name="${esc(exQuery.trim())}">${ICON.plus} Créer « ${esc(exQuery.trim())} »</button>`:'';
-  if(q){const names=all.filter(n=>n.toLowerCase().includes(q)).sort((a,b)=>a.localeCompare(b,'fr'));return create+'<div class="list">'+names.map(row).join('')+'</div>'}
+  if(q){
+    /* une prise trouvée seule s'affiche telle quelle ; si l'exercice de la famille est trouvé aussi, lui seul */
+    /* mots dans n'importe quel ordre, pluriel et fautes tolérés (fzAlts, js2f.js) ; exact d'abord */
+    const t=fzAlts(exQuery,fzCache(EXVOC,all.length,()=>all.map(normTxt))),sc={};
+    const hit=all.filter(n=>exOk1(n)&&(sc[n]=fzScore(normTxt(n),t))!==null),hs=new Set(hit);
+    const names=hit.filter(n=>!(gripHidden(n)&&hs.has(GRIP[n]))).sort((a,b)=>sc[a]-sc[b]||a.length-b.length||a.localeCompare(b,'fr'));return create+(names.length?'<div class="list">'+names.map(row).join('')+'</div>':'<div class="empty">Aucun exercice avec ces filtres.</div>')}
+  if(filt){
+    let h='',k=0;
+    LIB.forEach(([g,names])=>{const l=names.filter(n=>!gripHidden(n)&&exOk(n));k+=l.length;if(l.length)h+='<div class="sec" style="margin-top:16px">'+g+' <span class="muted">· '+l.length+'</span></div><div class="list">'+l.map(row).join('')+'</div>'});
+    return k?h:'<div class="empty">Aucun exercice avec ces filtres.</div>';
+  }
   const inLib=new Set(LIB.flatMap(g=>g[1])),rec=[];
   for(const ses of S.sessions){for(const e of ses.exercises)if(!rec.includes(e.name))rec.push(e.name);if(rec.length>=6)break}
   const others=all.filter(n=>!inLib.has(n)).sort((a,b)=>a.localeCompare(b,'fr'));
   let h='';
   if(rec.length)h+='<div class="sec">Récents</div><div class="list">'+rec.slice(0,6).map(row).join('')+'</div>';
-  LIB.forEach(([g,names])=>{h+='<div class="sec" style="margin-top:16px">'+g+'</div><div class="list">'+names.map(row).join('')+'</div>'});
+  LIB.forEach(([g,names])=>{h+='<div class="sec" style="margin-top:16px">'+g+'</div><div class="list">'+names.filter(n=>!gripHidden(n)).map(row).join('')+'</div>'});
   if(others.length)h+='<div class="sec" style="margin-top:16px">Mes exercices</div><div class="list">'+others.map(row).join('')+'</div>';
   return h;
 }
-A['g-addex']=()=>{exQuery='';openSheet(`<h3>Ajouter un exercice</h3><div class="field"><input class="inp" id="exq" data-in="exq" placeholder="Rechercher ou créer" aria-label="Rechercher un exercice"></div><div id="exlist">${exPicker()}</div>`)};
+A['g-addex']=()=>{exQuery='';exMus='';exEq='';openSheet(`<h3>Ajouter un exercice</h3><div class="field"><input class="inp" id="exq" data-in="exq" placeholder="Rechercher ou créer" aria-label="Rechercher un exercice"></div>${exFilters()}<div id="exlist">${exPicker()}</div>`)};
 I.exq=t=>{exQuery=t.value;$('#exlist').innerHTML=exPicker()};
+I.exmus=t=>{exMus=t.value;$('#exlist').innerHTML=exPicker()};
+I.exeq=t=>{exEq=t.value;$('#exlist').innerHTML=exPicker()};
 function pushEx(name){
   if(routEdit&&!(S.active&&gymOpen)){const r=curRoutine();if(r){r.exercises.push({name,sets:3,kg:'',reps:''});persist('routines')}closeSheet();render();return}
   S.active.exercises.push({name,sets:mkSets(3)});persist('active');closeSheet();render();
   setTimeout(()=>{const cs=document.querySelectorAll('.ex');if(cs.length)cs[cs.length-1].scrollIntoView({behavior:'smooth',block:'center'})},60);
 }
 A['g-pickex']=b=>pushEx(b.dataset.name);
+/* changer de prise : l'exercice prend le nom de la prise (séries déjà saisies conservées) */
+A['g-grip']=b=>{const e=S.active&&S.active.exercises[+b.dataset.i];if(!e)return;e.name=b.dataset.n;persist('active');render()};
 A['g-newex']=b=>{const n=b.dataset.name;if(!n)return;if(!allExNames().includes(n)){S.exercises.push(n);persist('exercises')}pushEx(n)};
 
 /* finish */
@@ -220,14 +262,3 @@ VIEWS.gym_after=()=>{
 A['g-prog']=b=>{progEx=b.dataset.n;render();window.scrollTo({top:0,behavior:'smooth'})};
 A['g-metric']=b=>{progMetric=b.dataset.m;render()};
 
-A['g-exinfo']=b=>{
-  const n=b.dataset.name,e=EXI[n];
-  if(!e){openSheet(`<h3>${esc(n)}</h3><div class="muted" style="margin-bottom:12px">Pas d’illustration pour cet exercice.</div><button class="btn block" data-act="close">Fermer</button>`);return}
-  openSheet(`<h3>${esc(n)}</h3>
-  <img class="mmap" src="img2/${e.i}-m.png" alt="Muscles sollicités : ${esc(e.m.join(', '))}">
-  <div class="row" style="gap:14px;justify-content:center;margin:6px 0 14px"><span class="small"><i class="lg" style="background:#D8483A"></i>Principal</span><span class="small"><i class="lg" style="background:#F0AAA2"></i>Secondaire</span><span class="small muted">Face · Dos</span></div>
-  <div class="sec">Muscles principaux</div><div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:12px">${e.m.map(m=>`<span class="pill bad">${esc(m)}</span>`).join('')}</div>
-  ${e.s.length?`<div class="sec">Muscles secondaires</div><div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:14px">${e.s.map(m=>`<span class="pill neutral">${esc(m)}</span>`).join('')}</div>`:''}
-  <div class="sec">Le mouvement</div>
-  <div class="exinfo"><figure><img src="img/${e.i}-0.jpg" alt="Position de départ"><figcaption>Départ</figcaption></figure><figure><img src="img/${e.i}-1.jpg" alt="Position d’arrivée"><figcaption>Arrivée</figcaption></figure></div>`);
-};

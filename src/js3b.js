@@ -79,12 +79,14 @@ A['g-exinfo']=b=>{
   openSheet(`<h3>${esc(n)}</h3>${movie}
   ${e?`<div class="sec">Muscles sollicités</div>
   <div class="row" style="align-items:flex-start;gap:14px;margin-bottom:6px">
-    <img class="mmap" style="width:42%;max-width:132px" src="img2/${e.i}-m.png" alt="Schéma des muscles : ${esc(e.m.join(', '))}">
+    ${e.i?`<img class="mmap" style="width:42%;max-width:132px" src="img2/${e.i}-m.png" alt="Schéma des muscles : ${esc(e.m.join(', '))}">`:''}
     <div class="grow" style="min-width:0">
       <div class="small muted" style="margin-bottom:4px">Principaux</div>
       <div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:10px">${e.m.map(m=>`<span class="pill bad">${esc(m)}</span>`).join('')}</div>
       ${e.s.length?`<div class="small muted" style="margin-bottom:4px">Secondaires</div><div class="row" style="flex-wrap:wrap;gap:6px">${e.s.map(m=>`<span class="pill neutral">${esc(m)}</span>`).join('')}</div>`:''}
-    </div></div>`:''}
+    </div></div>
+  ${e.eq?`<div class="sec" style="margin-top:14px">Équipement</div><div class="row" style="flex-wrap:wrap;gap:6px"><span class="pill neutral">${esc(e.eq)}</span></div>`:''}
+  ${e.st&&e.st.length?`<div class="sec" style="margin-top:14px">Comment faire</div><ol class="exsteps">${e.st.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:''}`:''}
   <button class="btn ghost block" style="margin-top:14px" data-act="close">Fermer</button>`);
   if(!one)playMov();
 };
@@ -112,6 +114,7 @@ A['g-rexmenu']=b=>{
   <button class="btn danger block" data-act="g-rdelex" data-i="${i}">Retirer de la routine</button>`);
 };
 A['g-rmove']=b=>{const r=curRoutine(),i=+b.dataset.i,j=i+(+b.dataset.d);if(j<0||j>=r.exercises.length)return;const a=r.exercises;[a[i],a[j]]=[a[j],a[i]];persist('routines');closeSheet();render()};
+A['g-rgrip']=b=>{const r=curRoutine(),e=r&&r.exercises[+b.dataset.i];if(!e)return;e.name=b.dataset.n;persist('routines');render()};
 A['g-rdelex']=b=>{const r=curRoutine();r.exercises.splice(+b.dataset.i,1);persist('routines');closeSheet();render()};
 A['g-rdup']=b=>{
   const r=S.routines.find(x=>x.id===b.dataset.id);if(!r)return;
@@ -121,10 +124,11 @@ A['g-rdup']=b=>{
 A['g-rstart']=b=>{const r=S.routines.find(x=>x.id===b.dataset.id);if(!r||!r.exercises.length){toast('Ajoute au moins un exercice');return}routEdit=null;startSession(r.name,r.exercises)};
 function routineView(){
   const r=curRoutine();if(!r)return gymHome();
-  const rows=r.exercises.map((e,i)=>`<div class="card ex" style="padding:14px;margin-bottom:10px">
+  const occ={};   /* clé d'animation : le nom, numéroté s'il revient deux fois */
+  const rows=r.exercises.map((e,i)=>`<div class="card ex" data-ak="${esc(e.name)}#${occ[e.name]=(occ[e.name]||0)+1}" style="padding:14px;margin-bottom:10px">
     <div class="hd"><button class="thumbbtn" data-act="g-exinfo" data-name="${esc(e.name)}" aria-label="Voir ${esc(e.name)}">${thumb(e.name,46)}</button>
       <b style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(e.name)}</b>
-      <button class="iconbtn" style="width:40px;height:40px;box-shadow:none;background:var(--surface2)" data-act="g-rexmenu" data-i="${i}" aria-label="Options"><span style="font-size:20px;line-height:1">⋯</span></button></div>
+      <button class="iconbtn" style="width:40px;height:40px;box-shadow:none;background:var(--surface2)" data-act="g-rexmenu" data-i="${i}" aria-label="Options"><span style="font-size:20px;line-height:1">⋯</span></button></div>${gripRow(e.name,'g-rgrip',i)}
     <div class="rr">
       <button class="rstep" data-act="g-rsets" data-i="${i}" data-d="-1" aria-label="Une série de moins">−</button>
       <span><b class="num">${e.sets||3}</b><i>séries</i></span>
@@ -135,7 +139,7 @@ function routineView(){
   return `<div class="row sb" style="margin-bottom:12px"><button class="chip" data-act="g-rback">${ICON.chevL} Séances</button>
     <button class="btn" style="min-height:44px" data-act="g-rstart" data-id="${r.id}">Démarrer</button></div>
   <div class="field"><input class="inp" data-in="rname" value="${esc(r.name)}" aria-label="Nom de la routine" style="font-weight:700"></div>
-  ${rows||'<div class="card empty">Ajoute les exercices de cette séance, dans l’ordre où tu les fais.</div>'}
+  ${rows?`<div data-ag="r:${r.id}:x">${rows}</div>`:'<div class="card empty">Ajoute les exercices de cette séance, dans l’ordre où tu les fais.</div>'}
   <button class="btn block" data-act="g-addex">${ICON.plus} Ajouter un exercice</button>
   <div class="small muted" style="margin:12px 2px 0">Les kilos et répétitions sont facultatifs : s’ils sont remplis, ils apparaîtront déjà saisis au début de la séance, il ne restera qu’à valider.</div>
   <div class="grid2" style="margin-top:16px"><button class="btn ghost" data-act="g-rdup" data-id="${r.id}">Dupliquer</button><button class="btn danger" data-act="g-rdel" data-id="${r.id}">Supprimer</button></div>`;
