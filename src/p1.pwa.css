@@ -1,0 +1,5 @@
+#live{position:fixed;inset:0;z-index:100;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#live video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#live .lframe{position:relative;width:min(82vw,360px);height:min(36vw,160px);border:3px solid #fff;border-radius:18px;box-shadow:0 0 0 100vmax rgba(0,0,0,.5)}
+#live .lmsg{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 28px);text-align:center;color:#fff;font:600 16px var(--font-body,system-ui)}
+#live .lclose{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 28px);background:#fff;color:#14181F;min-width:160px}
