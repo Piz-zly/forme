@@ -157,7 +157,8 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
    fichiers, aligne `sw.js`).
 5. **Tester** : voir `docs/05-build-publication.md`. Au minimum, servir le dossier
    et lancer les scripts de `tests/`.
-6. **Publier** : `git add -A && git commit && git push`. GitHub Pages met le site
+6. **Publier** : branche, commits, envoi, puis fusion dans `main` après son accord
+   (voir « Ce dossier et GitHub » ci-dessous). GitHub Pages met le site
    à jour en une à deux minutes.
 7. **Dire à l'utilisateur comment récupérer la mise à jour** : fermer
    l'application, la rouvrir avec le réseau, ou Réglages → « Vérifier les mises à
@@ -174,33 +175,34 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 
 ### Ce dossier et GitHub
 
-Ce dossier est une **copie du dépôt** `github.com/Piz-zly/forme`, posée sur
-l'ordinateur de l'utilisateur. Il n'y a pas de `.git` : c'est volontaire, il n'a
-pas à manipuler git.
+Depuis le 13 octobre 2026, ce dossier **est un dépôt git** relié à
+`github.com/Piz-zly/forme` (dépôt **public**, recréé ce jour-là sans données
+personnelles). GitHub Pages sert la branche `main`, dossier racine.
 
-- **Rafraîchir le dossier** depuis la dernière version publiée :
-
-  ```bash
-  curl -sSL -o /tmp/forme.tar.gz \
-    https://codeload.github.com/Piz-zly/forme/tar.gz/refs/heads/main
-  rm -rf /tmp/forme-new && mkdir -p /tmp/forme-new
-  tar xzf /tmp/forme.tar.gz --strip-components=1 -C /tmp/forme-new
-  cp -r /tmp/forme-new/. "<ce dossier>"
-  ```
-
-  On passe par un dossier temporaire et `cp` : extraire directement par-dessus
-  échoue. Quand une IA accède à ce dossier depuis une conversation, la
-  **suppression de fichiers y est interdite par défaut**, et `tar` doit effacer
-  un fichier avant de le réécrire. `cp` se contente de réécrire par-dessus, ce
-  qui passe. Un fichier retiré du dépôt restera donc dans le dossier : le
-  supprimer à la main si besoin.
-
-- **Travailler depuis ce dossier** : modifier `src/`, lancer `./src/build.sh`,
-  tester. Pour publier, les fichiers doivent repartir vers le dépôt ; sans git
-  ici, le plus simple est de refaire la modification côté dépôt, ou d'y recopier
-  les fichiers changés.
-- Le dossier n'est **pas** ce que sert GitHub Pages : le site vient du dépôt. Une
-  modification faite ici et jamais poussée ne changera rien sur le téléphone.
+- **Identité des commits** : `Piz-zly` et l'adresse masquée de GitHub
+  (`339355630+Piz-zly@users.noreply.github.com`), en configuration locale et
+  globale. Ne jamais utiliser son prénom ni sa vraie adresse.
+- **Ne jamais publier** : `perso.md` (informations personnelles, dans
+  `.gitignore`), les sauvegardes `forme-sauvegarde-*.json`, les fichiers Excel
+  Ciqual, les images ou GIF de Gym visual. Avant chaque envoi, vérifier qu'aucune
+  donnée personnelle n'est entrée dans un fichier publié (code, tests, docs).
+- **Connexion à GitHub** : c'est lui qui se connecte, dans la fenêtre qui s'ouvre
+  au premier envoi ; ses identifiants restent ensuite enregistrés par Git for
+  Windows. Ne jamais demander ni utiliser de mot de passe ou de jeton.
+- **Cycle d'une mise à jour** :
+  1. `git switch main && git pull` pour partir de la dernière version publiée ;
+  2. `git switch -c <nom-de-branche>` ;
+  3. modifier `src/`, monter `APP_VER`, `./src/build.sh`, lancer tous les tests ;
+  4. un commit clair en français par fonction ;
+  5. `git push -u origin <nom-de-branche>`, lui donner le lien
+     `https://github.com/Piz-zly/forme/compare/main...<nom-de-branche>` ;
+  6. après son accord seulement : `git switch main`,
+     `git merge --ff-only <nom-de-branche>`, `git push`.
+  Ne jamais forcer un envoi sur `main` sans son accord explicite
+  (`--force-with-lease`, jamais `--force`).
+- La branche locale `sauvegarde-avant-reecriture` garde l'historique d'avant le
+  changement de nom d'auteur (13 octobre) : elle ne doit **jamais** être envoyée.
+- Une modification faite ici et jamais envoyée ne change rien sur le téléphone.
 
 ### Comment lui parler
 
