@@ -168,3 +168,27 @@ async function ocrRun(file){
     ocrIdle=setTimeout(()=>{const x=ocrW;ocrW=null;if(x)x.terminate().catch(()=>{})},90000);
   }
 }
+
+/* ===== ÉCRAN ALLUMÉ PENDANT LA SÉANCE (Screen Wake Lock), 2026.10.14-5 =====
+   Demandé tant qu'une séance est en cours (réglage ecranAllume, activé par défaut), relâché à la fin, à
+   l'abandon et quand on quitte l'appli. Le navigateur le retire quand la page passe en arrière-plan : il est
+   redemandé au retour. Sans la fonction, ou si elle est refusée : rien n'est affiché, la séance continue.
+   Appelée chaque seconde par tick() (js3.js), qui peut tourner avant ces lignes : d'où les var. */
+var wlSent=null,wlBusy=false,wlNo=false;
+function wakeWant(){return !!S.active&&S.settings.ecranAllume!==false&&document.visibilityState==='visible'}
+function wakeOff(){if(wlSent){const x=wlSent;wlSent=null;try{x.release().catch(()=>{})}catch(_){}}}
+function wakeSync(){
+  try{
+    const wl=navigator.wakeLock;if(!wl||typeof wl.request!=='function')return;
+    if(!wakeWant()){wakeOff();if(!S.active)wlNo=false;return}
+    if((wlSent&&!wlSent.released)||wlBusy||wlNo)return;
+    wlBusy=true;
+    wl.request('screen').then(x=>{
+      wlBusy=false;
+      if(!wakeWant()){try{x.release().catch(()=>{})}catch(_){}return}
+      wlSent=x;try{x.addEventListener('release',()=>{if(wlSent===x)wlSent=null})}catch(_){}
+    },()=>{wlBusy=false;wlNo=true});   /* refusé : on n'insiste pas avant le prochain retour au premier plan */
+  }catch(_){wlBusy=false}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wlNo=false;wakeSync()});
+window.addEventListener('pagehide',wakeOff);
