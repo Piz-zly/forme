@@ -30,10 +30,15 @@ garde tout dans le navigateur du téléphone.
   point et étiqueté, repère de position actuelle, compteur « x / y paliers ».
 - Courbe d'évolution sur 14, 30, 90 jours ou tout, avec moyenne lissée sur
   7 jours et ligne d'objectif.
-- Statistiques : moyenne 7 jours, tendance par semaine, reste à perdre.
+- Statistiques : moyenne 7 jours, tendance par semaine, reste à perdre ; dessous, « Plus de
+  détails » (fermé par défaut) : plus bas et plus haut avec leur date, moyenne 30 jours,
+  variations sur 7, 30 et 90 jours (vert vers l'objectif, orange sinon), IMC si la taille est
+  renseignée, dépense estimée (indicative) d'après les repas notés et la pente du poids.
 - Carte « Journée » : pas, calories dépensées, calories mangées, balance,
   barre vers l'objectif de pas, sept derniers jours en bâtons.
-- Historique complet, modifiable.
+- Historique complet, modifiable : écart coloré selon l'objectif, séparateur par semaine
+  (moyenne, variation), carte repliable par son titre.
+- Réglages : taille (facultative, pour l'IMC) ; export et import des pesées en CSV.
 
 **Repas**
 - Journal par repas : petit-déjeuner, déjeuner, dîner, collations, chacun avec

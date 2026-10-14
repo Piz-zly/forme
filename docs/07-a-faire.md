@@ -31,6 +31,13 @@ illustrations sont faites en 2026.10.14-1 (voir ci-dessous). Les schémas
 il faudrait les régénérer avec `tools/gen_schemas_muscles.py`. Lisibilité des menus déroulants et des
 consignes à vérifier sur son écran.
 
+## Poids détaillé : fait en 2026.10.14-3, à essayer sur son téléphone
+
+À vérifier sur son téléphone : le téléchargement du CSV et le sélecteur de fichier d'Android, la
+lecture du fichier dans Excel ou Google Sheets, la lisibilité des couleurs (vert / orange) et des
+séparateurs de semaine. À lui proposer, sans l'ajouter d'office : utiliser la dépense estimée comme
+repère pour l'objectif de calories.
+
 ## Routines série par série : fait en 2026.10.14-2, à essayer sur son téléphone
 
 À vérifier avec lui : le clavier qui s'ouvre (décimal pour le poids, avec virgule ; numérique pour les

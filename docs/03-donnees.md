@@ -28,6 +28,7 @@ Conséquences à ne jamais perdre de vue :
     startW: null,      // poids de départ ; null = première pesée
     step: 2.5,         // taille d'un palier, en kg
     rest: 90,          // durée de repos par défaut, en secondes
+    heightCm: null,    // taille en cm (120 à 230), facultative, sert seulement à l'IMC (2026.10.14-3)
     seeded: 1,         // la reprise des anciennes pesées a été proposée
     v2: 1              // marqueur de migration
   },
@@ -67,7 +68,9 @@ Conséquences à ne jamais perdre de vue :
                                         // 400 au maximum
 
   active:  null,       // la séance en cours, ou null
-  ui:      { tab: 'weight' },
+  ui:      { tab: 'weight', wDet: false, wHistClosed: false },
+                       // préférences d'affichage, propres à l'appareil : ni synchronisées ni exportées
+                       // wDet : « Plus de détails » du Poids ouvert ; wHistClosed : historique replié
   _t:      { … }       // horodatage par tranche, pour la synchronisation
 }
 ```
@@ -119,6 +122,37 @@ Réglages → **Restaurer** relit ce fichier et **remplace** l'état. C'est le s
 chemin pour transférer les données d'une version à l'autre.
 
 Les clés `ui` et `_t` sont retirées de l'export.
+
+### Pesées en CSV (2026.10.14-3)
+
+Réglages → **Exporter les pesées (CSV)** : fichier `forme-pesees-AAAA-MM-JJ.csv`, UTF-8 **avec BOM**
+(Excel français lit les accents), séparateur `;`, en-tête `date;poids_kg`, dates `AAAA-MM-JJ`,
+virgule décimale (`83,4`), du plus ancien au plus récent, lignes terminées par CRLF. Même chemin que
+la sauvegarde (`saveFile`, `js4.js`) : téléchargement sur le téléphone, capacité `downloads` dans
+Claude, sinon texte à copier.
+
+Réglages → **Importer des pesées (CSV)** (`parseWeightsCsv`, `js2.js`), tolérant :
+- séparateur deviné sur la première ligne : tabulation, sinon `;`, sinon `,` ;
+- dates `AAAA-MM-JJ`, `JJ/MM/AAAA`, `JJ-MM-AAAA`, `JJ.MM.AAAA` (une heure qui suit est ignorée) ;
+  dates impossibles ou futures refusées ;
+- en-tête reconnu quand la première ligne ne contient aucune date : colonnes dont le nom contient
+  `date` et `poids`, `weight` ou `kg` ; sans en-tête, les deux premières colonnes ;
+- poids : virgule ou point, « kg » toléré, entre 20 et 400, gardé à 2 décimales ;
+- guillemets, BOM, fins de ligne Windows gérés ; colonnes en plus ignorées ; lignes invalides
+  ignorées et comptées ; une date en double dans le fichier : la dernière ligne gagne.
+
+**Rien n'est écrit avant le choix** : une feuille d'aperçu (« 120 pesées lues · 95 nouvelles · 20
+déjà présentes avec une autre valeur · 5 lignes ignorées ») propose **Ajouter seulement les
+nouvelles**, **Remplacer aussi celles qui existent** ou Annuler ; puis `persist('weights')`.
+Limite connue : un fichier séparé par des virgules ET à virgule décimale sans guillemets
+(`2026-10-06,83,4`) est ambigu ; il est lu comme 83 kg.
+
+### Dépense estimée (calcul, rien n'est enregistré)
+
+`wTdee` (`js2.js`) : sur les 28 jours qui finissent à la dernière pesée, moyenne des kcal des jours
+où au moins un repas est noté, moins 7 700 × la pente du poids (`slopePerDay`, kg par jour), arrondie
+à 10 kcal. Affichée seulement avec au moins 8 pesées étalées sur 14 jours ou plus, et des repas notés
+au moins 70 % des jours. Indicative ; aucun objectif n'est modifié.
 
 ## Migrations
 

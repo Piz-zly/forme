@@ -123,7 +123,8 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── t12.py table Ciqual dans « Chercher » : recherche, ordre, fiche, ml
 │   ├── t13.py exercices enrichis : filtres muscle et équipement, fiche avec consignes, pas d'image cassée
 │   ├── t14.py recherches tolérantes aux fautes : 15 fautes, non-régression, vitesse sur 8 500 aliments
-│   └── t15.py animations : apparition, effacement, déplacement, « réduire les animations », plafond
+│   ├── t15.py animations : apparition, effacement, déplacement, « réduire les animations », plafond
+│   └── t16.py Poids : plus de détails, IMC, historique par semaine et repliable, CSV, dépense estimée
 │
 ├── ill/                       ← illustrations des mouvements (739 fichiers, 149 mouvements, CC0)
 ├── img2/                      ← schémas anatomiques par exercice (MIT)
@@ -227,21 +228,24 @@ le demande : il avance sujet par sujet.
   les choix à lui confirmer.
 - **2026.10.13-1** (13 octobre 2026) : la recherche « Chercher » du Repas inclut 3 203 aliments de la
   table Ciqual (piste 1 de `docs/08-pistes-open-source.md`). Construite et testée (`tests/t4.py` à
-  `t12.py`) dans le dossier local, **pas encore poussée sur GitHub** au moment de l'écrire.
+  `t12.py`) ; publiée le 14 octobre 2026.
 - **2026.10.13-2** (13 octobre 2026) : Muscu passe de 60 à 175 exercices, fiche avec consignes en
-  français et équipement, filtres Muscle et Équipement (piste 2). Testée (`tests/t4.py` à `t13.py`)
-  dans le dossier local ; **ne rien publier sur GitHub sans son accord**.
+  français et équipement, filtres Muscle et Équipement (piste 2). Testée (`tests/t4.py` à `t13.py`),
+  publiée le 14 octobre 2026.
 - **2026.10.13-3** : choix de la prise (Large, Serrée…) sur la carte de 7 exercices, qui n'apparaissent
-  plus qu'une fois dans la liste. Testée (`tests/t4.py` à `t13.py`), non publiée.
+  plus qu'une fois dans la liste. Testée (`tests/t4.py` à `t13.py`), publiée le 14 octobre 2026.
 - **2026.10.13-4** : recherches tolérantes aux fautes de frappe (Fuse.js) dans les aliments, les
-  exercices, la bibliothèque du Scan et les favoris. Testée (`tests/t4.py` à `t14.py`), non publiée.
+  exercices, la bibliothèque du Scan et les favoris. Testée (`tests/t4.py` à `t14.py`), publiée le 14 octobre 2026.
 - **2026.10.13-5** : animations douces (outil maison `src/js1b.js`, AutoAnimate non retenu) dans le
   journal du Repas, la routine, les pesées et la bibliothèque du Scan ; la séance Muscu n'est pas
-  animée, à sa demande. Testée (`tests/t4.py` à `t15.py`), non publiée.
+  animée, à sa demande. Testée (`tests/t4.py` à `t15.py`), publiée le 14 octobre 2026.
 - **2026.10.14-1** (14 octobre 2026) : les 175 exercices de Muscu ont une illustration animée (91
   mouvements ajoutés, dont 26 images proches ou approchantes validées par lui, voir
-  `docs/04-images.md`). Testée (`tests/t4.py` à `t15.py`), non publiée.
+  `docs/04-images.md`). Testée (`tests/t4.py` à `t15.py`), **publiée le 14 octobre 2026** avec -2.
 - **2026.10.14-2** : routines série par série (« Combien de séries ? » à l'ajout, un poids et des
   répétitions par série, ajouter / supprimer une série) ; anciennes routines converties sans perte
-  (`docs/03-donnees.md`). Testée (`tests/t4.py` à `t15.py`), non publiée, branche `routines-series`
-  partie de `illustrations-exercices`.
+  (`docs/03-donnees.md`). Testée (`tests/t4.py` à `t15.py`), **publiée sur GitHub le 14 octobre 2026**
+  (versions 2026.10.13-1 à 2026.10.14-2 en ligne), pas encore essayée sur son téléphone.
+- **2026.10.14-3** : onglet Poids, « Plus de détails » (plus bas / haut, moyenne 30 j, variations, IMC,
+  dépense estimée), historique coloré par semaine et repliable, taille dans Réglages, export / import
+  CSV des pesées. Testée (`tests/t4.py` à `t16.py`), non publiée, branche `poids-details`.

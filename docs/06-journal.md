@@ -5,6 +5,22 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 
 ---
 
+### 2026.10.14-3 — Poids : détails, historique par semaine, CSV, dépense estimée (à essayer sur le téléphone)
+
+- Carte des statistiques : les trois cases restent ; dessous, « Plus de détails » (fermé par défaut,
+  état gardé sur l'appareil) : plus bas, plus haut, moyenne 30 jours, variations 7 / 30 / 90 jours
+  (vert vers l'objectif, orange sinon, « — » s'il manque des données), IMC avec un mot (si la taille
+  est renseignée, « indicatif »), dépense estimée.
+- Historique : écart avec la pesée précédente coloré selon l'objectif (gris sans objectif), un
+  séparateur discret par semaine (« Semaine du 6 oct. · moyenne 83,4 kg · −0,6 kg »), carte repliable
+  par son titre (« 42 pesées · dernière : 83,4 kg »), en douceur ; « Tout afficher » inchangé.
+- Réglages : champ **Taille (cm)**, à côté du poids visé ; **Exporter les pesées (CSV)** et **Importer
+  des pesées (CSV)**, avec aperçu et choix avant toute écriture (`docs/03-donnees.md`).
+- Dépense estimée : kcal mangées en moyenne − 7 700 × pente du poids, sur 28 jours ; seulement avec
+  assez de pesées et de repas notés. Indicative, ne change aucun objectif.
+- `js1b.js` : une zone animée vide compte aussi, pour que l'historique rouvert apparaisse en douceur.
+- Test : `tests/t16.py` (statistiques, historique, export et import CSV, dépense estimée, taille).
+
 ### 2026.10.14-2 — Routines : un poids et des répétitions par série (à essayer sur le téléphone)
 
 - Demandé : régler chaque série d'une routine séparément (ex. 60 kg × 10, 70 kg × 8, 75 kg × 6) au lieu
