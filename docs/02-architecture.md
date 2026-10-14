@@ -236,8 +236,9 @@ la jauge.
 **Exercices enrichis** (`js3c.js`, 2026.10.13-2) — `EXD[nom] = {eq, m, s, st, g?}`. En tête de `js3.js`,
 chaque entrée est fusionnée dans `EXI` (qui garde `i`, l'identifiant du schéma `img2/`, pour les 60
 d'origine) ; un exercice avec `g` est ajouté au groupe `g` de `LIB` (créé s'il manque : Avant-bras).
-Un exercice sans `i` n'a pas de schéma, sans entrée `ILL` pas d'illustration : la fiche et la vignette
-s'en passent. Le sélecteur (`exPicker`) a deux `<select data-ch>` (`exMus` : muscle principal, `exEq` :
+Un exercice sans `i` n'a pas de schéma (les 115 de 2026.10.13-2), sans entrée `ILL` pas d'illustration
+(depuis 2026.10.14-1, seulement les exercices créés par l'utilisateur) : la fiche et la vignette
+(initiale) s'en passent. Le sélecteur (`exPicker`) a deux `<select data-ch>` (`exMus` : muscle principal, `exEq` :
 équipement) ; filtres actifs sans texte → liste par groupe, filtrée ; la recherche passe par `normTxt`
 (js2f.js). Régénérer : `python3 tools/gen_exercices.py <A.json> <B.json> [--relire]` ; `--relire`
 affiche toutes les consignes pour relecture. Testé par `tests/t13.py`.

@@ -104,6 +104,7 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── gen_ciqual.py          ← fabrique src/js2g.js depuis le fichier Excel Ciqual 2025 (téléchargé, hors dépôt)
 │   ├── gen_exercices.py       ← fabrique src/js3c.js depuis exercises-dataset (texte, MIT) et free-exercise-db (domaine public)
 │   ├── exercices_map.py       ← correspondance nom français → illustration
+│   ├── recadre.py             ← recadre les illustrations au format de ill/ (atelier hors dépôt)
 │   ├── paint.py               ← colore en rouge les muscles sur les illustrations
 │   ├── gen_schemas_muscles.py ← génère les schémas anatomiques de img2/
 │   ├── gen_decor.py           ← écrit le décor de fond dans src/p1.html (lance les deux suivants)
@@ -124,7 +125,7 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── t14.py recherches tolérantes aux fautes : 15 fautes, non-régression, vitesse sur 8 500 aliments
 │   └── t15.py animations : apparition, effacement, déplacement, « réduire les animations », plafond
 │
-├── ill/                       ← illustrations des mouvements (288 fichiers, CC0)
+├── ill/                       ← illustrations des mouvements (739 fichiers, 149 mouvements, CC0)
 ├── img2/                      ← schémas anatomiques par exercice (MIT)
 ├── icons/                     ← icônes de l'application
 └── vendor/                    ← zxing.min.js (codes-barres) et fuse.basic.min.js (fautes de frappe), Apache-2.0
@@ -237,3 +238,6 @@ le demande : il avance sujet par sujet.
 - **2026.10.13-5** : animations douces (outil maison `src/js1b.js`, AutoAnimate non retenu) dans le
   journal du Repas, la routine, les pesées et la bibliothèque du Scan ; la séance Muscu n'est pas
   animée, à sa demande. Testée (`tests/t4.py` à `t15.py`), non publiée.
+- **2026.10.14-1** (14 octobre 2026) : les 175 exercices de Muscu ont une illustration animée (91
+  mouvements ajoutés, dont 26 images proches ou approchantes validées par lui, voir
+  `docs/04-images.md`). Testée (`tests/t4.py` à `t15.py`), non publiée.

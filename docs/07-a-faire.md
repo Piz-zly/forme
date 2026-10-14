@@ -26,11 +26,47 @@ prédictive, majuscule automatique, glissement), qui peut lui-même modifier ce 
 175 exercices (115 nouveaux), consignes en français, équipement, filtres Muscle et Équipement. À voir
 avec lui : les exercices qui manquent ou qui sont en trop, les noms (« Face pull », « Hip thrust »,
 « Rack pull », « Good morning »… gardés en anglais comme en salle), la clarté des consignes. Les
-nouveaux exercices n'ont **pas d'illustration** : la collection Open Exercise Illustrations (CC0)
-en a peut-être d'autres à reprendre (`tools/exercices_map.py`, `docs/04-images.md`). Les schémas
+illustrations sont faites en 2026.10.14-1 (voir ci-dessous). Les schémas
 `img2/` ne montrent pas les muscles secondaires ajoutés (ischio-jambiers du soulevé de terre…) :
 il faudrait les régénérer avec `tools/gen_schemas_muscles.py`. Lisibilité des menus déroulants et des
 consignes à vérifier sur son écran.
+
+## Illustrations des 115 exercices : fait en 2026.10.14-1, à essayer sur son téléphone
+
+Les 175 exercices ont une illustration animée (91 nouveaux mouvements, Open Exercise Illustrations,
+CC0) ; liste des images approchantes dans `docs/04-images.md`. À voir avec lui : les approchantes qui
+le gênent (les retirer alors de `ILL` et de `tools/exercices_map.py`), la lisibilité des vignettes sur
+son écran, le chargement hors ligne (`ill/` passe de 1,4 à 3,9 Mo, chargé à la demande puis gardé en
+cache par `sw.js`).
+
+**Schémas anatomiques `img2/` encore manquants** (autre système d'identifiants, `EXI[nom].i`) : aucun
+des 115 exercices ajoutés en 2026.10.13-2 n'en a. Pectoraux : Développé couché prise large,
+Développé couché Smith, Développé incliné Smith, Développé décliné haltères, Développé couché haltères
+prise neutre, Développé incliné machine, Écarté incliné haltères, Écarté décliné haltères, Écarté poulie
+basse, Écarté incliné poulie, Pull-over haltère, Pompes pieds surélevés, Pompes inclinées, Pompes prise
+large. Dos : Rowing haltères deux bras, Rowing barre prise inversée, Rowing sur banc incliné, Rowing
+poulie un bras, Rowing machine, Rowing Smith, Rowing kettlebell un bras, Tirage vertical prise inversée,
+Tirage vertical prise neutre, Tirage vertical un bras, Pull-over poulie corde, Shrugs barre, Shrugs
+machine, Soulevé de terre sumo, Rack pull, Soulevé de terre jambes tendues, Good morning, Extensions
+lombaires. Épaules : Développé militaire assis, Développé épaules machine, Développé épaules Smith,
+Développé haltères debout, Élévations latérales assis, Élévation latérale poulie, Élévations frontales
+poulie, Oiseau machine, Oiseau poulie, Oiseau assis, Rowing menton barre, Rowing menton haltères, Rowing
+menton poulie, Rotation externe poulie, Écartement élastique. Bras : Curl barre EZ, Curl concentré, Curl
+haltères alterné, Curl haltères assis, Curl marteau poulie corde, Curl marteau incliné, Curl pupitre
+haltère, Curl pupitre machine, Curl araignée, Curl inversé barre, Curl Zottman, Curl poulie haute, Curl
+machine, Kickback haltère, Extension poulie prise inversée, Extension poulie barre en V, Extension poulie
+un bras, Extension nuque barre, Extension nuque un bras, Extension couché haltères, Extension triceps
+machine, Dips triceps, Dips machine, Pompes serrées, Développé serré haltères, Développé au sol, Curl
+poignets barre, Curl poignets inversé. Jambes : Squat Smith, Squat haltères, Squat poids du corps, Box
+squat, Squat sumo haltère, Squat bulgare, Hack squat machine, Presse pieds serrés, Fentes barre, Fentes
+arrière, Montées sur banc, Leg extension unilatéral, Leg curl debout, Soulevé de terre roumain haltères,
+Pont fessier barre, Pont fessier, Pont fessier une jambe, Kickback fessier poulie, Pull through poulie,
+Adducteurs machine, Abducteurs machine, Mollets à la presse, Mollets haltères, Mollets Smith. Abdos :
+Crunch inversé, Crunch oblique, Crunch machine, Crunch décliné, Crunch vélo, Relevé de jambes allongé,
+Relevé de genoux chaise romaine, Sit-up, Russian twist, Gainage latéral, Roulette abdominale, Bûcheron
+poulie, Pallof press, Dead bug, Mountain climber, Flexion latérale haltère. La fiche s'en passe proprement
+(muscles en pastilles) ; les produire demanderait d'étendre `tools/gen_schemas_muscles.py` pour
+partir des noms de muscles plutôt que de l'identifiant de l'ancienne base.
 
 ## Bibliothèque du Scan : fait en 2026.10.08-11 (doublons et aliments de base en -12), à essayer sur son téléphone
 

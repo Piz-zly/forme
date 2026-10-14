@@ -5,9 +5,12 @@
   2. « Ajouter un exercice » : les nouveaux exercices sont dans leur groupe (dont Avant-bras) ;
   3. filtres Muscle et Equipement, seuls et ensemble, avec la recherche (sans accents) ;
   4. familles de prises : un seul exercice dans la liste, choix de la prise dans la routine et la seance ;
-  5. fiche d'un nouvel exercice (sans illustration) : consignes, equipement, muscles, aucune image ;
+  5. fiche d'un nouvel exercice (illustre, sans schema img2) : illustration, consignes, equipement, muscles ;
      fiche d'un exercice illustre : illustration, schema, consignes ;
-  6. aucune image cassee, aucune requete en erreur.
+  6. les 175 exercices ont une illustration : chaque fiche s'ouvre sans image cassee (couleur et
+     image simple), chaque vignette de la liste se charge ;
+  7. un exercice perso (cree par l'utilisateur, sans illustration) : vignette lettre, fiche propre ;
+  8. aucune image cassee, aucune requete en erreur.
 
     python3 -m http.server 8765
     python3 tests/t13.py
@@ -85,14 +88,18 @@ with sync_playwright() as p:
     check('recherche sans accents : curl concentre', names() == ['Curl concentré'], names())
     pg.screenshot(path=os.path.join(SHOT, 't13_liste.png'))
 
-    # 4. fiche d'un nouvel exercice (pas d'illustration)
+    # 4. fiche d'un nouvel exercice (illustration ajoutee en 2026.10.14, pas de schema img2)
     pg.click('#exlist [data-act="g-pickex"]'); pg.wait_for_timeout(300)
     pg.click('[data-act="g-exinfo"][data-name="Curl concentré"]'); pg.wait_for_timeout(300)
     sh = pg.locator('.sheet').last
     t = sh.inner_text().lower()
     check('fiche nouvelle : consignes', 'comment faire' in t and sh.locator('.exsteps li').count() == len(EXD['Curl concentré']['st']))
     check('fiche nouvelle : equipement et muscles', 'équipement' in t and 'haltères' in t and 'biceps' in t)
-    check('fiche nouvelle : aucune image', sh.locator('img').count() == 0)
+    check('fiche nouvelle : illustration depart + arrivee', sh.locator('#mov img').count() == 2 and pg.get_attribute('#mov', 'data-id') == 'concentration-curl')
+    check('fiche nouvelle : pas de schema img2 (absent pour les nouveaux)', sh.locator('img.mmap').count() == 0)
+    pg.wait_for_timeout(300)
+    broken = pg.evaluate("[...document.querySelectorAll('.sheet img')].filter(i=>i.complete&&!i.naturalWidth).map(i=>i.src)")
+    check('fiche nouvelle : aucune image cassee', not broken, broken)
     pg.screenshot(path=os.path.join(SHOT, 't13_fiche_nouvelle.png'))
     pg.click('.sheet [data-act="close"]'); pg.wait_for_timeout(300)
 
@@ -129,6 +136,49 @@ with sync_playwright() as p:
     an = [e['name'] for e in st['active']['exercises']]
     check('seance : passage en prise neutre', 'Tirage vertical prise neutre' in an, an)
     pg.screenshot(path=os.path.join(SHOT, 't13_prises.png'))
+
+    # 6. les 175 fiches : illustration presente et chargee, en couleur puis en image simple
+    pg.goto('http://localhost:8765/index.html'); pg.wait_for_timeout(500)
+    res = pg.evaluate('''async names=>{
+      const out={sans:[],casse:[],un:[]};
+      const load=()=>Promise.all([...document.querySelectorAll('.sheet img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));
+      const bad=()=>[...document.querySelectorAll('.sheet img')].filter(i=>!i.naturalWidth).map(i=>i.getAttribute('src'));
+      const open=n=>{const b=document.createElement('button');b.dataset.act='g-exinfo';b.dataset.name=n;document.body.append(b);b.click();b.remove()};
+      const click=q=>document.querySelector(q).click();
+      for(const n of names){
+        open(n);
+        const m=document.querySelectorAll('#mov img');
+        if(!m.length)out.sans.push(n);
+        if(m.length==1)out.un.push(n);
+        await load(); out.casse.push(...bad());
+        click('#redbtn'); await load(); out.casse.push(...bad()); click('#redbtn');
+        click('.sheet [data-act="close"]');
+      }
+      return out}''', list(EXD))
+    print('  une seule position :', res['un'])
+    check('les 175 exercices ont une illustration', not res['sans'], res['sans'][:5])
+    check('aucune image cassee dans les 175 fiches (couleur et simple)', not res['casse'], res['casse'][:5])
+    check('une seule position : Gainage, Gainage lateral, Flexion laterale', sorted(res['un']) == sorted(['Gainage', 'Gainage latéral', 'Flexion latérale haltère']), res['un'])
+    pg.click('.tab[data-t="gym"]'); pg.wait_for_timeout(300)
+    pg.click('[data-act="g-rnew"]'); pg.wait_for_timeout(300)
+    pg.click('[data-act="g-addex"]'); pg.wait_for_timeout(300)
+    th = pg.evaluate('''async()=>{const im=[...document.querySelectorAll('#exlist img.thumb')];
+      im.forEach(i=>i.loading='eager');
+      await Promise.all(im.map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));
+      return {n:im.length,ph:document.querySelectorAll('#exlist .thumb.ph').length,bad:im.filter(i=>!i.naturalWidth).map(i=>i.getAttribute('src'))}}''')
+    check('liste : %d vignettes, toutes chargees, aucune lettre a la place' % th['n'], th['n'] == len(EXD) - len(HIDDEN) and not th['bad'] and th['ph'] == 0, th)
+
+    # 7. exercice perso sans illustration : vignette lettre et fiche propre
+    pg.fill('#exq', 'Mon mouvement maison'); pg.wait_for_timeout(150)
+    pg.click('[data-act="g-newex"]'); pg.wait_for_timeout(300)
+    check('exercice perso : vignette lettre', pg.locator('.thumb.ph').filter(has_text='M').count() >= 1)
+    pg.click('[data-act="g-addex"]'); pg.wait_for_timeout(300)
+    pg.fill('#exq', 'Mon mouvement maison'); pg.wait_for_timeout(150)
+    check('exercice perso : vignette lettre dans la liste', pg.locator('#exlist [data-name="Mon mouvement maison"] .thumb.ph').count() == 1)
+    pg.evaluate("(()=>{const b=document.createElement('button');b.dataset.act='g-exinfo';b.dataset.name='Mon mouvement maison';document.body.append(b);b.click();b.remove()})()"); pg.wait_for_timeout(300)
+    sh = pg.locator('.sheet').last
+    check('exercice perso : fiche « Pas d’illustration », aucune image', 'Pas d’illustration' in sh.inner_text() and sh.locator('img').count() == 0)
+    pg.screenshot(path=os.path.join(SHOT, 't13_perso.png'))
 
     print('ERRS', errs)
     check('aucune erreur JavaScript', not errs, errs)

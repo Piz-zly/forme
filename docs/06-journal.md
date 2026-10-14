@@ -5,6 +5,26 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 
 ---
 
+### 2026.10.14-1 — Une illustration pour chacun des 175 exercices (à essayer sur le téléphone)
+
+- Demandé : des images pour les 115 exercices ajoutés en 2026.10.13-2, uniquement depuis la collection
+  déjà utilisée (Open Exercise Illustrations, CC0). Correspondance proposée exercice par exercice
+  (89 exactes, 13 proches, 13 sans équivalent), validée par lui ; pour les 13 sans équivalent il a
+  préféré l'image la plus proche plutôt que rien (liste et écarts dans `docs/04-images.md`).
+- 91 mouvements nouveaux (451 fichiers, +2,5 Mo dans `ill/`, 3,9 Mo au total), même format que les
+  58 existants (720 × 480, vignette 176 px, version colorée). Deux mouvements à une seule position
+  (Gainage latéral, Flexion latérale haltère) ajoutés à `ILL1`. Aucun fichier existant modifié.
+- Outils : `tools/recadre.py` (nouveau, l'outil de recadrage d'origine n'était pas dans le dépôt) ;
+  `tools/paint.py` prend ses chemins dans `FORME_ATELIER` et `FORME_YOLO` (plus de chemin en dur), sait
+  colorer adducteurs et abducteurs, retente la détection sur l'image tournée (personnage tête en bas)
+  et colore le short quand les fessiers sont cachés dessous.
+- Toutes les planches (recadrées puis colorées) relues ; corrigés : un bout de pied parasite en bas
+  de l'image source du relevé de jambes, l'extension lombaire non colorée au départ, les fessiers
+  invisibles du kickback à la poulie.
+- `tests/t13.py` : les 175 fiches s'ouvrent avec leur illustration, sans image cassée (en couleur et
+  en image simple) ; les 164 vignettes de la liste se chargent ; un exercice perso garde sa vignette
+  lettre et une fiche « Pas d'illustration » propre.
+
 ### 2026.10.13-5 — Animations douces, outil maison (à essayer sur le téléphone)
 
 - Demandé : des animations discrètes quand une ligne apparaît, disparaît ou change de place.

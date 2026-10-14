@@ -4,7 +4,8 @@ Forme - licences des éléments tiers
    https://github.com/hitmanrepo/open-exercise-illustrations
    Licence CC0 1.0 Universal (domaine public). Images générées par IA, utilisables librement,
    y compris commercialement, sans attribution obligatoire. Elles n'ont pas été validées par un
-   coach ni par un professionnel de santé.
+   coach ni par un professionnel de santé. 149 mouvements repris (739 fichiers dans ill/),
+   recadrés et colorés pour Forme (tools/recadre.py, tools/paint.py).
 2) Schémas musculaires : tracés vectoriels issus de react-body-highlighter
    Copyright (c) 2020 GV79 - licence MIT (https://github.com/giavinh79/react-body-highlighter)
 3) Lecture des codes-barres : ZXing (@zxing/library) - Apache License 2.0
