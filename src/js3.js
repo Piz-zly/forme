@@ -30,8 +30,52 @@ let gymTab='sessions',gymOpen=false,progEx=null,progMetric='top',exQuery='',exMu
 const fmtKg=v=>nf(v,2);
 const e1rm=(kg,reps)=>reps<=1?kg:kg*(1+reps/30);
 const setVol=s=>num(s.kg)*num(s.reps);
+/* type de série (2026.10.14-5) : t absent = normale, 'w' échauffement, 'f' échec, 'd' drop set.
+   L'échauffement ne compte nulle part (records, volume, suggestion, séries par muscle) ; échec et drop set
+   comptent comme des séries normales. */
+const STYPES={w:['É','Échauffement'],f:['E','Échec'],d:['D','Drop set']};
+const isWork=s=>!s||s.t!=='w';
+const workSets=sets=>(sets||[]).filter(isWork);
+const withT=(o,s)=>s&&STYPES[s.t]?Object.assign(o,{t:s.t}):o;
 const topSet=sets=>sets.reduce((b,s)=>!b||num(s.kg)>num(b.kg)||(num(s.kg)===num(b.kg)&&num(s.reps)>num(b.reps))?s:b,null);
-const sessVol=ses=>ses.exercises.reduce((t,e)=>t+e.sets.reduce((u,s)=>u+setVol(s),0),0);
+const sessVol=ses=>ses.exercises.reduce((t,e)=>t+workSets(e.sets).reduce((u,s)=>u+setVol(s),0),0);
+/* libellé de la case « # » : lettre du type, sinon numéro parmi les séries normales */
+function setLab(sets,si){const s=sets[si];if(STYPES[s.t])return STYPES[s.t][0];let n=0;for(let i=0;i<=si;i++)if(!STYPES[sets[i].t])n++;return String(n)}
+/* records (2026.10.14-5) : la série validée est comparée à toutes les séries de travail déjà faites sur cet
+   exercice (séances enregistrées + séries déjà validées de la séance en cours). Rien à comparer = pas de record.
+   Un seul record retenu : charge max > 1RM estimé > répétitions à cette charge > volume de la série. */
+function prCheck(name,set,others){
+  const kg=num(set.kg),reps=num(set.reps);
+  let n=0,bk=null,be=0,bv=0,br=null;
+  const see=s=>{const k=num(s.kg),r=num(s.reps);if(r<=0)return;n++;
+    if(!bk||k>num(bk.kg)||(k===num(bk.kg)&&r>num(bk.reps)))bk=s;
+    be=Math.max(be,e1rm(k,r));bv=Math.max(bv,k*r);if(k===kg&&(br===null||r>br))br=r};
+  for(const ses of S.sessions)for(const e of ses.exercises)if(e.name===name)workSets(e.sets).forEach(see);
+  others.forEach(see);
+  if(!n||reps<=0)return null;
+  const e1=e1rm(kg,reps),v=kg*reps,f=x=>nf(x,2);
+  if(kg>num(bk.kg))return {k:'kg',txt:`Record ! ${name} ${f(kg)} kg × ${nf(reps,0)} (avant : ${f(num(bk.kg))} × ${nf(num(bk.reps),0)})`};
+  if(kg>0&&e1>be+.05)return {k:'e1',txt:`Record de 1RM estimé ! ${name} ${nf(e1,1)} kg (avant : ${nf(be,1)})`};
+  if(br!==null&&reps>br)return {k:'reps',txt:`Record ! ${name} ${f(kg)} kg × ${nf(reps,0)} (avant : ${f(kg)} × ${nf(br,0)})`};
+  if(kg>0&&v>bv)return {k:'vol',txt:`Record de volume ! ${name} ${f(kg)} × ${nf(reps,0)} = ${nf(v,0)} kg (avant : ${nf(bv,0)})`};
+  return null;
+}
+let prBan=null;   /* bannière du dernier record : {s, until} ; jamais enregistrée */
+const PR_MS=5000;
+/* suggestion de charge, double progression (2026.10.14-5) : seulement une indication, jamais appliquée d'office.
+   Séries de travail chargées (kg > 0) : toutes à la même charge et toutes >= max -> + palier ;
+   toutes >= min -> rester ; une seule sous min, ou rien de chargé (poids du corps, durée) -> rien. */
+function sugCalc(sets){
+  const g=S.settings;if(g.sugCharge===false)return null;
+  const lo=num(g.sugMin)||10,hi=num(g.sugMax)||12,st=num(g.pasCharge)||2.5;
+  const w=workSets(sets).filter(s=>num(s.kg)>0&&num(s.reps)>0);if(!w.length)return null;
+  const top=Math.max(...w.map(s=>num(s.kg))),minR=Math.min(...w.map(s=>num(s.reps)));
+  if(minR<lo)return null;
+  if(minR>=hi&&w.every(s=>num(s.kg)===top))return {up:true,kg:Math.round((top+st)*100)/100,st,lo,hi};
+  return {up:false,kg:top,st,lo,hi};
+}
+/* phrase complète (lecteur d'écran, info-bulle) ; à l'écran une version courte qui tient sur une ligne */
+const sugTxt=(g,when)=>'Suggestion. '+(g.up?when+' : +'+fmtKg(g.st)+' kg ('+fmtKg(g.kg)+' kg) et repars à '+g.lo+' répétitions.':'Reste à '+fmtKg(g.kg)+' kg, vise '+g.hi+' répétitions sur chaque série.');
 function lastPerf(name){
   for(const ses of S.sessions){const e=ses.exercises.find(x=>x.name===name);if(e)return e.sets}
   return null;
@@ -39,9 +83,9 @@ function lastPerf(name){
 function history(name){
   const out=[];
   for(const ses of S.sessions.slice().reverse()){
-    const e=ses.exercises.find(x=>x.name===name);if(!e||!e.sets.length)continue;
-    const top=topSet(e.sets),best=e.sets.reduce((m,s)=>Math.max(m,e1rm(num(s.kg),num(s.reps))),0);
-    out.push({date:ses.date,x:dn(ses.date),top,e1:best,vol:e.sets.reduce((t,s)=>t+setVol(s),0)});
+    const e=ses.exercises.find(x=>x.name===name),w=e?workSets(e.sets):[];if(!w.length)continue;
+    const top=topSet(w),best=w.reduce((m,s)=>Math.max(m,e1rm(num(s.kg),num(s.reps))),0);
+    out.push({date:ses.date,x:dn(ses.date),top,e1:best,vol:w.reduce((t,s)=>t+setVol(s),0)});
   }
   return out;
 }
@@ -55,7 +99,7 @@ function startSession(name,exs){
   if(S.active){gymOpen=true;toast('Séance en cours reprise');render();return}
   /* exs : [{name, sets:[{kg,reps},…]}] (routine) ; chaque série reprend SON poids et SES répétitions prévus */
   const str=v=>v==null?'':String(v);
-  S.active={id:uid(),name:name||'Séance',start:Date.now(),exercises:exs.map(e=>({name:e.name,sets:(Array.isArray(e.sets)&&e.sets.length?e.sets:mkSets(3)).map(x=>({kg:str(x.kg),reps:str(x.reps),done:false}))}))};
+  S.active={id:uid(),name:name||'Séance',start:Date.now(),exercises:exs.map(e=>({name:e.name,sets:(Array.isArray(e.sets)&&e.sets.length?e.sets:mkSets(3)).map(x=>withT({kg:str(x.kg),reps:str(x.reps),done:false},x))}))};
   persist('active');gymOpen=true;restEnd=0;render();window.scrollTo(0,0);
 }
 VIEWS.gym=()=>S.active&&gymOpen?sessionView():routEdit?routineView():gymHome();
@@ -91,16 +135,19 @@ A['g-rdel']=b=>confirmSheet('Supprimer cette routine ?','Les séances déjà fai
 function sessionView(){
   const a=S.active;
   const exs=a.exercises.map((e,ei)=>{
-    const prev=lastPerf(e.name)||[];
+    const prev=lastPerf(e.name)||[],sg=sugCalc(prev),live=sugCalc(e.sets.filter(s=>s.done));
     const rows=e.sets.map((s,si)=>{
-      const p=prev[si];
-      return `<div class="r ${s.done?'done':''}" style="display:contents"><div class="n">${si+1}</div><div class="prev">${p?nf(num(p.kg),2)+' × '+nf(num(p.reps),0):'—'}</div>
+      const p=prev[si],ty=STYPES[s.t];
+      const ban=prBan&&prBan.s===s&&s.pr&&Date.now()<prBan.until?`<div class="prban" id="prban" role="status">🏆 ${esc(s.pr.txt)}</div>`:'';
+      return `<div class="r ${s.done?'done':''}" style="display:contents"><button class="n${ty?' t'+s.t:''}" data-act="g-stype" data-c="a" data-e="${ei}" data-s="${si}" aria-label="Série ${si+1}, ${ty?ty[1].toLowerCase():'normale'} : changer le type">${setLab(e.sets,si)}</button><div class="prev">${p?nf(num(p.kg),2)+' × '+nf(num(p.reps),0):'—'}</div>
       <input inputmode="decimal" data-in="set" data-e="${ei}" data-s="${si}" data-f="kg" value="${esc(s.kg)}" placeholder="${p?nf(num(p.kg),2):'kg'}" aria-label="Charge série ${si+1}">
       <input inputmode="numeric" data-in="set" data-e="${ei}" data-s="${si}" data-f="reps" value="${esc(s.reps)}" placeholder="${p?nf(num(p.reps),0):'reps'}" aria-label="Répétitions série ${si+1}">
-      <button class="ck" data-act="g-check" data-e="${ei}" data-s="${si}" aria-pressed="${s.done}" aria-label="Série ${si+1} faite">${ICON.check}</button></div>`;
+      <button class="ck" data-act="g-check" data-e="${ei}" data-s="${si}" aria-pressed="${s.done}" aria-label="Série ${si+1} faite">${ICON.check}</button></div>${ban}`;
     }).join('');
     return `<div class="card ex"><div class="hd"><button class="thumbbtn" data-act="g-exinfo" data-name="${esc(e.name)}" aria-label="Voir l’exercice ${esc(e.name)}">${thumb(e.name,48)}</button><b style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(e.name)}</b><button class="iconbtn" style="width:40px;height:40px;box-shadow:none;background:var(--surface2)" data-act="g-exmenu" data-e="${ei}" aria-label="Options de l’exercice"><span style="font-size:20px;line-height:1">⋯</span></button></div>${gripRow(e.name,'g-grip',ei)}
+    ${sg?(t=>`<button class="sug" data-act="g-sug" data-e="${ei}" data-kg="${sg.kg}" title="${t}" aria-label="${t}">💡 <b>Suggestion</b> · ${sg.up?`${fmtKg(sg.kg)} kg (+${fmtKg(sg.st)}), repars à ${sg.lo} reps`:`reste à ${fmtKg(sg.kg)} kg, vise ${sg.hi} reps`}</button>`)(sugTxt(sg,'Aujourd’hui')+' Touche pour pré-remplir la charge.'):''}
     <div class="sets"><div class="h">#</div><div class="h">Avant</div><div class="h">kg</div><div class="h">Reps</div><div class="h">OK</div>${rows}</div>
+    ${live?`<div class="sug" title="${sugTxt(live,'Prochaine fois')}"><span aria-hidden="true">💡 <b>Suggestion</b> · ${live.up?`prochaine fois ${fmtKg(live.kg)} kg, ${live.lo} reps`:`reste à ${fmtKg(live.kg)} kg, vise ${live.hi} reps`}</span><span class="sr">${sugTxt(live,'Prochaine fois')}</span></div>`:''}
     <button class="btn soft block" style="margin-top:12px;min-height:44px" data-act="g-addset" data-e="${ei}">${ICON.plus} Série</button></div>`;
   }).join('');
   return `<div class="row sb" style="margin-bottom:10px"><button class="chip" data-act="g-back">${ICON.chevL} Séances</button><span class="num" id="elapsed" style="font-weight:800;font-size:20px"></span><button class="btn" style="min-height:44px" data-act="g-finish">Terminer</button></div>
@@ -113,6 +160,7 @@ function tick(){
   const a=S.active,el=$('#elapsed');
   if(a&&el){const s=Math.floor((Date.now()-a.start)/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60);el.textContent=(h?h+':'+pad(m):m)+':'+pad(s%60)}
   if(typeof syncRestBar==='function')syncRestBar();
+  if(typeof wakeSync==='function')wakeSync();   /* écran allumé pendant la séance (js5.js, téléphone seulement) */
 }
 VIEWS.gym_after=tick;
 I.sname=t=>{if(S.active){S.active.name=t.value;persist('active')}};
@@ -125,9 +173,36 @@ A['g-check']=b=>{
     if(s.reps===''&&p)s.reps=String(num(p.reps));
     if(s.reps===''||num(s.reps)<=0){toast('Indique les répétitions');return}
     if(s.kg==='')s.kg='0';
-    s.done=true;startRest(S.settings.rest);
-  }else s.done=false;
+    s.done=true;
+    delete s.pr;prBan=null;   /* une nouvelle série validée remplace la bannière précédente */
+    if(isWork(s)){
+      const o=a.exercises.filter(x=>x.name===e.name).flatMap(x=>x.sets.filter(y=>y!==s&&y.done&&isWork(y)));
+      const pr=prCheck(e.name,s,o);if(pr){s.pr=pr;prBan={s,until:Date.now()+PR_MS}}
+    }
+    startRest(S.settings.rest);
+  }else{s.done=false;delete s.pr}
   persist('active');render();
+  /* la bannière s'efface d'elle-même, sans redessiner l'écran */
+  if(s.done&&s.pr){const u=prBan.until;setTimeout(()=>{const x=$('#prban');if(x&&prBan&&prBan.until===u){x.classList.add('out');setTimeout(()=>{if(prBan&&prBan.until===u)x.remove()},300)}},PR_MS-300)}
+};
+/* type de série : un appui sur le numéro ; c = 'a' séance en cours, 'r' routine */
+const STY_OPTS=[['','Normale','1','Compte partout.'],['w','Échauffement','É','Ne compte ni dans les records, ni dans le volume, ni dans les suggestions.'],['f','Échec','E','Jusqu’à ne plus pouvoir faire une répétition. Compte comme une série normale.'],['d','Drop set','D','Charge baissée juste après une série, sans repos. Compte comme une série normale.']];
+function stSet(c,ei,si){const x=c==='r'?curRoutine():S.active,e=x&&x.exercises[ei];return e&&e.sets[si]||null}
+A['g-stype']=b=>{
+  const {c,e,s}=b.dataset,set=stSet(c,+e,+s);if(!set)return;const cur=STYPES[set.t]?set.t:'';
+  openSheet(`<h3>Type de la série</h3><div class="list">${STY_OPTS.map(([t,l,k,d])=>`<button class="li" data-act="g-stype-ok" data-c="${c}" data-e="${e}" data-s="${s}" data-t="${t}" aria-pressed="${t===cur}"><span class="stb${t?' t'+t:''}">${k}</span><div class="grow"><div class="t">${l}${t===cur?' ✓':''}</div><div class="small muted">${d}</div></div></button>`).join('')}</div>
+  <button class="btn ghost block" style="margin-top:12px" data-act="close">Fermer</button>`);
+};
+A['g-stype-ok']=b=>{
+  const {c,e,s,t}=b.dataset,set=stSet(c,+e,+s);if(!set)return;
+  if(STYPES[t])set.t=t;else delete set.t;
+  if(t==='w')delete set.pr;
+  persist(c==='r'?'routines':'active');closeSheet();render();
+};
+/* appui sur la suggestion : pré-remplit la charge des séries de travail pas encore validées, rien d'autre */
+A['g-sug']=b=>{
+  const e=S.active&&S.active.exercises[+b.dataset.e],kg=num(b.dataset.kg);if(!e||!(kg>0))return;
+  e.sets.forEach(s=>{if(!s.done&&isWork(s))s.kg=String(kg)});persist('active');render();toast('Charge pré-remplie : '+fmtKg(kg)+' kg');
 };
 A['g-addset']=b=>{const e=S.active.exercises[+b.dataset.e],l=e.sets[e.sets.length-1];e.sets.push({kg:l?l.kg:'',reps:l?l.reps:'',done:false});persist('active');render()};
 A['g-rest-skip']=()=>{restEnd=0;syncRestBar()};
@@ -197,15 +272,17 @@ A['g-finish']=()=>{
 };
 function finishSession(){
   const a=S.active;
-  const exs=a.exercises.map(e=>({name:e.name,sets:e.sets.filter(s=>s.done).map(s=>({kg:num(s.kg),reps:num(s.reps)}))})).filter(e=>e.sets.length);
-  const date=ymd(new Date(a.start)),prevBest={};
-  exs.forEach(e=>{const h=history(e.name);prevBest[e.name]=h.reduce((m,x)=>Math.max(m,num(x.top.kg)),0)});
+  const exs=a.exercises.map(e=>({name:e.name,sets:e.sets.filter(s=>s.done).map(s=>withT({kg:num(s.kg),reps:num(s.reps)},s))})).filter(e=>e.sets.length);
+  const date=ymd(new Date(a.start));
+  /* records battus pendant la séance, gardés avec elle (pour un futur résumé) */
+  const prs=[];a.exercises.forEach(e=>e.sets.forEach(s=>{if(s.done&&s.pr&&isWork(s))prs.push({ex:e.name,k:s.pr.k,txt:s.pr.txt})}));
   const ses={id:a.id,date,name:a.name||'Séance',dur:Math.max(1,Math.round((Date.now()-a.start)/60000)),exercises:exs};
+  if(prs.length)ses.prs=prs;
   S.sessions.unshift(ses);S.sessions.sort((x,y)=>y.date.localeCompare(x.date));
-  S.active=null;restEnd=0;gymOpen=false;persist('sessions',date);persist('active');
-  const recs=exs.filter(e=>{const t=topSet(e.sets);return prevBest[e.name]>0&&num(t.kg)>prevBest[e.name]}).map(e=>{const t=topSet(e.sets);return e.name+' : '+nf(num(t.kg),2)+' kg × '+nf(num(t.reps),0)});
+  S.active=null;restEnd=0;gymOpen=false;prBan=null;persist('sessions',date);persist('active');
+  const recs=prs.map(r=>r.txt);
   openSheet(`<h3>Séance enregistrée</h3><div class="stats" style="margin-bottom:14px"><div class="stat"><span>Durée</span><b>${ses.dur}</b><span>min</span></div><div class="stat"><span>Séries</span><b>${exs.reduce((t,e)=>t+e.sets.length,0)}</b><span>validées</span></div><div class="stat"><span>Volume</span><b>${nf(sessVol(ses),0)}</b><span>kg</span></div></div>
-  ${recs.length?'<div class="card" style="box-shadow:none"><h2>Nouveaux records de charge</h2>'+recs.map(r=>'<div style="padding:4px 0;font-weight:600">'+esc(r)+'</div>').join('')+'</div>':''}
+  ${recs.length?'<div class="card" style="box-shadow:none"><h2>Records battus</h2>'+recs.map(r=>'<div style="padding:4px 0;font-weight:600">🏆 '+esc(r)+'</div>').join('')+'</div>':''}
   <div class="grid2"><button class="btn soft" data-act="g-saver" data-id="${ses.id}">Garder comme routine</button><button class="btn" data-act="close">Fermer</button></div>`);
   render();
 }
@@ -214,25 +291,52 @@ function finishSession(){
 A['g-view']=b=>{
   const s=S.sessions.find(x=>x.id===b.dataset.id);if(!s)return;
   openSheet(`<h3>${esc(s.name)}</h3><div class="small muted" style="margin:-8px 0 12px">${esc(fmtLong(s.date))} · ${s.dur||'?'} min · ${nf(sessVol(s),0)} kg</div>
-  ${s.exercises.map(e=>`<div class="card" style="box-shadow:none"><b>${esc(e.name)}</b><div class="small" style="margin-top:6px;line-height:1.7">${e.sets.map((x,i)=>`<span class="pill neutral" style="margin:0 6px 4px 0">${nf(num(x.kg),2)} × ${nf(num(x.reps),0)}</span>`).join('')}</div></div>`).join('')}
+  ${Array.isArray(s.prs)&&s.prs.length?`<div class="card" style="box-shadow:none">${s.prs.map(r=>`<div class="small" style="padding:2px 0;font-weight:600">🏆 ${esc(r.txt)}</div>`).join('')}</div>`:''}
+  ${s.exercises.map(e=>`<div class="card" style="box-shadow:none"><b>${esc(e.name)}</b><div class="small" style="margin-top:6px;line-height:1.7">${e.sets.map(x=>`<span class="pill neutral${x.t==='w'?' pw':''}" style="margin:0 6px 4px 0"${STYPES[x.t]?` title="${STYPES[x.t][1]}"`:''}>${STYPES[x.t]?STYPES[x.t][0]+' · ':''}${nf(num(x.kg),2)} × ${nf(num(x.reps),0)}</span>`).join('')}</div></div>`).join('')}
   <div class="grid2" style="margin-bottom:10px"><button class="btn soft" data-act="g-redo" data-id="${s.id}">Refaire</button><button class="btn soft" data-act="g-saver" data-id="${s.id}">En faire une routine</button></div>
   <button class="btn danger block" data-act="g-sdel" data-id="${s.id}">Supprimer</button>`);
 };
-A['g-redo']=b=>{const s=S.sessions.find(x=>x.id===b.dataset.id);closeSheet();if(s)startSession(s.name,s.exercises.map(e=>({name:e.name,sets:e.sets.map(()=>({kg:'',reps:''}))})))};
+A['g-redo']=b=>{const s=S.sessions.find(x=>x.id===b.dataset.id);closeSheet();if(s)startSession(s.name,s.exercises.map(e=>({name:e.name,sets:e.sets.map(x=>withT({kg:'',reps:''},x))})))};
 A['g-saver']=b=>{
   const s=S.sessions.find(x=>x.id===b.dataset.id);if(!s)return;
   openSheet(`<h3>Nouvelle routine</h3><div class="field"><label for="rn">Nom</label><input class="inp" id="rn" value="${esc(s.name)}"></div><button class="btn block" data-act="g-saver-ok" data-id="${s.id}">Enregistrer la routine</button>`);
 };
 A['g-saver-ok']=b=>{
   const s=S.sessions.find(x=>x.id===b.dataset.id);if(!s)return;
-  S.routines.push({id:uid(),name:$('#rn').value.trim()||s.name,exercises:s.exercises.map(e=>({name:e.name,sets:e.sets.map(()=>({kg:'',reps:''}))}))});
+  S.routines.push({id:uid(),name:$('#rn').value.trim()||s.name,exercises:s.exercises.map(e=>({name:e.name,sets:e.sets.map(x=>withT({kg:'',reps:''},x))}))});
   persist('routines');closeSheet();toast('Routine enregistrée');render();
 };
 A['g-sdel']=b=>confirmSheet('Supprimer cette séance ?','Elle sera retirée de l’historique et de la progression.','Supprimer',()=>{const s=S.sessions.find(x=>x.id===b.dataset.id);S.sessions=S.sessions.filter(x=>x.id!==b.dataset.id);if(s)persist('sessions',s.date);render()});
 
+/* séries par muscle sur 7 jours glissants (2026.10.14-5) : par série de travail, +1 à chaque muscle principal
+   et +0,5 à chaque secondaire (EXI, js3c.js) ; exercice sans muscles renseignés ignoré */
+function musWeek(){
+  const from=dn(today())-7,c={};
+  for(const ses of S.sessions){
+    if(!ses||!ses.date||dn(ses.date)<=from)continue;
+    for(const e of ses.exercises||[]){
+      const x=EXI[e.name],n=workSets(e.sets).length;if(!x||!n)continue;
+      (Array.isArray(x.m)?x.m:[]).forEach(m=>{c[m]=(c[m]||0)+n});
+      (Array.isArray(x.s)?x.s:[]).forEach(m=>{c[m]=(c[m]||0)+n*.5});
+    }
+  }
+  return Object.entries(c).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'fr'));
+}
+const MUS_LO=10,MUS_HI=20;
+function musCard(){
+  const ui=S.ui||(S.ui={}),closed=!!ui.gMusClosed,l=musWeek();
+  const top=Math.max(MUS_HI+2,...l.map(x=>x[1])),pc=v=>Math.round(v/top*1000)/10;
+  const body=l.length?`<div class="musl">${l.map(([m,v])=>`<div class="musr"><div class="row sb"><span>${esc(m)}</span><b class="num">${nf(v,1)}</b></div>
+    <div class="mtrack" aria-hidden="true"><i class="mzone" style="left:${pc(MUS_LO)}%;width:${pc(MUS_HI-MUS_LO)}%"></i><i class="mfill" style="width:${pc(v)}%"></i></div></div>`).join('')}</div>
+    <div class="small muted" style="margin-top:10px">Repère courant : ${MUS_LO} à ${MUS_HI} séries par muscle et par semaine (zone claire). Une série compte 1 pour le muscle principal et 0,5 pour un muscle secondaire ; l’échauffement ne compte pas.</div>`
+    :'<div class="small muted">Aucune série de travail ces 7 derniers jours.</div>';
+  return `<div class="card"><h2 style="margin:0"><button class="whead" data-act="g-mus" aria-expanded="${!closed}" aria-controls="gmus">${ICON.chev}<span>Séries par muscle (7 jours)</span>${closed&&l.length?`<small>${l.length} muscle${l.length>1?'s':''}</small>`:''}</button></h2>${closed?'':`<div id="gmus" style="margin-top:12px">${body}</div>`}</div>`;
+}
+A['g-mus']=()=>{const ui=S.ui||(S.ui={});ui.gMusClosed=!ui.gMusClosed;saveLocal();render()};
+
 /* progression */
 function progressView(){
-  const names=[...new Set(S.sessions.flatMap(s=>s.exercises.map(e=>e.name)))];
+  const names=[...new Set(S.sessions.flatMap(s=>s.exercises.filter(e=>workSets(e.sets).length).map(e=>e.name)))];
   if(!names.length)return '<div class="card empty">Termine une séance pour voir l’évolution de tes charges, exercice par exercice.</div>';
   const rows=names.map(n=>{const h=history(n);return{n,h,last:h[h.length-1]}}).sort((a,b)=>b.last.date.localeCompare(a.last.date));
   if(!progEx||!names.includes(progEx))progEx=rows[0].n;
@@ -248,6 +352,7 @@ function progressView(){
   <div class="seg"><button data-act="g-metric" data-m="top" aria-selected="${progMetric==='top'}">Charge max</button><button data-act="g-metric" data-m="e1" aria-selected="${progMetric==='e1'}">1RM estimé</button><button data-act="g-metric" data-m="vol" aria-selected="${progMetric==='vol'}">Volume</button></div>
   <div class="readout" id="gread"></div><div class="chartbox" id="gchart"></div>
   <div class="stats" style="margin-top:12px;grid-template-columns:1fr 1fr"><div class="stat"><span>Record de charge</span><b>${nf(num(best.top.kg),2)}</b><span>kg × ${nf(num(best.top.reps),0)}</span></div><div class="stat"><span>1RM estimé max</span><b>${nf(bestE,1)}</b><span>kg (formule d’Epley)</span></div></div></div>
+  ${musCard()}
   <div class="card"><h2>Mes exercices</h2><div class="list">${list}</div><div class="small muted" style="margin-top:8px">La flèche compare ta charge max à la séance précédente.</div></div>`;
 }
 VIEWS.gym_after=()=>{

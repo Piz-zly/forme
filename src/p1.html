@@ -229,7 +229,28 @@ ol.rcl li::marker{font-weight:800;color:var(--accent)}
 .ex{margin-bottom:14px}
 .ex .hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
 .ex .hd b{font-size:17px}
-.sets{display:grid;grid-template-columns:24px minmax(0,1fr) 74px 62px 44px;gap:8px 6px;align-items:center}
+.sets{display:grid;grid-template-columns:30px minmax(0,1fr) 74px 62px 44px;gap:8px 6px;align-items:center}
+.sets button.n{min-height:44px;border-radius:10px;font:800 16px var(--font-display);color:var(--muted);background:none;padding:0}
+.sets .n.tw,.rsets .n.tw{color:var(--muted);opacity:.7}
+.sets .n.tf,.rsets .n.tf{color:var(--warn)}
+.sets .n.td,.rsets .n.td{color:var(--good)}
+.prban{grid-column:1/-1;pointer-events:none;padding:8px 12px;border-radius:12px;background:var(--surface2);border:1.5px solid var(--warn);font-weight:700;font-size:14px;line-height:1.3;animation:prin .25s ease-out;transition:opacity .3s}
+.prban.out{opacity:0}
+@keyframes prin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.prban{animation:none;transition:none}}
+.sug{display:block;position:relative;width:100%;text-align:left;margin:10px 0 2px;padding:8px 12px;border-radius:12px;background:var(--surface2);color:var(--muted);font:500 13px/1.35 var(--font-body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sug .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sug b{color:var(--good);font-weight:700}
+button.sug{min-height:44px}
+.stb{width:34px;height:34px;flex:none;border-radius:10px;display:grid;place-items:center;font:800 16px var(--font-display);background:var(--surface2);color:var(--muted)}
+.stb.tf{color:var(--warn)}.stb.td{color:var(--good)}.stb.tw{opacity:.7}
+.pill.pw{opacity:.6}
+.musl{display:grid;gap:10px}
+.musr .row{font-size:14px;margin-bottom:4px}
+.mtrack{position:relative;height:10px;border-radius:6px;background:var(--surface2);overflow:hidden}
+.mtrack i{position:absolute;top:0;bottom:0;left:0;border-radius:6px}
+.mzone{background:color-mix(in srgb,var(--good) 20%,transparent)}
+.mfill{background:var(--accent);opacity:.85}
 .sets .h{font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;text-align:center}
 .sets .n{font-weight:800;text-align:center;color:var(--muted)}
 .sets .prev{font-size:13px;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -307,7 +328,7 @@ ol.rcl li::marker{font-weight:800;color:var(--accent)}
 .dur.on{background:var(--accent);color:var(--on-accent)}
 .rsets{display:grid;grid-template-columns:62px minmax(0,1fr) minmax(0,1fr) 44px;gap:8px;align-items:center;margin-top:12px}
 .rsets .h{font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;text-align:center}
-.rsets .n{font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap}
+.rsets .n{font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap;min-height:44px;text-align:left;padding:0;background:none;font-family:inherit}
 .rsets .rin{min-height:44px;font-size:16px}
 .rsets .rin:focus{outline:none;box-shadow:inset 0 0 0 2px var(--accent)}
 .rsets .rstep{height:44px;font-size:22px}

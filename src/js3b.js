@@ -146,7 +146,7 @@ A['g-rdelex']=b=>{const r=curRoutine();r.exercises.splice(+b.dataset.i,1);persis
 A['g-rdup']=b=>{
   const r=S.routines.find(x=>x.id===b.dataset.id);if(!r)return;
   /* copie profonde : la copie et l'original ne partagent aucune série */
-  const c={id:uid(),name:r.name+' (copie)',exercises:r.exercises.map(e=>({name:e.name,sets:e.sets.map(s=>({kg:s.kg,reps:s.reps}))}))};
+  const c={id:uid(),name:r.name+' (copie)',exercises:r.exercises.map(e=>({name:e.name,sets:e.sets.map(s=>withT({kg:s.kg,reps:s.reps},s))}))};
   S.routines.push(c);persist('routines');closeSheet();routEdit=c.id;render();
 };
 A['g-rstart']=b=>{const r=S.routines.find(x=>x.id===b.dataset.id);if(!r||!r.exercises.length){toast('Ajoute au moins un exercice');return}routEdit=null;startSession(r.name,r.exercises)};
@@ -158,7 +158,7 @@ function routineView(){
       <div style="flex:1;min-width:0"><b style="overflow-wrap:anywhere">${esc(e.name)}</b><div class="small muted" id="rsum${i}">${esc(rSum(e))}</div></div>
       <button class="iconbtn" style="width:40px;height:40px;box-shadow:none;background:var(--surface2)" data-act="g-rexmenu" data-i="${i}" aria-label="Options"><span style="font-size:20px;line-height:1">⋯</span></button></div>${gripRow(e.name,'g-rgrip',i)}
     <div class="rsets"><div class="h">Série</div><div class="h">Poids (kg)</div><div class="h">Répétitions</div><div></div>
-      ${e.sets.map((s,si)=>`<div class="n">Série ${si+1}</div>
+      ${e.sets.map((s,si)=>`<button class="n${STYPES[s.t]?' t'+s.t:''}" data-act="g-stype" data-c="r" data-e="${i}" data-s="${si}" aria-label="Série ${si+1}, ${STYPES[s.t]?STYPES[s.t][1].toLowerCase():'normale'} : changer le type">${STYPES[s.t]?(s.t==='d'?'Drop set':s.t==='w'?'Échauff.':'Échec'):'Série '+setLab(e.sets,si)}</button>
       <input class="rin" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" data-in="rset" data-f="kg" data-i="${i}" data-s="${si}" value="${esc(s.kg)}" placeholder="kg" aria-label="Série ${si+1} : poids en kg">
       <input class="rin" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" enterkeyhint="next" data-in="rset" data-f="reps" data-i="${i}" data-s="${si}" value="${esc(s.reps)}" placeholder="reps" aria-label="Série ${si+1} : répétitions">
       <button class="rstep" data-act="g-rdelset" data-i="${i}" data-s="${si}" aria-label="Supprimer la série ${si+1}" ${e.sets.length<=1?'disabled':''}>×</button>`).join('')}
@@ -170,6 +170,6 @@ function routineView(){
   <div class="field"><input class="inp" data-in="rname" value="${esc(r.name)}" aria-label="Nom de la routine" style="font-weight:700"></div>
   ${rows?`<div data-ag="r:${r.id}:x">${rows}</div>`:'<div class="card empty">Ajoute les exercices de cette séance, dans l’ordre où tu les fais.</div>'}
   <button class="btn block" data-act="g-addex">${ICON.plus} Ajouter un exercice</button>
-  <div class="small muted" style="margin:12px 2px 0">Le poids et les répétitions de chaque série sont facultatifs : s’ils sont remplis, chaque série apparaîtra déjà saisie au début de la séance, il ne restera qu’à valider.</div>
+  <div class="small muted" style="margin:12px 2px 0">Touche « Série » pour en changer le type (échauffement, échec, drop set). Le poids et les répétitions de chaque série sont facultatifs : s’ils sont remplis, chaque série apparaîtra déjà saisie au début de la séance, il ne restera qu’à valider.</div>
   <div class="grid2" style="margin-top:16px"><button class="btn ghost" data-act="g-rdup" data-id="${r.id}">Dupliquer</button><button class="btn danger" data-act="g-rdel" data-id="${r.id}">Supprimer</button></div>`;
 }

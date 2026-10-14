@@ -274,7 +274,13 @@ A.settings=()=>{
   <div class="grid2">${f('gw','Poids visé (kg)',g.goalW)}${f('ght','Taille (cm)',g.heightCm)}</div>
   <div class="grid2">${f('gt','Palier du cercle (kg)',g.step)}${f('gs','Poids de départ (kg)',g.startW)}</div>
   <div class="small muted" style="margin:-4px 0 12px">Poids de départ vide : la première pesée est utilisée. Taille facultative : elle sert seulement à l’IMC.</div>
-  <div class="grid2">${f('gr','Repos entre séries (s)',g.rest)}</div>
+  <div class="sec" style="margin-top:6px">Muscu</div>
+  <div class="grid2">${f('gr','Repos entre séries (s)',g.rest)}${f('gpc','Palier de charge (kg)',g.pasCharge||2.5)}</div>
+  <label class="row" style="min-height:44px;margin-bottom:4px"><input type="checkbox" id="gsug" ${g.sugCharge!==false?'checked':''} style="width:22px;height:22px"> Suggestions de charge</label>
+  <div class="grid2">${f('gslo','Répétitions visées : min',g.sugMin||10)}${f('gshi','Répétitions visées : max',g.sugMax||12)}</div>
+  <div class="small muted" style="margin:-4px 0 12px">Quand toutes tes séries atteignent le max, l’appli suggère d’ajouter un palier. Ce n’est qu’une suggestion : rien n’est changé à ta place.</div>
+  ${typeof wakeSync==='function'?`<label class="row" style="min-height:44px;margin-bottom:0"><input type="checkbox" id="gwl" ${g.ecranAllume!==false?'checked':''} style="width:22px;height:22px"> Garder l’écran allumé pendant la séance</label>
+  <div class="small muted" style="margin:0 0 12px">Consomme un peu plus de batterie.</div>`:''}
   <div class="sec" style="margin-top:6px">Activité</div>
   <div class="grid2">${f('gst','Objectif de pas / jour',g.steps||10000)}</div>
   <button class="btn block" data-act="set-save">Enregistrer</button>
@@ -307,6 +313,10 @@ A['set-save']=()=>{
   if(v('gk')>0)g.kcal=v('gk');if(v('gp')>0)g.p=v('gp');if(v('gc')>0)g.c=v('gc');if(v('gf')>0)g.f=v('gf');
   const hc=v('ght');if(hc&&(hc<120||hc>230)){toast('Taille : entre 120 et 230 cm');return}
   g.heightCm=hc?Math.round(hc):null;
+  const lo=Math.round(v('gslo')),hi=Math.round(v('gshi'));
+  if(!(lo>=1&&hi>lo&&hi<=50)){toast('Répétitions visées : min plus petit que max');return}
+  g.sugMin=lo;g.sugMax=hi;g.sugCharge=$('#gsug').checked;g.pasCharge=v('gpc')>0&&v('gpc')<=50?v('gpc'):2.5;
+  if($('#gwl'))g.ecranAllume=$('#gwl').checked;
   g.goalW=v('gw')>=20?v('gw'):null;g.step=v('gt')>0?v('gt'):2.5;g.startW=v('gs')>=20?v('gs'):null;if(v('gr')>=10)g.rest=v('gr');
   persist('settings');closeSheet();toast('Réglages enregistrés');render();
 };
