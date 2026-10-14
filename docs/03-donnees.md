@@ -53,6 +53,17 @@ Conséquences à ne jamais perdre de vue :
 
   exercises: [ "Nom d'un exercice créé à la main" ],
 
+  // 2026.10.14-4 - Repas
+  combos:  [ { id, name, slot, items: [ { name, kcal, p, c, f } ] } ],   // repas types
+  fixes:   { "oeuf-entier": { k, p, c, f } },     // valeurs corrigées pour 100 g d'un aliment (FOODS ou Ciqual)
+                       // appliquées aux aliments par applyFixes() au chargement, à la synchro, à l'import ;
+                       // l'original reste dans l'objet (_o), jamais enregistré
+  plan:    { days: { "2026-10-14": { lu: [ { r: "bowl_poulet", ok: 0 } ] } },   // r : recette, ok : notée au journal
+             shop: { done: { "blanc de poulet cru|g": 1 },          // cases cochées de la liste de courses
+                     extra: [ { id, q, u, n } | { id, t } ] } },   // ajouts : ingrédient lu, ou texte libre
+  fridge:  { have: [ "oeuf", "pain complet" ] },   // ce qu'il a chez lui (noms normalisés)
+                       // recettes perso : champ por (portions) en plus
+
   recipes: {
     done:  { "pancakes": { n: 2, last: "2026-10-08" } },  // recettes préparées : nombre de jours, dernière date
     notes: { "pancakes": "avec un peu de cannelle" },       // note personnelle par recette
@@ -161,7 +172,9 @@ clé de `settings` doit être ajoutée à `defaults()` dans `js1.js` : les
 installations existantes la récupéreront automatiquement, sans perdre le reste.
 
 Pour une nouvelle tranche de données, l'ajouter aussi à `SLICES` dans `js1.js`,
-sinon elle ne sera jamais synchronisée.
+sinon elle ne sera jamais synchronisée. Depuis 2026.10.14-4 : `combos`, `fixes`, `plan`, `fridge`
+(valeurs par défaut dans `defaults()` ; une ancienne sauvegarde sans elles se charge normalement).
+Les produits lus sur une étiquette sont des `scans` ordinaires avec `src: 'label'`.
 
 ### Routines : séries une par une (2026.10.14-2)
 

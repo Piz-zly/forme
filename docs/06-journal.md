@@ -5,6 +5,34 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 
 ---
 
+### 2026.10.14-4 — Repas : ajouts rapides, semaine, courses, frigo, bilan, étiquettes (à essayer sur le téléphone)
+
+- **Ajouts rapides** : raccourcis +100 / +200 / +300 / +500 dans « Manuel », nom facultatif (« Ajout
+  rapide »), favori proposé seulement avec un nom ; « Copier d'un jour » sous chaque repas et « Copier une
+  journée entière » (28 derniers jours, nouveaux identifiants) ; **repas types** (« Enregistrer comme repas
+  type », en haut de Favoris, ajout en un geste, suppression) ; « Souvent à ce repas » (2 fois au moins sur
+  60 jours, 4 au plus, en haut de Chercher et dans Favoris).
+- **Fiabilité** : source dans la fiche d'un aliment ; « Corriger les valeurs » (pour les ajouts futurs,
+  « Rétablir l'original », `S.fixes`) ; « Version cuite / crue » quand le jumeau existe.
+- **Recettes** : portions et « Calculer les valeurs » (`parseIng` lit « 150 g de poulet », « 2 œufs »,
+  « 1 càs d'huile »), « Ajouter à ma liste de courses » dans la fiche ; **Mon frigo** (cases, « Avec mon
+  frigo », pastille « Il manque 2 ingrédients » ; sel, poivre, eau, huile, épices toujours présents).
+- Nouveaux sous-onglets **Semaine** (planning de 7 jours, ✓ vers le journal, liste de courses additionnée,
+  par rayon, cases, ajouts, « Ranger dans mon frigo ») et **Bilan** (barres des 7 jours, moyennes, série qui
+  pardonne un oubli par semaine, calendrier du mois coloré, toucher un jour l'ouvre). Série aussi sous le
+  cercle du Journal. Barre de 5 sous-onglets lisible à 384 px.
+- **Étiquette en photo, hors ligne** (téléphone) : Tesseract.js 7.0.0 + tesseract.js-core 6.1.2 (simd-lstm)
+  + modèle français (tessdata_best en entiers) dans `vendor/ocr/` (≈ 4,8 Mo, chargés au premier usage,
+  jamais d'un CDN, pas précachés). Boutons Photo / Galerie dans « Manuel », la fiche « produit inconnu » du
+  Scanner et l'onglet Scan sans vision. Feuille de vérification obligatoire (photo, nom, 8 valeurs, alertes,
+  texte lu, conversion portion -> 100 g). Sur de fausses étiquettes : nette 8/8, deux colonnes 8/8, floue et
+  penchée 7/8 (sucres lus 46 au lieu de 4,6, signalé).
+- Non faits : import d'une recette depuis un site (le navigateur bloque la lecture d'un autre site sans
+  serveur) ; photo du frigo (il faudrait un modèle de vision sur le téléphone ou un envoi de la photo,
+  qu'il a refusé) : remplacée par « Mon frigo » à cocher.
+- `reSheet()` : une feuille se met à jour sans rejouer son ouverture. Tests : `tests/t17.py`, `tests/t18.py`,
+  `tests/t8.py` adapté (cinq sous-onglets).
+
 ### 2026.10.14-3 — Poids : détails, historique par semaine, CSV, dépense estimée (à essayer sur le téléphone)
 
 - Carte des statistiques : les trois cases restent ; dessous, « Plus de détails » (fermé par défaut,

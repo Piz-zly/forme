@@ -56,9 +56,12 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
    dépenses affichées sont indicatifs. Le dire quand c'est utile, sans alourdir.
 5. **Interface en français**, tutoiement, vocabulaire simple. Il dit « routine »,
    pas « modèle » ; « séance », pas « workout ».
-6. **Pas de dépendance ajoutée** sans raison forte. Deux bibliothèques
-   externes aujourd'hui, copiées en local dans `vendor/` : ZXing (codes-barres) et Fuse.js
-   (recherche tolérante aux fautes, depuis 2026.10.13-4). Données externes :
+6. **Pas de dépendance ajoutée** sans raison forte. Trois bibliothèques
+   externes aujourd'hui, copiées en local dans `vendor/` : ZXing (codes-barres), Fuse.js
+   (recherche tolérante aux fautes, depuis 2026.10.13-4) et Tesseract.js (lecture des étiquettes
+   hors ligne, `vendor/ocr/`, ≈ 4,8 Mo chargés seulement au premier usage de la photo, version
+   téléphone seulement, depuis 2026.10.14-4). Jamais de CDN, tout doit marcher hors ligne. Il a
+   **écarté** l'idée d'une clé Claude dans l'application : ne pas la proposer. Données externes :
    la table Ciqual (Anses, Etalab 2.0), extraite dans `src/js2g.js` ; le texte de deux bases
    d'exercices (free-exercise-db, exercises-dataset), dans `src/js3c.js` — **jamais leurs images**
    (celles d'exercises-dataset sont © Gym visual).
@@ -90,12 +93,14 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── js2e.js                ← les aliments de base — GÉNÉRÉ par tools/gen_aliments.py, ne pas éditer
 │   ├── js2g.js                ← 3 203 aliments de la table Ciqual (Anses) — GÉNÉRÉ par tools/gen_ciqual.py, ne pas éditer
 │   ├── js2f.js                ← onglet « Chercher » (recherche d'aliments, quantité) de la feuille Ajouter
+│   ├── js2h.js                ← Repas : ajouts rapides, copier, repas types, corrections, Semaine, courses, frigo, Bilan
 │   ├── js3c.js                ← consignes, équipement, muscles, 115 exercices en plus — GÉNÉRÉ par tools/gen_exercices.py (chargé AVANT js3.js)
 │   ├── js3.js                 ← onglet Muscu : bibliothèque d'exercices, séance, progression
 │   ├── js3b.js                ← minuteur de repos, fiche d'exercice animée, routines
 │   ├── js4b.js                ← bibliothèque des produits scannés : sections, classement auto, fiche (chargé AVANT js4.js)
+│   ├── js4c.js                ← étiquette : parseLabel (texte lu -> valeurs) et feuille de vérification (AVANT js4.js)
 │   ├── js4.js                 ← onglet Scan, codes-barres, note produit, réglages, démarrage
-│   ├── js5.js                 ← propre au téléphone : caméra, Open Food Facts, partage, hors ligne
+│   ├── js5.js                 ← propre au téléphone : caméra, Open Food Facts, partage, hors ligne, lecture d'étiquette (ocrRun)
 │   └── build.sh               ← assemble le tout
 │
 ├── tools/                     ← scripts d'atelier, lancés à la main, hors application
@@ -124,12 +129,14 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── t13.py exercices enrichis : filtres muscle et équipement, fiche avec consignes, pas d'image cassée
 │   ├── t14.py recherches tolérantes aux fautes : 15 fautes, non-régression, vitesse sur 8 500 aliments
 │   ├── t15.py animations : apparition, effacement, déplacement, « réduire les animations », plafond
-│   └── t16.py Poids : plus de détails, IMC, historique par semaine et repliable, CSV, dépense estimée
+│   ├── t16.py Poids : plus de détails, IMC, historique par semaine et repliable, CSV, dépense estimée
+│   ├── t17.py Repas : ajouts rapides, copier, repas types, souvent, corrections, cru/cuit, Semaine, courses, frigo, Bilan
+│   └── t18.py étiquettes : parseLabel, lecture réelle de fausses étiquettes (Tesseract.js, hors ligne)
 │
 ├── ill/                       ← illustrations des mouvements (739 fichiers, 149 mouvements, CC0)
 ├── img2/                      ← schémas anatomiques par exercice (MIT)
 ├── icons/                     ← icônes de l'application
-└── vendor/                    ← zxing.min.js (codes-barres) et fuse.basic.min.js (fautes de frappe), Apache-2.0
+└── vendor/                    ← zxing.min.js (codes-barres), fuse.basic.min.js (fautes de frappe), ocr/ (Tesseract.js), Apache-2.0
 ```
 
 ## 5. Sommaire de la documentation
@@ -143,7 +150,7 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 | `docs/05-build-publication.md` | Construire, tester, publier, mettre à jour le téléphone |
 | `docs/06-journal.md` | Historique des versions |
 | `docs/07-a-faire.md` | La suite : recettes, esthétique, idées en attente |
-| `docs/08-pistes-open-source.md` | Projets libres repérés (Ciqual, free-exercise-db, Fuse.js, AutoAnimate, canvas-confetti) : licences, intégration, ordre conseillé — rien d'intégré |
+| `docs/08-pistes-open-source.md` | Projets libres repérés et ce qui en a été fait : Ciqual, free-exercise-db, Fuse.js et Tesseract.js intégrés, AutoAnimate écarté, canvas-confetti en attente |
 
 ## 6. Méthode de travail
 
@@ -248,4 +255,11 @@ le demande : il avance sujet par sujet.
   (versions 2026.10.13-1 à 2026.10.14-2 en ligne), pas encore essayée sur son téléphone.
 - **2026.10.14-3** : onglet Poids, « Plus de détails » (plus bas / haut, moyenne 30 j, variations, IMC,
   dépense estimée), historique coloré par semaine et repliable, taille dans Réglages, export / import
-  CSV des pesées. Testée (`tests/t4.py` à `t16.py`), non publiée, branche `poids-details`.
+  CSV des pesées. Testée (`tests/t4.py` à `t16.py`), publiée le 14 octobre 2026.
+- **2026.10.14-4** : Repas enrichi — calories rapides, copier un repas ou une journée, repas types,
+  « Souvent à ce repas », source et correction des valeurs d'un aliment, cru / cuit, portions et calcul
+  des recettes perso, sous-onglets **Semaine** (planning, liste de courses) et **Bilan** (série, calendrier),
+  « Mon frigo » sans photo, lecture d'étiquette hors ligne (Tesseract.js, téléphone seulement, avec
+  feuille de vérification). Testée (`tests/t4.py` à `t18.py`), non publiée, branche `repas-ameliorations`.
+  Non faits, et pourquoi : import de recette depuis un site (bloqué sans serveur), photo du frigo
+  (il faudrait un modèle de vision ou un envoi, refusé).

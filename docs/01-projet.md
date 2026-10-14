@@ -55,6 +55,19 @@ garde tout dans le navigateur du téléphone.
   protéines, glucides et lipides restants du jour. Filtres (repas, rapide, à
   l'avance, végétarien), portions, ajout au journal, note, recettes personnelles.
 - **Déjà faites** : les recettes préparées, avec la date et la note.
+- Ajouts rapides (2026.10.14-4) : calories rapides dans « Manuel » (+100, +200…, nom facultatif),
+  copier un repas ou une journée des 28 derniers jours, **repas types** (dans Favoris), « Souvent à ce
+  repas » (Chercher et Favoris).
+- Fiabilité : la fiche d'un aliment montre sa source ; ses valeurs peuvent être corrigées (pour les
+  ajouts futurs, « Rétablir l'original ») ; bascule cru / cuit quand l'aliment jumeau existe.
+- Recettes perso : portions et « Calculer les valeurs » depuis les ingrédients. **Mon frigo** : cases
+  de ce qu'il a, « Avec mon frigo » classe les recettes selon ce qui manque.
+- **Semaine** : recettes posées sur 7 jours, ✓ pour les noter au journal, **liste de courses**
+  additionnée et rangée par rayon, « Ranger dans mon frigo ».
+- **Bilan** : 7 derniers jours (barres, moyennes), **série** de jours notés qui pardonne un oubli,
+  calendrier du mois coloré selon l'objectif ; la série s'affiche aussi sous le cercle du Journal.
+- Lecture d'une étiquette en photo, **hors ligne**, sur le téléphone (Tesseract.js) : les chiffres
+  lus sont toujours montrés pour vérification avant d'être enregistrés.
 
 **Muscu**
 - Bibliothèque de 60 exercices en 7 groupes, plus les exercices créés à la volée.

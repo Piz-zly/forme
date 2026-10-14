@@ -61,6 +61,13 @@ qui utilisent la même technique (mesurer avant, faire glisser après) autour de
 `vendor/`, l'ajouter au service worker et à `build.sh`, licence dans
 `THIRD_PARTY.txt`.
 
+**Tesseract.js — fait en 2026.10.14-4** (hors liste d'origine). Lecture des tableaux nutritionnels
+en photo, hors ligne, sur le téléphone. Tesseract.js 7.0.0 et tesseract.js-core 6.1.2 (Apache-2.0),
+variante `simd-lstm` en `.wasm.js` (le moteur WebAssembly est dans le fichier JavaScript), modèle
+français `tessdata_best` en entiers (0,7 Mo). Copiés dans `vendor/ocr/` (≈ 4,8 Mo), chargés au premier
+usage seulement, URL absolues, `workerBlobURL:false`, `gzip:true`. La qualité dépend de la photo :
+d'où la feuille de vérification obligatoire.
+
 ## Ordre conseillé
 
 1 puis 3 (la base d'aliments d'abord, la recherche floue ensuite), 5 avec le

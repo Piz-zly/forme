@@ -31,6 +31,18 @@ illustrations sont faites en 2026.10.14-1 (voir ci-dessous). Les schémas
 il faudrait les régénérer avec `tools/gen_schemas_muscles.py`. Lisibilité des menus déroulants et des
 consignes à vérifier sur son écran.
 
+## Repas enrichi : fait en 2026.10.14-4, à essayer sur son téléphone
+
+À vérifier sur son téléphone : la lisibilité des cinq sous-onglets sur son écran (vérifiée à 384 px dans
+Chromium seulement) ; la **lecture d'étiquette** sur de vraies photos (caméra, lumière, emballages
+brillants ou courbes), sa vitesse selon le téléphone, et le premier téléchargement d'environ 5 Mo ; la
+synchro des nouvelles données avec la version Claude (testée en local seulement). Toujours lui rappeler
+de vérifier les chiffres lus.
+Pistes : unités usuelles pour les aliments Ciqual (calcul des recettes plus juste), choix de la recette
+la plus proche quand un ingrédient n'est pas reconnu, liste de courses partageable.
+Écartés : clé Claude dans l'application (refusée), import de recette depuis un site (impossible sans
+serveur), photo du frigo (modèle de vision hors ligne trop lourd ; envoi de la photo refusé).
+
 ## Poids détaillé : fait en 2026.10.14-3, à essayer sur son téléphone
 
 À vérifier sur son téléphone : le téléchargement du CSV et le sélecteur de fichier d'Android, la

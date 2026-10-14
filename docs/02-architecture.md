@@ -15,13 +15,27 @@ js2d.js  →  sous-onglets Recettes et Déjà faites du Repas : classement, fich
 js2e.js  →  FOODS : les aliments de base (GÉNÉRÉ par tools/gen_aliments.py, ne pas éditer)
 js2g.js  →  CIQUAL : 3 203 aliments de la table Ciqual (GÉNÉRÉ par tools/gen_ciqual.py, ne pas éditer)
 js2f.js  →  onglet « Chercher » de la feuille Ajouter : recherche, choix de la quantité, ajout
+js2h.js  →  Repas : ajouts rapides, copier, repas types, souvent, corrections (applyFixes), cru/cuit,
+            parseIng et calcul des recettes, Semaine et liste de courses, frigo, Bilan
 js3c.js  →  EXD : consignes, équipement, muscles, 115 exercices en plus (GÉNÉRÉ par tools/gen_exercices.py) — chargé AVANT js3.js
 js3.js   →  onglet Muscu : données, accueil, séance, sélecteur, fin de séance, progression
 js3b.js  →  minuteur de repos, fiche d'exercice, routines
 js4b.js  →  bibliothèque des produits scannés (sections, classement, fiche) — chargé AVANT js4.js
+js4c.js  →  étiquette : parseLabel (texte lu -> valeurs pour 100 g), boutons Photo/Galerie, feuille de vérification — AVANT js4.js
 js4.js   →  onglet Scan, codes-barres, note produit, réglages, démarrage
-js5.js   →  uniquement version téléphone : caméra, Open Food Facts, partage, service worker
+js5.js   →  uniquement version téléphone : caméra, Open Food Facts, partage, service worker,
+            lecture d'étiquette (ocrScript, ocrPrep, ocrRun : Tesseract.js depuis vendor/ocr)
 ```
+
+> `reSheet(html)` (js1.js) remplace le contenu de la feuille ouverte sans rejouer l'animation
+> d'ouverture ni remonter en haut ; `addSheet` l'utilise quand une feuille est déjà ouverte.
+> Les sous-onglets du Repas (`FOOD_SUBS`, js2.js) sont cinq : Journal, Recettes, Déjà faites, Semaine
+> (`weekView`), Bilan (`bilanView`) ; barre `.seg5`, lisible à 384 px (tests/t8.py).
+> Lecture d'étiquette : `ocrBtns` n'affiche rien si `ocrRun` n'existe pas (forme.html, sans js5.js).
+> `ocrRun` lit la photo en niveaux de gris, contraste étiré (2–98 %), grand côté 1500 px (petite photo
+> agrandie, ×2 au plus), mode de page 4 ; si moins de 6 valeurs sont trouvées, une seconde lecture à
+> 1000 px. `parseLabel` garde, pour chaque nombre, ses lectures possibles (« g » lu comme 9 ou 0,
+> virgule perdue, zéro de tête) et choisit la combinaison la plus cohérente avec les calories.
 
 > L'ordre compte. `js3b.js` utilise `EXI` et `gymOpen` définis dans `js3.js`.
 > Les **déclarations de fonction** sont remontées (hoisting) et peuvent donc être
