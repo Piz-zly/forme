@@ -273,6 +273,18 @@ sont identiques, sinon « 3 séries · 60–75 kg · 6–10 reps ». `g-rdup` co
 construisent des séries vides, comme avant). Les lignes de séries ne sont pas animées (elles
 bougeraient deux fois quand la carte de l'exercice glisse) ; les cartes d'exercice le restent.
 
+**Progression de la Muscu** (`js3.js`, 2026.10.14-5) — `STYPES` (types de série), `isWork` / `workSets`
+(tout sauf l'échauffement), `setLab` (lettre ou numéro parmi les séries normales), `withT` (recopie le type).
+`prCheck(nom, série, autres)` compare une série validée à `S.sessions` + séries déjà validées de la séance ;
+`g-check` pose `s.pr` et `prBan` (bannière `#prban`, dans la grille `.sets`, retirée du DOM après
+`PR_MS` sans redessiner ; une nouvelle série validée la remplace). `sugCalc(séries)` rend `{up, kg, st, lo,
+hi}` ou `null` ; ligne courte `.sug` (une ligne à 384 px, `sugTxt` donne la phrase entière au lecteur
+d'écran) ; `g-sug` pré-remplit seulement. `g-stype` / `g-stype-ok` : feuille des types (`c` = `a` séance,
+`r` routine). `musWeek()` / `musCard()` : séries par muscle sur 7 jours, repli `S.ui.gMusClosed` (`g-mus`).
+Écran allumé : `wakeSync()` dans `js5.js` (téléphone seulement), appelé chaque seconde par `tick()` et à
+`visibilitychange` ; ses variables sont des `var` car `tick()` peut tourner avant la fin du script.
+Rien n'est animé dans la séance (choix de l'utilisateur).
+
 **Fiche d'exercice** (`js3b.js`) — deux `<img>` superposées en fondu, alternées
 toutes les 950 ms par `playMov()`. La boucle s'arrête d'elle-même quand l'élément
 n'est plus dans le document. `ILL` associe le nom français à l'identifiant de

@@ -5,6 +5,28 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 
 ---
 
+### 2026.10.14-5 — Muscu : records, types de série, suggestion de charge, séries par muscle, écran allumé (à essayer sur le téléphone)
+
+- **Records en direct** : à la validation d'une série, comparaison avec toutes les séries de travail déjà
+  faites sur l'exercice (séances enregistrées + séance en cours) ; bannière « 🏆 Record ! Squat 100 kg × 5
+  (avant : 97,5 × 5) » sous la série, qui s'efface après 5 s et ne bloque rien. Ordre : charge max > 1RM
+  estimé > répétitions à cette charge > volume. Premier enregistrement = pas de record. Liste gardée avec la
+  séance (`prs`), affichée à la fin et dans le détail de la séance. Pas de confettis (chantier Motivation).
+- **Types de série** : appui sur le numéro → Normale, Échauffement (« É », grisé), Échec (« E »), Drop set
+  (« D ») ; aussi dans les routines (« Échauff. », « Échec », « Drop set ») et l'historique. Les séries
+  normales restent numérotées 1, 2, 3 sans compter les autres. Minuteur de repos inchangé.
+- **Suggestion de charge** (double progression) : en haut de l'exercice, d'après la dernière séance (un
+  appui pré-remplit la charge des séries pas encore validées), et sous les séries pendant la séance pour la
+  prochaine fois. Une ligne, couleur douce, mot « Suggestion ». Réglages → Muscu : palier (2,5 kg),
+  fourchette (10–12), activation.
+- **Séries par muscle (7 jours)** : carte repliable dans Progression, +1 muscle principal, +0,5 secondaire,
+  repère courant 10 à 20 (zone claire). Barres seulement : les schémas `img2/` sont par exercice, il n'y a
+  pas de schéma du corps entier à colorier sans nouveau fichier.
+- **Écran allumé** (téléphone) : Screen Wake Lock pendant une séance en cours, redemandé au retour au
+  premier plan, relâché à la fin, à l'abandon et en quittant ; réglage (activé par défaut). Rien dans
+  `forme.html`. Non vérifiable dans Chromium de test : à confirmer sur son téléphone.
+- Formules écrites à la main (Epley déjà présent) ; aucune dépendance. Test : `tests/t19.py`.
+
 ### 2026.10.14-4 — Repas : ajouts rapides, semaine, courses, frigo, bilan, étiquettes (à essayer sur le téléphone)
 
 - **Ajouts rapides** : raccourcis +100 / +200 / +300 / +500 dans « Manuel », nom facultatif (« Ajout

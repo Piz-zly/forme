@@ -28,6 +28,10 @@ Conséquences à ne jamais perdre de vue :
     startW: null,      // poids de départ ; null = première pesée
     step: 2.5,         // taille d'un palier, en kg
     rest: 90,          // durée de repos par défaut, en secondes
+    pasCharge: 2.5,    // palier de la suggestion de charge, en kg (2026.10.14-5)
+    sugCharge: true,   // suggestions de charge affichées
+    sugMin: 10, sugMax: 12,   // fourchette de répétitions de la double progression
+    ecranAllume: true, // garder l'écran allumé pendant la séance (téléphone seulement)
     heightCm: null,    // taille en cm (120 à 230), facultative, sert seulement à l'IMC (2026.10.14-3)
     seeded: 1,         // la reprise des anciennes pesées a été proposée
     v2: 1              // marqueur de migration
@@ -43,13 +47,17 @@ Conséquences à ne jamais perdre de vue :
 
   foods:   [ { id, name, kcal, p, c, f, fav } ],   // favoris et aliments récents
 
-  routines:[ { id, name, exercises: [ { name, sets: [ { kg, reps } ] } ] } ],
+  routines:[ { id, name, exercises: [ { name, sets: [ { kg, reps, t? } ] } ] } ],
                        // une entrée par série, chacune avec SON poids et SES répétitions
                        // (textes tels que tapés, "" si vide ; au moins une série)
                        // avant 2026.10.14-2 : { name, sets: 3, kg: "60", reps: "8" }, voir Migrations
 
   sessions:[ { id, name, date, start, dur,
-               exercises: [ { name, sets: [ { kg, reps, done } ] } ] } ],
+               exercises: [ { name, sets: [ { kg, reps, t? } ] } ],
+               prs?: [ { ex, k, txt } ] } ],   // records battus pendant la séance (2026.10.14-5)
+  active:  { id, name, start, exercises: [ { name, sets: [ { kg, reps, done, t?, pr? } ] } ] } | null,   // la séance en cours
+                       // t : type de série, absent = normale ; 'w' échauffement, 'f' échec, 'd' drop set
+                       // pr : record battu par cette série { k, txt }, k = 'kg' | 'e1' | 'reps' | 'vol'
 
   exercises: [ "Nom d'un exercice créé à la main" ],
 
@@ -78,7 +86,6 @@ Conséquences à ne jamais perdre de vue :
                tags?: ["cheeses"] } ],  // catégories Open Food Facts, sans préfixe de langue
                                         // 400 au maximum
 
-  active:  null,       // la séance en cours, ou null
   ui:      { tab: 'weight', wDet: false, wHistClosed: false },
                        // préférences d'affichage, propres à l'appareil : ni synchronisées ni exportées
                        // wDet : « Plus de détails » du Poids ouvert ; wHistClosed : historique replié
@@ -202,5 +209,24 @@ le nouveau format. Une version **antérieure** à 2026.10.14-2 qui recevrait le 
 suffit de la mettre à jour. Le téléphone le fait seul à l'ouverture avec le réseau.
 
 Ce qui ne change pas : la séance en cours (`active`) et l'historique (`sessions`) gardent
-`sets: [ { kg, reps, done } ]`. Au démarrage d'une routine, chaque série de la séance reprend le poids
+`sets: [ { kg, reps, done } ]` (plus le type facultatif `t` depuis 2026.10.14-5, voir ci-dessous). Au démarrage d'une routine, chaque série de la séance reprend le poids
 et les répétitions de la série correspondante de la routine.
+
+### Types de série et records (2026.10.14-5)
+
+Aucune conversion : les champs nouveaux sont **facultatifs**.
+
+- `t` sur une série (routine, séance en cours, historique) : `'w'` échauffement, `'f'` échec, `'d'` drop
+  set. **Absent = série normale** : toutes les anciennes données restent des séries normales. Une valeur
+  inconnue est ignorée (série normale) ; `migRoutines` ne garde que `w`, `f`, `d`.
+- L'échauffement ne compte ni dans les records, ni dans le volume (`sessVol`, `history`), ni dans la
+  suggestion de charge, ni dans les séries par muscle. Échec et drop set comptent comme des séries normales.
+- `pr` (séance en cours) : record battu par la série, calculé **seulement** quand il valide la série
+  (`g-check`) ; décocher l'efface. À la fin de la séance, la liste est copiée dans `sessions[].prs`.
+  Un import, une synchro ou une séance modifiée ne recalculent rien.
+- Réglages `pasCharge`, `sugCharge`, `sugMin`, `sugMax`, `ecranAllume` : ajoutés avec leur valeur par
+  défaut aux anciens réglages (fusion avec `defaults()` au chargement et à la synchro).
+- `S.ui.gMusClosed` : carte « Séries par muscle » repliée ; propre à l'appareil, ni synchronisé ni exporté.
+
+Une version antérieure à 2026.10.14-5 qui reçoit ces données (synchro) les lit sans erreur : elle ignore
+`t` et `prs`, et compte alors l'échauffement comme une série normale.

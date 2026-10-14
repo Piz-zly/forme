@@ -5,6 +5,17 @@ Pour agrandir encore : une ligne `F(...)` dans `tools/gen_aliments.py`, un appel
 dans sa table `ALIM`, qui est séparée de celle de la recherche), puis relancer les
 scripts et `./src/build.sh`. Pensé pour s'agrandir ainsi, sans toucher au reste.
 
+## Muscu progression : fait en 2026.10.14-5, à essayer sur son téléphone
+
+À vérifier sur son téléphone : que **l'écran reste vraiment allumé** pendant une séance (et se rééteint
+après), y compris après être passé par une autre application ; la lisibilité de la bannière de record et
+des lettres É / E / D ; la taille de la case du numéro au doigt (30 px de large, 44 px de haut) ; que la
+suggestion tient sur une ligne sur son écran (vérifié à 384 px ; plus étroit, elle est coupée par « … »,
+la phrase entière reste lue par le lecteur d'écran). À lui demander : la fourchette 10–12 et le palier
+2,5 kg lui conviennent-ils ? Les records de répétitions ou de volume sont-ils trop fréquents ?
+Pistes : un résumé de séance qui reprend `prs` (avec confettis, chantier Motivation,
+`docs/08-pistes-open-source.md`) ; colorier un schéma du corps entier (il faudrait un nouveau fichier).
+
 ## Animations douces : faites en 2026.10.13-5, à essayer sur son téléphone
 
 Journal du Repas, routine, pesées, bibliothèque du Scan (`src/js1b.js`). À voir avec lui : la
@@ -167,7 +178,6 @@ champs vides, et c'est le signe qu'il faut passer à l'import de fichier.
 ## Idées non demandées, à proposer seulement si l'occasion se présente
 
 - Une vue hebdomadaire des calories, pour juger la tendance plutôt que la journée.
-- Le volume par groupe musculaire sur la semaine, dans Muscu.
 - Un rappel de pesée. Il faudrait les notifications ; à ne proposer que s'il en
   parle.
 - Le mode sombre existe déjà par le réglage du téléphone ; un réglage manuel dans

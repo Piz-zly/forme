@@ -80,6 +80,12 @@ garde tout dans le navigateur du téléphone.
 - Fiche d'exercice : illustration animée du mouvement avec les muscles en rouge,
   bascule vers l'image simple, schéma anatomique, listes des muscles.
 - Progression par exercice : charge maximale, 1RM estimé (Epley), volume.
+- Progression (2026.10.14-5) : **records battus en direct** (bannière discrète sous la série : charge
+  max, 1RM estimé, répétitions à cette charge, volume ; un seul à la fois, gardés avec la séance) ;
+  **types de série** (échauffement « É », échec « E », drop set « D », par un appui sur le numéro ;
+  l'échauffement ne compte nulle part) ; **suggestion de charge** (double progression 10–12 reps,
+  palier 2,5 kg, réglables, jamais appliquée d'office) ; carte **Séries par muscle (7 jours)** dans
+  Progression ; **écran allumé** pendant la séance (téléphone, réglable).
 
 **Scan**
 - Lecture d'un code-barres par photo, et en direct par la caméra sur le téléphone.

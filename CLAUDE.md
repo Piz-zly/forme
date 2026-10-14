@@ -95,12 +95,12 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── js2f.js                ← onglet « Chercher » (recherche d'aliments, quantité) de la feuille Ajouter
 │   ├── js2h.js                ← Repas : ajouts rapides, copier, repas types, corrections, Semaine, courses, frigo, Bilan
 │   ├── js3c.js                ← consignes, équipement, muscles, 115 exercices en plus — GÉNÉRÉ par tools/gen_exercices.py (chargé AVANT js3.js)
-│   ├── js3.js                 ← onglet Muscu : bibliothèque d'exercices, séance, progression
+│   ├── js3.js                 ← onglet Muscu : bibliothèque d'exercices, séance, types de série, records, suggestion de charge, progression, séries par muscle
 │   ├── js3b.js                ← minuteur de repos, fiche d'exercice animée, routines
 │   ├── js4b.js                ← bibliothèque des produits scannés : sections, classement auto, fiche (chargé AVANT js4.js)
 │   ├── js4c.js                ← étiquette : parseLabel (texte lu -> valeurs) et feuille de vérification (AVANT js4.js)
 │   ├── js4.js                 ← onglet Scan, codes-barres, note produit, réglages, démarrage
-│   ├── js5.js                 ← propre au téléphone : caméra, Open Food Facts, partage, hors ligne, lecture d'étiquette (ocrRun)
+│   ├── js5.js                 ← propre au téléphone : caméra, Open Food Facts, partage, hors ligne, lecture d'étiquette (ocrRun), écran allumé (wakeSync)
 │   └── build.sh               ← assemble le tout
 │
 ├── tools/                     ← scripts d'atelier, lancés à la main, hors application
@@ -131,7 +131,8 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── t15.py animations : apparition, effacement, déplacement, « réduire les animations », plafond
 │   ├── t16.py Poids : plus de détails, IMC, historique par semaine et repliable, CSV, dépense estimée
 │   ├── t17.py Repas : ajouts rapides, copier, repas types, souvent, corrections, cru/cuit, Semaine, courses, frigo, Bilan
-│   └── t18.py étiquettes : parseLabel, lecture réelle de fausses étiquettes (Tesseract.js, hors ligne)
+│   ├── t18.py étiquettes : parseLabel, lecture réelle de fausses étiquettes (Tesseract.js, hors ligne)
+│   └── t19.py Muscu : records, types de série, suggestion de charge, séries par muscle, écran allumé
 │
 ├── ill/                       ← illustrations des mouvements (739 fichiers, 149 mouvements, CC0)
 ├── img2/                      ← schémas anatomiques par exercice (MIT)
@@ -263,3 +264,8 @@ le demande : il avance sujet par sujet.
   feuille de vérification). Testée (`tests/t4.py` à `t18.py`), publiée le 14 octobre 2026, pas encore essayée sur son téléphone.
   Non faits, et pourquoi : import de recette depuis un site (bloqué sans serveur), photo du frigo
   (il faudrait un modèle de vision ou un envoi, refusé).
+- **2026.10.14-5** : Muscu — records battus en direct (bannière), types de série (échauffement, échec,
+  drop set), suggestion de charge (double progression 10–12, palier 2,5 kg, réglables), carte « Séries
+  par muscle (7 jours) » dans Progression, écran allumé pendant la séance (téléphone). Testée
+  (`tests/t4.py` à `t19.py`), non publiée, branche `muscu-progression`. L'écran allumé n'est vérifiable
+  que sur son téléphone.
