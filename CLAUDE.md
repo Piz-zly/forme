@@ -1,4 +1,4 @@
-# Forme — note de synthèse pour l'assistant
+﻿# Forme — note de synthèse pour l'assistant
 
 Ce fichier est lu en premier par une IA qui ouvre ce dossier. Il dit ce qu'est le
 projet, ce qu'on attend de lui, où se trouve chaque chose et comment travailler
@@ -260,6 +260,6 @@ le demande : il avance sujet par sujet.
   « Souvent à ce repas », source et correction des valeurs d'un aliment, cru / cuit, portions et calcul
   des recettes perso, sous-onglets **Semaine** (planning, liste de courses) et **Bilan** (série, calendrier),
   « Mon frigo » sans photo, lecture d'étiquette hors ligne (Tesseract.js, téléphone seulement, avec
-  feuille de vérification). Testée (`tests/t4.py` à `t18.py`), non publiée, branche `repas-ameliorations`.
+  feuille de vérification). Testée (`tests/t4.py` à `t18.py`), publiée le 14 octobre 2026, pas encore essayée sur son téléphone.
   Non faits, et pourquoi : import de recette depuis un site (bloqué sans serveur), photo du frigo
   (il faudrait un modèle de vision ou un envoi, refusé).
