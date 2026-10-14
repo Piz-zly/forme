@@ -29,7 +29,9 @@ with sync_playwright() as p:
     pg.click('.tab[data-t="food"]'); pg.wait_for_timeout(300)
 
     subs = pg.locator('[data-act="food-sub"]').all_inner_texts()
-    check('trois sous-onglets', subs == ['Journal', 'Recettes', 'Déjà faites'], subs)
+    check('cinq sous-onglets', subs == ['Journal', 'Recettes', 'Déjà faites', 'Semaine', 'Bilan'], subs)
+    over = pg.evaluate("[...document.querySelectorAll('.seg5 button')].filter(b=>b.scrollWidth>b.clientWidth+1).map(b=>b.textContent)")
+    check('sous-onglets lisibles (aucun texte coupé)', not over, over)
     check('journal toujours la', 'Petit-déjeuner' in pg.inner_text('#view'))
 
     pg.click('[data-act="food-sub"][data-s="recipes"]'); pg.wait_for_timeout(300)

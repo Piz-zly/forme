@@ -57,7 +57,8 @@ function rcRow(r,rem,withDone){
   const over=rcOver(r,rem),d=RC().done[r.id],note=RC().notes[r.id];
   const pills=(over.length?`<span class="pill warn">${over[0].t}</span>`:'<span class="pill good">Tient dans ton reste</span>')
     +(d&&d.n?`<span class="pill neutral">✓ Faite ${d.n}×</span>`:'')
-    +(!over.length&&rem.p>5&&!(d&&d.n)?`<span class="pill neutral">${Math.min(100,Math.round(r.p/rem.p*100))} % des protéines restantes</span>`:'');
+    +(!over.length&&rem.p>5&&!(d&&d.n)?`<span class="pill neutral">${Math.min(100,Math.round(r.p/rem.p*100))} % des protéines restantes</span>`:'')
+    +(FR().have.length?(m=>m.length?`<span class="pill neutral" title="${esc(m.join(', '))}">Il manque ${m.length} ingrédient${m.length>1?'s':''}</span>`:'<span class="pill good">Tout est dans ton frigo</span>')(rcMissing(r)):'');
   return `<button class="li" data-act="rc-open" data-id="${esc(r.id)}"><div class="grow">
     <div class="t">${esc(r.n)}</div>
     <div class="small muted">${r.t} min · P ${nf(r.p,0)} · G ${nf(r.c,0)} · L ${nf(r.f,0)}${r.mine?' · Ma recette':''}</div>
@@ -78,10 +79,13 @@ function recipesView(){
     .map(r=>({r,o:rcOver(r,rem),sc:rcScore(r,rem)}));
   const exc=x=>x.o.reduce((s,y)=>s+y.w,0);
   list.sort((a,b)=>{const ao=a.o.length>0,bo=b.o.length>0;if(ao!==bo)return ao?1:-1;return ao?(exc(a)-exc(b)||a.sc-b.sc):a.sc-b.sc});
+  /* « Avec mon frigo » : d'abord ce qui demande le moins d'ingrédients à acheter (tri stable : l'ordre ci-dessus départage) */
+  if(rcFridge){list.forEach(x=>x.miss=rcMissing(x.r).length);list.sort((a,b)=>a.miss-b.miss)}
   const chip=(k,label,on)=>`<button class="chip" data-act="rc-flag" data-k="${k}" aria-pressed="${on}">${label}</button>`;
   const slots=[['all','Tous'],['bk','Petit-déj.'],['lu','Déjeuner'],['di','Dîner'],['sn','Collation']]
     .map(([k,n])=>`<button role="tab" data-act="rc-slot" data-s="${k}" aria-selected="${rcSlot===k}">${n}</button>`).join('');
-  const flags=chip('fast','Rapide ≤ 15 min',rcFast)+chip('prep','À l’avance',rcPrep)+chip('veg','Végétarien',rcVeg);
+  const nfr=FR().have.length,flags=chip('fast','Rapide ≤ 15 min',rcFast)+chip('prep','À l’avance',rcPrep)+chip('veg','Végétarien',rcVeg)
+    +`<button class="chip" data-act="fr-chip" aria-pressed="${rcFridge}">Avec mon frigo</button><button class="chip" data-act="fr-open">Mon frigo${nfr?' ('+nfr+')':''}</button>`;
   return dateBar()+rcBanner(rem)+
     `<div class="seg rcslotseg" role="tablist" aria-label="Repas" style="margin-bottom:10px">${slots}</div>
      <div class="chips">${flags}</div>`+
@@ -134,6 +138,7 @@ function rcSheet(){
   <div class="seg rcslotseg" id="rcslots" role="tablist" aria-label="Repas du journal"></div>
   <button class="btn block" id="rcaddbtn" data-act="rc-log"></button>
   <div id="rcmade" style="margin-top:12px"></div>
+  <button class="btn ghost block" style="margin-top:10px" data-act="rc-shop">Ajouter à ma liste de courses</button>
   <div class="field" style="margin-top:16px"><label for="rcnote">Ma note</label><textarea class="inp" id="rcnote" data-ch="rcnote" placeholder="Ex : un peu moins de sel, ajouter du piment…">${esc(note)}</textarea></div>
   ${r.mine?'<div class="grid2"><button class="btn ghost" data-act="rc-edit">Modifier</button><button class="btn danger" data-act="rc-del">Supprimer</button></div>':''}
   <div class="small muted" style="margin-top:14px">Valeurs indicatives. Poids crus pour les viandes, poissons, féculents et lentilles ; conserves égouttées.</div></div>`);
@@ -193,8 +198,10 @@ function rcForm(r){
   <div class="grid2"><div class="field"><label for="rfp">Protéines (g)</label><input class="inp" id="rfp" inputmode="decimal" value="${esc(v.p)}"></div><div class="field"><label for="rfc">Glucides (g)</label><input class="inp" id="rfc" inputmode="decimal" value="${esc(v.c)}"></div></div>
   <div class="field"><label for="rff">Lipides (g)</label><input class="inp" id="rff" inputmode="decimal" value="${esc(v.f)}"></div>
   <div class="field"><label for="rfi">Ingrédients (un par ligne)</label><textarea class="inp" id="rfi" placeholder="150 g de poulet&#10;70 g de riz">${esc((v.ingTxt||[]).join('\n'))}</textarea></div>
+  <div class="grid2" style="align-items:end"><div class="field"><label for="rfpor">Portions</label><input class="inp" id="rfpor" inputmode="numeric" value="${esc(v.por||1)}"></div><div class="field"><button class="btn soft block" data-act="rc-calc">Calculer les valeurs</button></div></div>
+  <div id="rfcalc" style="margin:-4px 0 12px"></div>
   <div class="field"><label for="rfs">Préparation (une étape par ligne)</label><textarea class="inp" id="rfs">${esc((v.st||[]).join('\n'))}</textarea></div>
-  <div class="small muted" style="margin-bottom:12px">Les valeurs sont pour une portion.</div>
+  <div class="small muted" style="margin-bottom:12px">Les valeurs sont pour une portion. « Calculer les valeurs » les estime à partir des ingrédients et du nombre de portions.</div>
   <button class="btn block" data-act="rc-save">Enregistrer</button></div>`);
 }
 A['rc-new']=()=>rcForm(null);
@@ -207,7 +214,7 @@ A['rc-save']=()=>{
   const o=Object.assign({veg:0,prep:0,tip:''},i>=0?m[i]:{},{
     id:i>=0?rcEditId:'u_'+uid(),n,s:[rcFormSlot],t:Math.max(1,Math.round(num($('#rft').value))||15),
     k:Math.round(k),p:r1($('#rfp').value),c:r1($('#rfc').value),f:r1($('#rff').value),
-    ingTxt:lines('rfi'),st:lines('rfs'),mine:1});
+    ingTxt:lines('rfi'),st:lines('rfs'),por:Math.max(1,Math.round(num($('#rfpor').value))||1),mine:1});
   if(i>=0)m[i]=o;else m.unshift(o);
   persist('recipes');rcOpenId=o.id;rcK=1;rcAdd=o.s[0];render();rcSheet();toast('Recette enregistrée');
 };

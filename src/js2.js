@@ -342,10 +342,12 @@ function dateBar(){
   `;
 }
 let foodSub='journal';
-const FOOD_SUBS=[['journal','Journal'],['recipes','Recettes'],['done','Déjà faites']];
-const foodSeg=()=>'<div class="seg" role="tablist">'+FOOD_SUBS.map(([k,n])=>`<button role="tab" data-act="food-sub" data-s="${k}" aria-selected="${foodSub===k}">${n}</button>`).join('')+'</div>';
+const FOOD_SUBS=[['journal','Journal'],['recipes','Recettes'],['done','Déjà faites'],['week','Semaine'],['bilan','Bilan']];
+const foodSeg=()=>'<div class="seg seg5" role="tablist">'+FOOD_SUBS.map(([k,n])=>`<button role="tab" data-act="food-sub" data-s="${k}" aria-selected="${foodSub===k}">${n}</button>`).join('')+'</div>';
 A['food-sub']=b=>{foodSub=b.dataset.s;render();window.scrollTo(0,0)};
 VIEWS.food=()=>{
+  if(foodSub==='week')return foodSeg()+weekView();
+  if(foodSub==='bilan')return foodSeg()+bilanView();
   if(foodSub!=='journal')return foodSeg()+recipesView();
   const list=dayEntries(fDate),t=totals(list),g=goals();
   const rem=g.kcal-t.kcal,over=rem<0,C=2*Math.PI*56,prog=clamp(t.kcal/g.kcal,0,1);
@@ -354,7 +356,8 @@ VIEWS.food=()=>{
     const es=list.filter(e=>e.slot===k),st=totals(es);
     return `<div class="card slot" data-ag="m:${fDate}:${k}"><div class="row sb" style="margin-bottom:4px"><h4 class="row" style="gap:10px">${slotIcon(k)}${name}</h4><span class="num muted">${nf(st.kcal,0)} kcal</span></div>
     ${es.map(e=>`<button class="entry" data-ak="${e.id}" data-act="f-edit" data-id="${e.id}"><div class="grow"><div class="t" style="font-weight:600;overflow-wrap:anywhere">${esc(e.name)}</div><div class="small muted">P ${nf(e.p,0)} · G ${nf(e.c,0)} · L ${nf(e.f,0)}</div></div><b class="num">${nf(e.kcal,0)}</b></button>`).join('')}
-    <button class="addslot" data-act="f-add" data-slot="${k}">${ICON.plus} Ajouter</button></div>`;
+    <button class="addslot" data-act="f-add" data-slot="${k}">${ICON.plus} Ajouter</button>
+    <div class="slotacts"><button class="chip" data-act="f-copy" data-slot="${k}">Copier d’un jour</button>${es.length?`<button class="chip" data-act="cb-save" data-slot="${k}">Enregistrer comme repas type</button>`:''}</div></div>`;
   }).join('');
   return foodSeg()+`
   ${dateBar()}
@@ -362,8 +365,8 @@ VIEWS.food=()=>{
     <div class="ring"><svg viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="var(--surface2)" stroke-width="12"/><circle cx="66" cy="66" r="56" fill="none" stroke="${over?'var(--bad)':'var(--accent)'}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${(C*prog).toFixed(1)} ${C.toFixed(1)}"/></svg>
       <div class="c"><b>${nf(t.kcal,0)}</b><span class="small muted">sur ${nf(g.kcal,0)} kcal</span></div></div>
     <div style="flex:1;min-width:0">${mac('Protéines',t.p,g.p)}${mac('Glucides',t.c,g.c)}${mac('Lipides',t.f,g.f)}
-      <div class="small" style="margin-top:2px"><b class="num" style="color:${over?'var(--bad)':'var(--ink)'}">${nf(Math.abs(rem),0)} kcal</b> <span class="muted">${over?'au-dessus de l’objectif':'restantes'}</span></div></div>
-  </div>${g.auto?`<div class="small muted" style="margin-top:12px">Objectifs calculés pour ${nf(g.w)} kg : ${nf(S.settings.pkg||2)} g de protéines et ${nf(S.settings.fkg||1)} g de lipides par kilo, glucides pour compléter les calories.${g.low?' Les calories sont trop basses pour ces réglages.':''}</div>`:''}</div>${slots}`;
+      <div class="small" style="margin-top:2px"><b class="num" style="color:${over?'var(--bad)':'var(--ink)'}">${nf(Math.abs(rem),0)} kcal</b> <span class="muted">${over?'au-dessus de l’objectif':'restantes'}</span></div>${(st=>st.n>=2?`<div class="small" id="fstreak" style="margin-top:4px;font-weight:700">🔥 ${st.n} jours notés de suite</div>`:'')(mealStreak())}</div>
+  </div>${g.auto?`<div class="small muted" style="margin-top:12px">Objectifs calculés pour ${nf(g.w)} kg : ${nf(S.settings.pkg||2)} g de protéines et ${nf(S.settings.fkg||1)} g de lipides par kilo, glucides pour compléter les calories.${g.low?' Les calories sont trop basses pour ces réglages.':''}</div>`:''}</div>${slots}<button class="btn ghost block" style="margin-bottom:14px" data-act="f-copy" data-slot="">Copier une journée entière</button>`;
 };
 A['f-day']=b=>{const n=Number(b.dataset.n);const nd=addDays(fDate,n);if(nd>today())return;fDate=nd;render()};
 function addEntry(slot,e,date){
@@ -384,8 +387,8 @@ function mineList(slot){
   const match=e=>!q||fzScore(normTxt(e.name),t)!==null;
   const mk=(e,fav)=>{const id=uid();pickMap[id]=e;return `<div class="row" style="border-top:1px solid var(--line)"><button class="li" style="border:0" data-act="f-pick" data-id="${id}" data-slot="${slot}"><div class="grow"><div class="t">${esc(e.name)}</div><div class="small muted">P ${nf(e.p,0)} · G ${nf(e.c,0)} · L ${nf(e.f,0)}</div></div><b class="num">${nf(e.kcal,0)}</b></button>${fav?`<button class="iconbtn" style="box-shadow:none;background:none" data-act="fav-del" data-fid="${e.id}" data-slot="${slot}" aria-label="Retirer des favoris"><span style="font-size:22px;color:var(--muted)">×</span></button>`:''}</div>`};
   const fav=S.foods.filter(match),rec=rl.filter(match);
-  return (fav.length?'<div class="sec">Favoris</div>'+fav.map(e=>mk(e,true)).join(''):'')+(rec.length?'<div class="sec" style="margin-top:14px">Récents</div>'+rec.map(e=>mk(e,false)).join(''):'')+
-    (!fav.length&&!rec.length?'<div class="empty">Rien pour l’instant. Ce que tu ajoutes apparaît ici pour le retrouver en un geste.</div>':'');
+  return combosHtml(slot,q)+(q?'':oftenHtml(slot))+(fav.length?'<div class="sec">Favoris</div>'+fav.map(e=>mk(e,true)).join(''):'')+(rec.length?'<div class="sec" style="margin-top:14px">Récents</div>'+rec.map(e=>mk(e,false)).join(''):'')+
+    (!fav.length&&!rec.length&&!CB().length?'<div class="empty">Rien pour l’instant. Ce que tu ajoutes apparaît ici pour le retrouver en un geste.</div>':'');
 }
 function addSheet(slot){
   if(!addTab)addTab='basic';
@@ -404,13 +407,17 @@ function addSheet(slot){
     body=`<div class="field"><input class="inp" id="favq" data-in="favq" data-slot="${slot}" placeholder="Rechercher" value="${esc(favQuery)}" aria-label="Rechercher un aliment"></div>
     <div id="favlist">${mineList(slot)}</div>`;
   }else{
-    body=`<div class="field"><label for="mn">Aliment</label><input class="inp" id="mn" placeholder="Ex : Yaourt grec 0 %"></div>
-    <div class="grid2"><div class="field"><label for="mk">Calories (kcal)</label><input class="inp" id="mk" inputmode="decimal"></div><div class="field"><label for="mp">Protéines (g)</label><input class="inp" id="mp" inputmode="decimal"></div></div>
-    <div class="grid2"><div class="field"><label for="mc">Glucides (g)</label><input class="inp" id="mc" inputmode="decimal"></div><div class="field"><label for="mf">Lipides (g)</label><input class="inp" id="mf" inputmode="decimal"></div></div>
-    <label class="row" style="margin:4px 0 14px;min-height:44px"><input type="checkbox" id="mfav" style="width:22px;height:22px"> Garder dans mes favoris</label>
+    body=`${typeof ocrBtns==='function'?ocrBtns('food',slot):''}<div class="field"><label for="mk">Calories (kcal)</label><input class="inp" id="mk" inputmode="decimal" placeholder="Ex : 250"></div>
+    <div class="chips" id="mquick" style="margin:-4px 0 12px">${QUICK_KCAL.map(v=>`<button class="chip" data-act="m-plus" data-v="${v}">+${v}</button>`).join('')}</div>
+    <div class="field"><label for="mn">Aliment (facultatif)</label><input class="inp" id="mn" data-in="mn" placeholder="Vide : « Ajout rapide »"></div>
+    <div class="grid2"><div class="field"><label for="mp">Protéines (g)</label><input class="inp" id="mp" inputmode="decimal"></div><div class="field"><label for="mc">Glucides (g)</label><input class="inp" id="mc" inputmode="decimal"></div></div>
+    <div class="grid2"><div class="field"><label for="mf">Lipides (g)</label><input class="inp" id="mf" inputmode="decimal"></div></div>
+    <label class="row" id="mfavrow" style="margin:4px 0 14px;min-height:44px;display:none"><input type="checkbox" id="mfav" style="width:22px;height:22px"> Garder dans mes favoris</label>
     <button class="btn block" data-act="f-manual" data-slot="${slot}">Ajouter</button>`;
   }
-  openSheet(`<div class="rc"><h3 class="row" style="gap:10px">${slotIcon(slot)}${esc(slotName)}</h3><div class="seg rcslotseg" role="tablist">${tabs.map(t=>`<button role="tab" data-act="add-tab" data-t="${t[0]}" data-slot="${slot}" aria-selected="${addTab===t[0]}">${t[1]}</button>`).join('')}</div>${body}</div>`);
+  /* feuille déjà ouverte (changement d'onglet) : contenu remplacé sans rejouer l'ouverture, retour en haut */
+  const html=`<div class="rc"><h3 class="row" style="gap:10px">${slotIcon(slot)}${esc(slotName)}</h3><div class="seg rcslotseg" role="tablist">${tabs.map(t=>`<button role="tab" data-act="add-tab" data-t="${t[0]}" data-slot="${slot}" aria-selected="${addTab===t[0]}">${t[1]}</button>`).join('')}</div>${body}</div>`;
+  if(sheetOpen()){reSheet(html);$('#layer .sheet').scrollTop=0}else openSheet(html);
 }
 A['f-add']=b=>{addTab=null;favQuery='';aiItems=[];bcReset();bq='';bcat='top';bSel=null;addSheet(b.dataset.slot)};
 A['add-tab']=b=>{addTab=b.dataset.t;addSheet(b.dataset.slot)};
@@ -418,11 +425,11 @@ I.favq=t=>{favQuery=t.value;const l=$('#favlist');if(l)l.innerHTML=mineList(t.da
 A['f-pick']=b=>{const e=pickMap[b.dataset.id];if(!e)return;addEntry(b.dataset.slot,e);closeSheet();toast('Ajouté : '+e.name);render()};
 A['fav-del']=b=>{S.foods=S.foods.filter(f=>f.id!==b.dataset.fid);persist('foods');const l=$('#favlist');if(l)l.innerHTML=mineList(b.dataset.slot)};
 A['f-manual']=b=>{
-  const name=$('#mn').value.trim(),kcal=num($('#mk').value);
-  if(!name||!kcal){toast('Indique un nom et les calories');return}
+  const named=$('#mn').value.trim(),name=named||'Ajout rapide',kcal=num($('#mk').value);
+  if(!(kcal>0)){toast('Indique les calories');return}
   const e={name,kcal,p:num($('#mp').value),c:num($('#mc').value),f:num($('#mf').value)};
   addEntry(b.dataset.slot,e);
-  if($('#mfav').checked){S.foods.unshift({id:uid(),name:e.name,kcal:r1(e.kcal),p:r1(e.p),c:r1(e.c),f:r1(e.f)});persist('foods')}
+  if(named&&$('#mfav').checked){S.foods.unshift({id:uid(),name:e.name,kcal:r1(e.kcal),p:r1(e.p),c:r1(e.c),f:r1(e.f)});persist('foods')}
   closeSheet();toast('Ajouté');render();
 };
 A['ai-go']=async b=>{

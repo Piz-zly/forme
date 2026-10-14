@@ -1,5 +1,5 @@
 /* ===== utils ===== */
-const APP_VER='2026.10.14-3';
+const APP_VER='2026.10.14-4';
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
@@ -25,7 +25,7 @@ const ICON={
 
 /* ===== state & storage ===== */
 const LS='forme.v1';
-const defaults=()=>({settings:{kcal:2200,p:150,c:250,f:70,goalW:80,startW:null,step:2.5,rest:90,auto:true,pkg:2,fkg:1,steps:10000,heightCm:null},weights:{},foods:[],meals:{},routines:[],sessions:[],exercises:[],scans:[],act:{},recipes:{done:{},notes:{},mine:[]},active:null,ui:{tab:'weight'},_t:{}});
+const defaults=()=>({settings:{kcal:2200,p:150,c:250,f:70,goalW:80,startW:null,step:2.5,rest:90,auto:true,pkg:2,fkg:1,steps:10000,heightCm:null},weights:{},foods:[],meals:{},routines:[],sessions:[],exercises:[],scans:[],act:{},recipes:{done:{},notes:{},mine:[]},combos:[],fixes:{},plan:{days:{},shop:{done:{},extra:[]}},fridge:{have:[]},active:null,ui:{tab:'weight'},_t:{}});
 let S=defaults();
 try{const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);S=Object.assign(defaults(),o);S.settings=Object.assign(defaults().settings,o.settings||{})}}catch(e){}
 function migrateSettings(){const g=S.settings;if(!g.v2){g.v2=1;if(g.goalW==null)g.goalW=80;if(!g.step)g.step=2.5;return true}return false}
@@ -55,7 +55,7 @@ function migRoutines(rs){
 /* au chargement : convertie sans changer la date de modification, pour qu'une version plus récente
    sur le compte (synchro) garde la priorité ; renvoyée au compte au prochain envoi */
 const migratedR=migRoutines(S.routines);
-const SLICES=['settings','weights','foods','routines','exercises','scans','act','recipes','active'];
+const SLICES=['settings','weights','foods','routines','exercises','scans','act','recipes','active','combos','fixes','plan','fridge'];
 const docOf=(slice,key)=>slice==='meals'?'meals_'+String(key).slice(0,7):slice==='sessions'?'sessions_'+String(key).slice(0,4):slice;
 function docValue(id){
   if(id.startsWith('meals_')){const p=id.slice(6),o={};for(const k in S.meals)if(k.startsWith(p)&&S.meals[k].length)o[k]=S.meals[k];return o}
@@ -66,7 +66,8 @@ function applyDoc(id,v){
   if(id.startsWith('meals_')){const p=id.slice(6);for(const k of Object.keys(S.meals))if(k.startsWith(p))delete S.meals[k];Object.assign(S.meals,v||{})}
   else if(id.startsWith('sessions_')){const y=id.slice(9);S.sessions=S.sessions.filter(x=>!x.date.startsWith(y)).concat(v||[])}
   else if(SLICES.includes(id)){S[id]=v===null&&id!=='active'?defaults()[id]:v;if(id==='settings'){S.settings=Object.assign(defaults().settings,S.settings);if(migrateSettings())dirty.add('settings')}
-    if(id==='routines'&&migRoutines(S.routines))dirty.add('routines')}
+    if(id==='routines'&&migRoutines(S.routines))dirty.add('routines');
+    if(id==='fixes'&&typeof applyFixes==='function')applyFixes()}
 }
 function localIds(){
   const ids=new Set(SLICES);
@@ -127,6 +128,12 @@ function openSheet(html){
   $('#layer').innerHTML='<div class="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>'+html+'</div></div>';
 }
 function closeSheet(){$('#layer').innerHTML=''}
+/* remplace le contenu de la feuille ouverte sans rejouer l'animation d'ouverture ni remonter en haut ;
+   sans feuille ouverte, l'ouvre normalement */
+function reSheet(html){
+  const sh=$('#layer .sheet');if(!sh){openSheet(html);return}
+  const y=sh.scrollTop;sh.innerHTML='<div class="grab"></div>'+html;sh.scrollTop=y;
+}
 const sheetOpen=()=>!!$('#layer .scrim');
 function confirmSheet(title,text,okLabel,onOk){
   openSheet('<h3>'+esc(title)+'</h3><p class="muted" style="margin:0 0 16px">'+esc(text)+'</p><div class="grid2"><button class="btn ghost" data-act="close">Annuler</button><button class="btn danger" data-act="confirm-ok">'+esc(okLabel)+'</button></div>');

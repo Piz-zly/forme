@@ -101,6 +101,7 @@ function cqMore(sec){
 function foodSearchHtml(slot){
   const chips=foodCats().map(([k,n])=>`<button class="chip" data-act="b-cat" data-k="${k}" aria-pressed="${!bq.trim()&&bcat===k}">${n}</button>`).join('');
   return `<div class="field"><input class="inp" type="search" id="bqin" data-in="bq" placeholder="Ex : œuf, riz, poulet…" value="${esc(bq)}" aria-label="Chercher un aliment" autocomplete="off"></div>
+  <div id="boften">${bq.trim()?'':oftenHtml(slot)}</div>
   <div class="chips" id="bchips">${chips}</div>
   <div id="bres">${foodRows()}</div>
   <div class="small muted" style="margin-top:12px">Valeurs moyennes pour 100 g, indicatives. Plus de ${Math.floor(ALLFOODS.length/100)*100} aliments, dont la table Ciqual (Anses). Pour un produit de marque, utilise « Scanner ».</div>`;
@@ -110,6 +111,7 @@ function foodRefresh(){
   const q=bq.trim();
   document.querySelectorAll('#bchips .chip').forEach(c=>c.setAttribute('aria-pressed',String(!q&&c.dataset.k===bcat)));
   const r=$('#bres');if(r)r.innerHTML=foodRows();
+  const o=$('#boften');if(o)o.innerHTML=q?'':oftenHtml(bSlot);   /* « souvent à ce repas » masqué pendant une recherche */
   const i=$('#bqin');if(i&&i.value!==bq)i.value=bq;
 }
 I.bq=t=>{bq=t.value;foodRefresh()};
@@ -134,7 +136,7 @@ function foodQtyHtml(){
   const f=bSel,units=[[-1,bBase(f)]].concat((f.u||[]).map((u,i)=>[i,u[0].split('|')[0]]));
   return `<button class="btn ghost" style="min-height:44px;margin-bottom:12px" data-act="b-back">${ICON.chevL} Retour</button>
   <div class="t" style="font:800 20px/1.2 var(--font-display);margin-bottom:2px">${esc(f.n)}</div>
-  <div class="small muted" style="margin-bottom:14px">Pour 100 ${bBase(f)} : ${nf(f.k,0)} kcal · P ${nf(f.p)} · G ${nf(f.c)} · L ${nf(f.f)}${f.cq?'<br>Source : Anses, Table Ciqual 2025':''}</div>
+  <div class="small muted" style="margin-bottom:14px">Pour 100 ${bBase(f)} : ${nf(f.k,0)} kcal · P ${nf(f.p)} · G ${nf(f.c)} · L ${nf(f.f)}</div>${foodTools(f)}
   ${units.length>1?`<div class="seg rcslotseg" id="bunits" role="tablist" aria-label="Unité">${units.map(([i,n])=>`<button role="tab" data-act="b-unit" data-i="${i}" aria-selected="${bUnit===i}">${esc(n)}</button>`).join('')}</div>`:''}
   <div class="field"><label for="bqty">Quantité (<span id="bu">${esc(bUnit<0?bBase(f):f.u[bUnit][0].split('|')[1]||f.u[bUnit][0])}</span>)</label><input class="inp" id="bqty" data-in="bqty" inputmode="decimal" value="${String(bQty).replace('.',',')}"></div>
   <div class="chips" id="bquick">${bQuick()}</div>
