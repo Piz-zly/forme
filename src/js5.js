@@ -114,3 +114,57 @@ function shareSheet(raw,s,k){
   tab='weight';S.ui.tab='weight';saveLocal();render();
   setTimeout(()=>shareSheet(raw,steps,kcal),250);
 })();
+
+/* ===== LECTURE D'ÉTIQUETTE HORS LIGNE : Tesseract.js 7.0.0 (vendor/ocr, Apache-2.0) =====
+   Rien n'est chargé au démarrage : le script, le moteur (≈ 4 Mo) et le modèle français (0,7 Mo) arrivent
+   au premier usage de la photo, depuis l'appli elle-même (jamais de CDN), puis restent en cache (sw.js).
+   La photo ne quitte pas le téléphone. Le texte lu passe par parseLabel (js4c.js), puis par la feuille
+   de vérification. Le moteur s'arrête après 90 s sans lecture pour rendre la mémoire. */
+let ocrP=null,ocrW=null,ocrWP=null,ocrIdle=0;
+const OCR_DIR=()=>new URL('vendor/ocr/',location.href).href;
+function ocrScript(){
+  if(window.Tesseract)return Promise.resolve();
+  if(ocrP)return ocrP;
+  ocrP=new Promise((res,rej)=>{const s=document.createElement('script');s.src='vendor/ocr/tesseract.min.js';s.onload=()=>res();s.onerror=()=>{ocrP=null;rej(new Error('ocr'))};document.head.appendChild(s)});
+  return ocrP;
+}
+async function ocrWorker(){
+  if(ocrW)return ocrW;
+  if(!ocrWP)ocrWP=(async()=>{
+    await ocrScript();
+    const d=OCR_DIR();
+    /* URL absolues, pas de blob : le worker et le moteur viennent du même site que l'appli */
+    const w=await Tesseract.createWorker('fra',1,{workerPath:d+'worker.min.js',corePath:d+'tesseract-core-simd-lstm.wasm.js',langPath:d.replace(/\/$/,''),workerBlobURL:false,gzip:true});
+    await w.setParameters({tessedit_pageseg_mode:'4',preserve_interword_spaces:'1'});   /* 4 : une colonne de lignes de tailles variables */
+    ocrW=w;return w;
+  })().finally(()=>{ocrWP=null});
+  return ocrWP;
+}
+/* photo -> niveaux de gris, contraste étiré (2 % - 98 %), grand côté ramené à max px */
+async function ocrPrep(file,max){
+  const bmp=await createImageBitmap(file),k=Math.min(2,max/Math.max(bmp.width,bmp.height));   /* petite image agrandie (x2 au plus) */
+  const w=Math.max(1,Math.round(bmp.width*k)),h=Math.max(1,Math.round(bmp.height*k)),c=document.createElement('canvas');
+  c.width=w;c.height=h;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(bmp,0,0,w,h);if(bmp.close)bmp.close();
+  const im=x.getImageData(0,0,w,h),p=im.data,n=w*h,g=new Uint8Array(n),hist=new Uint32Array(256);
+  for(let i=0,j=0;j<n;i+=4,j++){const v=(p[i]*299+p[i+1]*587+p[i+2]*114)/1000|0;g[j]=v;hist[v]++}
+  let lo=0,hi=255,acc=0;
+  for(let v=0;v<256;v++){acc+=hist[v];if(acc>=n*.02){lo=v;break}}
+  acc=0;for(let v=255;v>=0;v--){acc+=hist[v];if(acc>=n*.02){hi=v;break}}
+  const span=Math.max(1,hi-lo);
+  for(let i=0,j=0;j<n;i+=4,j++){const v=Math.max(0,Math.min(255,(g[j]-lo)*255/span));p[i]=p[i+1]=p[i+2]=v;p[i+3]=255}
+  x.putImageData(im,0,0);return c;
+}
+/* lit une photo d'étiquette : {text, res} ; seconde lecture à une autre échelle si moins de 6 valeurs */
+async function ocrRun(file){
+  clearTimeout(ocrIdle);
+  const w=await ocrWorker();
+  try{
+    const read=async m=>{const r=await w.recognize(await ocrPrep(file,m));return r.data.text||''};
+    let text=await read(1500),res=parseLabel(text);
+    if(res.n<6){const t2=await read(1000),r2=parseLabel(t2);if(r2.n>res.n){text=t2;res=r2}}
+    return {text,res};
+  }finally{
+    clearTimeout(ocrIdle);
+    ocrIdle=setTimeout(()=>{const x=ocrW;ocrW=null;if(x)x.terminate().catch(()=>{})},90000);
+  }
+}

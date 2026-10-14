@@ -123,6 +123,7 @@ function scanTabHtml(slot){
   if(pendingCode){
     return `<div class="bcbox"><div class="bcnum">${esc(pendingCode)}</div><div class="muted" style="margin:6px 0 14px">Produit pas encore connu. Photographie son tableau nutritionnel : il sera retenu pour les prochains scans.</div>
     ${bcLabelBusy?'<div class="row muted" style="justify-content:center"><span class="spin"></span> Lecture de l’étiquette…</div>':hasVision?cam('Photographier l’étiquette','data-ch="bc-label"'):''}</div>${msg}
+    ${!hasVision&&typeof ocrBtns==='function'?'<div style="margin-top:12px">'+ocrBtns('code',slot)+'</div>':''}
     <button class="btn soft block" style="margin-top:10px" data-act="s-manual-code">Saisir les valeurs à la main</button><button class="btn ghost block" style="margin-top:10px" data-act="bc-reset">Annuler</button>`;
   }
   const recent=S.scans.slice(0,5).map(p=>{const e=evalProduct(p);return `<button class="li" data-act="bc-pick" data-id="${p.id}"><span class="badge num" style="width:38px;height:38px;font-size:15px;background:${e.color}">${e.score}</span><div class="grow"><div class="t">${esc(p.name)}</div><div class="small muted">${nf(p.per.kcal,0)} kcal / 100 g</div></div></button>`}).join('');
@@ -179,7 +180,7 @@ VIEWS.scan=()=>{
   <div class="grid2"><label class="btn" style="cursor:pointer">${ICON.cam} Photo<input type="file" accept="image/*" capture="environment" data-ch="s-files" class="hidden"></label>
   <label class="btn ghost" style="cursor:pointer">Galerie<input type="file" accept="image/*" multiple data-ch="s-files" class="hidden"></label></div>${thumbs}
   ${scanUrls.length?`<div class="row" style="margin-top:6px"><button class="btn block" id="sgo" data-act="s-go" ${scanBusy?'disabled':''}>${scanBusy?'<span class="spin"></span> Analyse…':'Analyser'}</button><button class="btn ghost" data-act="s-clear" aria-label="Effacer les photos">×</button></div>`:''}`
-  :`<p class="muted small" style="margin:0 0 12px">L’analyse par photo n’est pas disponible ici. Tu peux saisir les valeurs de l’étiquette à la main.</p>`}
+  :(typeof ocrBtns==='function'&&ocrBtns('scan',''))||`<p class="muted small" style="margin:0 0 12px">L’analyse par photo n’est pas disponible ici. Tu peux saisir les valeurs de l’étiquette à la main.</p>`}
   ${scanErr?`<div class="pill bad" style="margin-top:10px;white-space:normal">${esc(scanErr)}</div>`:''}
   <button class="btn soft block" style="margin-top:12px" data-act="s-manual">Saisir les valeurs à la main</button></div>
   <div id="sres">${scanCur?resultCard(scanCur)+libMove(scanCur):''}</div>
@@ -285,7 +286,7 @@ A.settings=()=>{
   <div class="grid2" style="margin-top:8px"><button class="btn ghost" data-act="w-csv-exp">Exporter les pesées (CSV)</button><label class="btn ghost" style="cursor:pointer;text-align:center">Importer des pesées (CSV)<input type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" data-ch="wcsv" class="hidden"></label></div>
   <div id="expout"></div>${typeof A.upd==='function'?'<div class="sec" style="margin-top:22px">Application</div><button class="btn ghost block" data-act="upd">Vérifier les mises à jour</button>':''}
   <div class="small muted" style="margin-top:14px">Version ${APP_VER}</div>
-  <div class="small muted" style="margin-top:8px">Illustrations des mouvements : Open Exercise Illustrations (CC0, domaine public). Schémas musculaires : tracés de react-body-highlighter, © 2020 GV79, licence MIT. Lecture des codes-barres : ZXing. <a href="THIRD_PARTY.txt" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700">Licences</a></div>`);
+  <div class="small muted" style="margin-top:8px">Illustrations des mouvements : Open Exercise Illustrations (CC0, domaine public). Schémas musculaires : tracés de react-body-highlighter, © 2020 GV79, licence MIT. Lecture des codes-barres : ZXing. Lecture des étiquettes : Tesseract.js (Apache-2.0). <a href="THIRD_PARTY.txt" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700">Licences</a></div>`);
   gprev();
 };
 function gprev(){
@@ -329,7 +330,7 @@ I.imp=t=>{
     try{
       const o=JSON.parse(rd.result);if(!o||o.app!=='forme'||!o.data)throw 0;
       confirmSheet('Restaurer cette sauvegarde ?','Elle remplace les données actuelles de l’appli.','Restaurer',()=>{
-        const keep=S.ui,t=S._t;S=Object.assign(defaults(),o.data);S.settings=Object.assign(defaults().settings,o.data.settings||{});S.ui=keep;S._t=t;migRoutines(S.routines);  /* une ancienne sauvegarde peut avoir l'ancien format */
+        const keep=S.ui,t=S._t;S=Object.assign(defaults(),o.data);S.settings=Object.assign(defaults().settings,o.data.settings||{});S.ui=keep;S._t=t;migRoutines(S.routines);  /* une ancienne sauvegarde peut avoir l'ancien format */if(typeof applyFixes==='function')applyFixes();
         localIds().forEach(id=>{S._t[id]=Date.now();dirty.add(id)});saveLocal();flush();toast('Sauvegarde restaurée');render();
       });
     }catch(_){toast('Fichier non reconnu')}

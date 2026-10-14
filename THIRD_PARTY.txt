@@ -30,6 +30,18 @@ Forme - licences des éléments tiers
 8) Liste des exercices et muscles sollicités (src/js3.js, src/js3c.js) : free-exercise-db
    https://github.com/yuhonas/free-exercise-db - Unlicense (domaine public). Seules les données
    texte sont utilisées, pas les photos du dépôt.
+10) Lecture des étiquettes hors ligne (version téléphone, dossier vendor/ocr, fichiers non modifiés) :
+   - Tesseract.js 7.0.0 (tesseract.min.js, worker.min.js) - https://github.com/naptha/tesseract.js
+     Apache License 2.0 - vendor/ocr/tesseract.js-LICENSE.md ; composants inclus (buffer, ieee754,
+     regenerator-runtime, zlib.js : MIT / BSD-3-Clause) listés dans vendor/ocr/*.LICENSE.txt ;
+   - tesseract.js-core 6.1.2, variante simd-lstm (tesseract-core-simd-lstm.wasm.js) : moteur
+     Tesseract OCR et Leptonica compilés en WebAssembly - Apache License 2.0 -
+     vendor/ocr/tesseract.js-core-LICENSE.txt ;
+   - modèle de langue française fra.traineddata.gz : tessdata_best en entiers (dossier 4.0.0_best_int
+     du paquet npm @tesseract.js-data/fra 1.0.0, MIT), issu de https://github.com/tesseract-ocr/tessdata_best,
+     Apache License 2.0.
+   Chargés seulement au premier usage de la photo, depuis l'appli (jamais d'un CDN). La photo ne quitte
+   pas le téléphone. Voir vendor/ocr/README.txt.
 
 Licence MIT (exercises-dataset) : Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation and data files (the "Software"),
