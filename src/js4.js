@@ -324,7 +324,7 @@ I.imp=t=>{
     try{
       const o=JSON.parse(rd.result);if(!o||o.app!=='forme'||!o.data)throw 0;
       confirmSheet('Restaurer cette sauvegarde ?','Elle remplace les données actuelles de l’appli.','Restaurer',()=>{
-        const keep=S.ui,t=S._t;S=Object.assign(defaults(),o.data);S.settings=Object.assign(defaults().settings,o.data.settings||{});S.ui=keep;S._t=t;
+        const keep=S.ui,t=S._t;S=Object.assign(defaults(),o.data);S.settings=Object.assign(defaults().settings,o.data.settings||{});S.ui=keep;S._t=t;migRoutines(S.routines);  /* une ancienne sauvegarde peut avoir l'ancien format */
         localIds().forEach(id=>{S._t[id]=Date.now();dirty.add(id)});saveLocal();flush();toast('Sauvegarde restaurée');render();
       });
     }catch(_){toast('Fichier non reconnu')}
@@ -335,6 +335,7 @@ I.imp=t=>{
 /* ===== boot ===== */
 render();
 if(migrated)persist('settings');
+if(migratedR){dirty.add('routines');saveLocal()}
 setInterval(tick,1000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
 initDb();

@@ -1,5 +1,5 @@
 /* ===== utils ===== */
-const APP_VER='2026.10.14-1';
+const APP_VER='2026.10.14-2';
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
@@ -30,6 +30,31 @@ let S=defaults();
 try{const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);S=Object.assign(defaults(),o);S.settings=Object.assign(defaults().settings,o.settings||{})}}catch(e){}
 function migrateSettings(){const g=S.settings;if(!g.v2){g.v2=1;if(g.goalW==null)g.goalW=80;if(!g.step)g.step=2.5;return true}return false}
 const migrated=migrateSettings();
+/* routines (2026.10.14-2) : chaque exercice garde ses séries une par une, {name, sets:[{kg,reps},…]}.
+   Ancien format {name, sets:3, kg:'60', reps:'8'} -> 3 séries identiques ; sets absent ou 0 -> 3 séries.
+   Appelée au chargement, à la synchro (applyDoc) et à l'import d'une sauvegarde. Renvoie true si modifié. */
+function migRoutines(rs){
+  if(!Array.isArray(rs))return false;
+  const str=v=>v==null?'':String(v);let ch=false;
+  for(const r of rs){
+    if(!r||!Array.isArray(r.exercises))continue;
+    for(const e of r.exercises){
+      if(!e||typeof e!=='object')continue;
+      const before=JSON.stringify(e);
+      if(Array.isArray(e.sets)&&e.sets.length)e.sets=e.sets.map(s=>({kg:str(s&&s.kg),reps:str(s&&s.reps)}));
+      else{
+        let n=Math.round(num(e.sets));if(!(n>=1))n=3;
+        e.sets=Array.from({length:Math.min(n,50)},()=>({kg:str(e.kg),reps:str(e.reps)}));
+      }
+      delete e.kg;delete e.reps;
+      if(JSON.stringify(e)!==before)ch=true;
+    }
+  }
+  return ch;
+}
+/* au chargement : convertie sans changer la date de modification, pour qu'une version plus récente
+   sur le compte (synchro) garde la priorité ; renvoyée au compte au prochain envoi */
+const migratedR=migRoutines(S.routines);
 const SLICES=['settings','weights','foods','routines','exercises','scans','act','recipes','active'];
 const docOf=(slice,key)=>slice==='meals'?'meals_'+String(key).slice(0,7):slice==='sessions'?'sessions_'+String(key).slice(0,4):slice;
 function docValue(id){
@@ -40,7 +65,8 @@ function docValue(id){
 function applyDoc(id,v){
   if(id.startsWith('meals_')){const p=id.slice(6);for(const k of Object.keys(S.meals))if(k.startsWith(p))delete S.meals[k];Object.assign(S.meals,v||{})}
   else if(id.startsWith('sessions_')){const y=id.slice(9);S.sessions=S.sessions.filter(x=>!x.date.startsWith(y)).concat(v||[])}
-  else if(SLICES.includes(id)){S[id]=v===null&&id!=='active'?defaults()[id]:v;if(id==='settings'){S.settings=Object.assign(defaults().settings,S.settings);if(migrateSettings())dirty.add('settings')}}
+  else if(SLICES.includes(id)){S[id]=v===null&&id!=='active'?defaults()[id]:v;if(id==='settings'){S.settings=Object.assign(defaults().settings,S.settings);if(migrateSettings())dirty.add('settings')}
+    if(id==='routines'&&migRoutines(S.routines))dirty.add('routines')}
 }
 function localIds(){
   const ids=new Set(SLICES);
