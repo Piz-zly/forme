@@ -1,5 +1,5 @@
 /* ===== utils ===== */
-const APP_VER='2026.10.14-2';
+const APP_VER='2026.10.14-3';
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
@@ -25,7 +25,7 @@ const ICON={
 
 /* ===== state & storage ===== */
 const LS='forme.v1';
-const defaults=()=>({settings:{kcal:2200,p:150,c:250,f:70,goalW:80,startW:null,step:2.5,rest:90,auto:true,pkg:2,fkg:1,steps:10000},weights:{},foods:[],meals:{},routines:[],sessions:[],exercises:[],scans:[],act:{},recipes:{done:{},notes:{},mine:[]},active:null,ui:{tab:'weight'},_t:{}});
+const defaults=()=>({settings:{kcal:2200,p:150,c:250,f:70,goalW:80,startW:null,step:2.5,rest:90,auto:true,pkg:2,fkg:1,steps:10000,heightCm:null},weights:{},foods:[],meals:{},routines:[],sessions:[],exercises:[],scans:[],act:{},recipes:{done:{},notes:{},mine:[]},active:null,ui:{tab:'weight'},_t:{}});
 let S=defaults();
 try{const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);S=Object.assign(defaults(),o);S.settings=Object.assign(defaults().settings,o.settings||{})}}catch(e){}
 function migrateSettings(){const g=S.settings;if(!g.v2){g.v2=1;if(g.goalW==null)g.goalW=80;if(!g.step)g.step=2.5;return true}return false}

@@ -67,8 +67,8 @@ A.live=async b=>{
   if(ok){try{navigator.vibrate&&navigator.vibrate(40)}catch(_){}await afterCode(code,ctx,slot)}
 };
 /* sauvegarde : téléchargement d'un fichier */
-dl={save:async({filename,data})=>{
-  const u=URL.createObjectURL(new Blob([data],{type:'application/json'})),a=document.createElement('a');
+dl={phone:true,save:async({filename,data,type})=>{
+  const u=URL.createObjectURL(new Blob([data],{type:type||'application/json'})),a=document.createElement('a');
   a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);return{status:'saved'};
 }};
 A.upd=async()=>{

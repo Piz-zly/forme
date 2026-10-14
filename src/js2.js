@@ -74,6 +74,64 @@ function hudHtml(){
   const lo=bounds[reached],hi=bounds[reached+1],pct=Math.round(clamp(Math.abs(cur-lo)/Math.abs(hi-lo),0,1)*100),left=Math.abs(cur-hi);
   return box(lv,name,pct+' %','' +pct,'encore <b class="num">'+nf(left,1)+' kg</b> avant '+nf(hi,2)+' kg');
 }
+/* ===== POIDS : statistiques détaillées, historique par semaine, dépense estimée (2026.10.14-3) ===== */
+/* sens de l'objectif : -1 pour perdre, +1 pour prendre, 0 sans objectif */
+function wDir(arr){
+  const g=S.settings.goalW;if(!g||!arr.length)return 0;
+  const start=S.settings.startW||arr[0].y;
+  return Math.abs(start-g)<0.05?(arr[arr.length-1].y>g?-1:1):(g<start?-1:1);
+}
+/* classe de couleur d'un écart : vert vers l'objectif, orange sinon, gris sans objectif ou sans écart */
+const wTone=(v,dir)=>!dir||Math.abs(v)<0.05?'wt0':v*dir>0?'wtg':'wtw';
+/* poids au jour x : la pesée du jour, sinon la moyenne des pesées à 3 jours ou moins ; null s'il n'y en a pas */
+function wAt(arr,x){
+  const e=arr.find(p=>p.x===x);if(e)return e.y;
+  const n=arr.filter(p=>Math.abs(p.x-x)<=3);return n.length?n.reduce((t,p)=>t+p.y,0)/n.length:null;
+}
+/* lundi de la semaine d'une date (AAAA-MM-JJ) */
+const wMonday=d=>{const x=dn(d),wd=(new Date(x*864e5).getUTCDay()+6)%7;return xToDate(x-wd)};
+const IMC_TXT=[[18.5,'maigreur'],[25,'corpulence normale'],[30,'surpoids'],[35,'obésité modérée'],[40,'obésité sévère'],[1e9,'obésité massive']];
+/* dépense estimée : kcal mangées en moyenne − 7700 × pente (kg/jour), sur les 28 jours finissant à la dernière pesée.
+   Indicatif. Conditions : 14 jours entre la 1re et la dernière pesée de la fenêtre, 8 pesées, repas notés 70 % des jours */
+function wTdee(arr){
+  if(!arr.length)return null;
+  const lastX=arr[arr.length-1].x,win=arr.filter(p=>p.x>lastX-28);
+  if(win.length<8||win[win.length-1].x-win[0].x<14)return null;
+  let days=0,sum=0;
+  for(let x=lastX-27;x<=lastX;x++){const d=xToDate(x);if(dayEntries(d).length){days++;sum+=eatenOn(d)}}
+  if(days<0.7*28)return null;
+  const sl=slopePerDay(win);if(sl==null)return null;
+  return Math.round((sum/days-7700*sl)/10)*10;
+}
+function wDetails(arr){
+  const lastX=arr[arr.length-1].x,cur=arr[arr.length-1].y,dir=wDir(arr);
+  const lo=arr.reduce((m,p)=>p.y<m.y?p:m),hi=arr.reduce((m,p)=>p.y>m.y?p:m);
+  const l30=arr.filter(p=>p.x>lastX-30),avg30=l30.reduce((t,p)=>t+p.y,0)/l30.length;
+  const row=(k,v,sub)=>'<div class="wkv"><span>'+k+'</span><b class="num">'+v+'</b>'+(sub?'<i>'+sub+'</i>':'')+'</div>';
+  const vari=n=>{const w=arr[0].x<=lastX-n+3?wAt(arr,lastX-n):null;if(w==null)return '<b class="num wt0">—</b>';const v=cur-w;return '<b class="num '+wTone(v,dir)+'">'+(Math.abs(v)<0.05?'=':sgn(v))+' kg</b>'};
+  const h=num(S.settings.heightCm);
+  let imc='';
+  if(h>=120&&h<=230){const b=cur/((h/100)**2),t=IMC_TXT.find(c=>b<c[0])[1];imc=row('IMC',nf(b,1),t+' · indicatif')}
+  const td=wTdee(arr);
+  return '<div class="wdet" id="wdet">'+
+    row('Plus bas',nf(lo.y)+' kg',esc(fmtShort(lo.d)))+row('Plus haut',nf(hi.y)+' kg',esc(fmtShort(hi.d)))+
+    row('Moyenne 30 jours',nf(avg30)+' kg')+
+    '<div class="wkv"><span>Variation</span><div class="wvar"><span>7 j '+vari(7)+'</span><span>30 j '+vari(30)+'</span><span>90 j '+vari(90)+'</span></div></div>'+
+    imc+
+    '<div class="wkv"><span>Dépense estimée</span>'+(td==null?'<i style="grid-column:1/-1">Pas assez de données : il faut environ 2 semaines de pesées et de repas notés.</i>':
+      '<b class="num">≈ '+nf(td,0)+' kcal/jour</b><i>Estimation indicative, elle suppose que tu notes presque tout ce que tu manges.</i>')+'</div>'+
+  '</div>';
+}
+const wUi=()=>S.ui||(S.ui={});
+A['w-det']=()=>{wUi().wDet=!wUi().wDet;saveLocal();render()};
+A['w-hist']=()=>{wUi().wHistClosed=!wUi().wHistClosed;saveLocal();render()};
+/* séparateur de semaine : moyenne de toutes les pesées de la semaine, variation par rapport à la semaine d'avant */
+function wWeekSep(arr,mon){
+  const wk=arr.filter(p=>p.d>=mon&&p.d<=addDays(mon,6)),pm=addDays(mon,-7),pw=arr.filter(p=>p.d>=pm&&p.d<mon);
+  if(wk.length<2&&!pw.length)return '';
+  const av=wk.reduce((t,p)=>t+p.y,0)/wk.length,pv=pw.length?pw.reduce((t,p)=>t+p.y,0)/pw.length:null;
+  return '<div class="wsep" data-ak="ws'+mon+'">Semaine du '+esc(fmtShort(mon))+' · moyenne '+nf(av)+' kg'+(pv==null?'':' · '+(Math.abs(av-pv)<0.05?'=':sgn(av-pv))+' kg')+'</div>';
+}
 VIEWS.weight=()=>{
   const arr=sortedW(),d=wDate||today();
   if(wVal==null)wVal=S.weights[d]??(arr.length?arr[arr.length-1].y:70);
@@ -88,12 +146,17 @@ VIEWS.weight=()=>{
       '<div class="stat"><span>Tendance</span><b>'+(sl==null?'—':sgn(sl*7,1))+'</b><span>kg / semaine</span></div>'+
       (third?'<div class="stat"><span>'+third[0]+'</span><b>'+third[1]+'</b><span>'+third[2]+'</span></div>':
         '<div class="stat"><span>Entrées</span><b>'+arr.length+'</b><span>pesées</span></div>')+'</div>';
+    const op=!!wUi().wDet;
+    stats+='<button class="wmore" data-act="w-det" aria-expanded="'+op+'" aria-controls="wdet">Plus de détails'+ICON.chev+'</button>'+(op?wDetails(arr):'');
   }
-  const hist=arr.slice().reverse(),shown=wAll?hist:hist.slice(0,14);
-  const rows=shown.map((p,i)=>{
-    const prev=hist[hist.indexOf(p)+1],dl=prev?p.y-prev.y:null;
-    return '<button class="li" data-ak="w'+p.d+'" data-act="w-edit" data-d="'+p.d+'"><div class="grow"><div class="t">'+esc(fmtDay(p.d))+'</div></div>'+
-      (dl!=null?'<span class="small muted num">'+(Math.abs(dl)<0.05?'=':sgn(dl))+'</span>':'')+
+  const hist=arr.slice().reverse(),shown=wAll?hist:hist.slice(0,14),dir=wDir(arr),closed=!!wUi().wHistClosed;
+  let lastMon=null;
+  /* replié : le conteneur reste (vide) pour que les lignes s'effacent et réapparaissent en douceur */
+  const rows=closed?'':shown.map((p,i)=>{
+    const prev=hist[i+1],dl=prev?p.y-prev.y:null,mon=wMonday(p.d);
+    const sep=mon!==lastMon?wWeekSep(arr,mon):'';lastMon=mon;
+    return sep+'<button class="li" data-ak="w'+p.d+'" data-act="w-edit" data-d="'+p.d+'"><div class="grow"><div class="t">'+esc(fmtDay(p.d))+'</div></div>'+
+      (dl!=null?'<span class="small num '+wTone(dl,dir)+'">'+(Math.abs(dl)<0.05?'=':sgn(dl))+'</span>':'')+
       '<b class="num" style="font-size:19px;min-width:64px;text-align:right">'+nf(p.y)+' kg</b></button>';
   }).join('');
   return `${ringCard(arr)}${actCard()}
@@ -119,8 +182,9 @@ VIEWS.weight=()=>{
     <div class="chartbox" id="wchart"></div>
     <div class="small muted" style="margin-top:8px">Points : pesées. Courbe : moyenne sur 7 jours, qui lisse les écarts du quotidien.</div>
   </div>${stats?'<div class="card">'+stats+'</div>':''}
-  <div class="card"><h2>Historique</h2><div class="list" data-ag="w:hist">${rows}</div>
-    ${hist.length>14?`<button class="btn ghost block" style="margin-top:10px" data-act="w-all">${wAll?'Réduire':'Tout afficher ('+hist.length+')'}</button>`:''}</div>`
+  <div class="card"><h2 style="margin:0"><button class="whead" data-act="w-hist" aria-expanded="${!closed}" aria-controls="whist">${ICON.chev}<span>Historique</span>${closed?`<small>${hist.length} pesée${hist.length>1?'s':''} · dernière : ${nf(hist[0].y)} kg</small>`:''}</button></h2>
+    <div class="list" id="whist" data-ag="w:hist" style="margin-top:${closed?0:6}px">${rows}</div>
+    ${!closed&&hist.length>14?`<button class="btn ghost block" style="margin-top:10px" data-act="w-all">${wAll?'Réduire':'Tout afficher ('+hist.length+')'}</button>`:''}</div>`
   :'<div class="card empty">Entre ton premier poids ci-dessus.<br>Le graphique et la tendance apparaîtront dès la 2e pesée.</div>'}`;
 };
 VIEWS.weight_after=()=>{
@@ -155,6 +219,94 @@ A['w-edit']=b=>{
 };
 A['w-upd']=b=>{const v=num($('#ew').value);if(v<20||v>400){toast('Poids invalide');return}S.weights[b.dataset.d]=Math.round(v*10)/10;persist('weights');closeSheet();render()};
 A['w-del']=b=>{delete S.weights[b.dataset.d];persist('weights');wVal=null;closeSheet();render()};
+
+/* ===== POIDS : export et import CSV (Réglages) ===== */
+/* export : UTF-8 avec BOM (Excel français), « ; », virgule décimale, du plus ancien au plus récent */
+function weightsCsv(){
+  return '﻿'+['date;poids_kg'].concat(sortedW().map(p=>p.d+';'+String(p.y).replace('.',','))).join('\r\n')+'\r\n';
+}
+A['w-csv-exp']=()=>{
+  if(!Object.keys(S.weights).length){toast('Aucune pesée à exporter');return}
+  saveFile('forme-pesees-'+today()+'.csv',weightsCsv(),'text/csv;charset=utf-8','Pesées exportées');
+};
+/* une ligne CSV en cellules, guillemets compris ("" = guillemet) */
+function csvCells(line,sep){
+  const out=[];let cur='',q=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(q){if(ch==='"'){if(line[i+1]==='"'){cur+='"';i++}else q=false}else cur+=ch}
+    else if(ch==='"')q=true;
+    else if(ch===sep){out.push(cur);cur=''}
+    else cur+=ch;
+  }
+  out.push(cur);return out.map(c=>c.trim());
+}
+/* date : AAAA-MM-JJ, JJ/MM/AAAA, JJ-MM-AAAA ou JJ.MM.AAAA (heure éventuelle ignorée) -> AAAA-MM-JJ ou null */
+function csvDate(c){
+  c=String(c||'').trim().split(/[ T]/)[0];
+  let m=c.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/),y,mo,d;
+  if(m){y=+m[1];mo=+m[2];d=+m[3]}
+  else if((m=c.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/))){d=+m[1];mo=+m[2];y=+m[3]}
+  else return null;
+  const t=new Date(Date.UTC(y,mo-1,d));
+  if(t.getUTCFullYear()!==y||t.getUTCMonth()!==mo-1||t.getUTCDate()!==d)return null;
+  return y+'-'+pad(mo)+'-'+pad(d);
+}
+const csvKg=c=>{const t=String(c||'').replace(/\s|kg/gi,'').replace(',','.');if(!/^\d+(\.\d+)?$/.test(t))return null;const v=+t;return v>=20&&v<=400?Math.round(v*100)/100:null};  /* 2 décimales gardées (certaines balances) */
+/* lecture tolérante : séparateur deviné (tabulation, « ; » ou « , »), en-tête facultatif.
+   Renvoie {w:{date:kg}, bad:lignes ignorées} ; une date en double : la dernière ligne gagne */
+function parseWeightsCsv(text){
+  const lines=String(text).replace(/^﻿/,'').split(/\r\n|\n|\r/).filter(l=>l.trim());
+  const w={};let bad=0;
+  if(!lines.length)return {w,bad};
+  const f=lines[0],sep=f.includes('\t')?'\t':f.includes(';')?';':',';
+  let ci=0,ki=1,start=0;
+  const h=csvCells(f,sep);
+  if(!h.some(csvDate)){
+    start=1;
+    const n=h.map(x=>normTxt(x));
+    const di=n.findIndex(x=>x.includes('date')),wi=n.findIndex(x=>/poids|weight|kg/.test(x));
+    if(di>=0)ci=di;if(wi>=0)ki=wi;
+    if(ci===ki)ki=ci===0?1:0;
+  }
+  const max=today();
+  for(let i=start;i<lines.length;i++){
+    const c=csvCells(lines[i],sep),d=csvDate(c[ci]),v=csvKg(c[ki]);
+    if(!d||v==null||d>max){bad++;continue}
+    w[d]=v;
+  }
+  return {w,bad};
+}
+let wImp=null;
+I.wcsv=t=>{
+  const f=t.files&&t.files[0];t.value='';if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    const r=parseWeightsCsv(rd.result),ds=Object.keys(r.w);
+    const nw=ds.filter(d=>S.weights[d]==null),diff=ds.filter(d=>S.weights[d]!=null&&Math.abs(S.weights[d]-r.w[d])>=0.05),same=ds.length-nw.length-diff.length;
+    wImp={w:r.w,nw,diff};
+    const pl=(n,a,b)=>n+' '+(n>1?b:a);
+    const sum=[pl(ds.length,'pesée lue','pesées lues'),pl(nw.length,'nouvelle','nouvelles'),
+      diff.length?pl(diff.length,'déjà présente avec une autre valeur','déjà présentes avec une autre valeur'):'',
+      same?pl(same,'déjà présente à l’identique','déjà présentes à l’identique'):'',
+      r.bad?pl(r.bad,'ligne ignorée','lignes ignorées'):''].filter(Boolean).join(' · ');
+    const none=!nw.length&&!diff.length;
+    openSheet(`<h3>Importer des pesées</h3><p class="small" id="wimpsum" style="margin:0 0 14px;line-height:1.5">${esc(sum)}</p>
+    ${!ds.length?'<p class="small muted" style="margin:0 0 14px">Aucune pesée reconnue. Le fichier doit avoir une colonne de dates (ex. 2026-10-06 ou 06/10/2026) et une colonne de poids en kg.</p>':''}
+    ${none?'':`<button class="btn block" data-act="w-csv-ok" data-m="new">Ajouter seulement les nouvelles${nw.length?' ('+nw.length+')':''}</button>
+    ${diff.length?`<button class="btn ghost block" style="margin-top:8px" data-act="w-csv-ok" data-m="all">Remplacer aussi celles qui existent (${diff.length})</button>`:''}`}
+    <button class="btn ghost block" style="margin-top:8px" data-act="close">${none?'Fermer':'Annuler'}</button>`);
+  };
+  rd.readAsText(f);
+};
+/* rien n'est écrit avant ce choix */
+A['w-csv-ok']=b=>{
+  if(!wImp)return;
+  const all=b.dataset.m==='all',ds=all?wImp.nw.concat(wImp.diff):wImp.nw;
+  ds.forEach(d=>{S.weights[d]=wImp.w[d]});wImp=null;
+  if(ds.length){persist('weights');wVal=null}
+  closeSheet();toast(ds.length?ds.length+(ds.length>1?' pesées importées':' pesée importée'):'Aucune pesée modifiée');render();
+};
 
 /* ===== FOOD ===== */
 const SLOTS=[['bk','Petit-déjeuner'],['lu','Déjeuner'],['di','Dîner'],['sn','Collations']];

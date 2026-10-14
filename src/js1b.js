@@ -17,8 +17,10 @@ const animRows=()=>[...document.querySelectorAll('#view [data-ag]>[data-ak]')];
 function animSnap(){
   if(animOff())return null;
   const els=animRows();
-  if(!els.length||els.length>ANIM_MAX)return null;
-  const m=new Map(),scopes=new Set();
+  if(els.length>ANIM_MAX)return null;
+  /* une portée vide compte aussi (historique du Poids replié) : ses lignes pourront apparaître en douceur */
+  const m=new Map(),scopes=new Set([...document.querySelectorAll('#view [data-ag]')].map(c=>animScope(c.dataset.ag)));
+  if(!scopes.size)return null;
   for(const el of els){
     const c=el.parentElement,g=c.dataset.ag,sib=[...c.children],i=sib.indexOf(el);
     let prev=null,next=null;

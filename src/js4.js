@@ -270,9 +270,10 @@ A.settings=()=>{
   <div class="small muted" id="gprev" style="margin:-4px 0 12px"></div>
   <div class="sec" style="margin-top:6px">Objectifs fixes (si le calcul auto est coupé)</div>
   <div class="grid2">${f('gp','Protéines (g)',g.p)}${f('gc','Glucides (g)',g.c)}${f('gf','Lipides (g)',g.f)}</div>
-  <div class="grid2">${f('gw','Poids visé (kg)',g.goalW)}${f('gt','Palier du cercle (kg)',g.step)}</div>
-  <div class="grid2">${f('gs','Poids de départ (kg)',g.startW)}${f('gr','Repos entre séries (s)',g.rest)}</div>
-  <div class="small muted" style="margin:-4px 0 12px">Poids de départ vide : la première pesée est utilisée.</div>
+  <div class="grid2">${f('gw','Poids visé (kg)',g.goalW)}${f('ght','Taille (cm)',g.heightCm)}</div>
+  <div class="grid2">${f('gt','Palier du cercle (kg)',g.step)}${f('gs','Poids de départ (kg)',g.startW)}</div>
+  <div class="small muted" style="margin:-4px 0 12px">Poids de départ vide : la première pesée est utilisée. Taille facultative : elle sert seulement à l’IMC.</div>
+  <div class="grid2">${f('gr','Repos entre séries (s)',g.rest)}</div>
   <div class="sec" style="margin-top:6px">Activité</div>
   <div class="grid2">${f('gst','Objectif de pas / jour',g.steps||10000)}</div>
   <button class="btn block" data-act="set-save">Enregistrer</button>
@@ -281,6 +282,7 @@ A.settings=()=>{
   <div class="sec" style="margin-top:22px">Sauvegarde</div>
   <p class="small muted" style="margin:0 0 10px">${syncState==='ok'?'Tes données sont enregistrées en privé sur ton compte, en plus de ce téléphone.':'Tes données restent sur cet appareil. Fais une sauvegarde de temps en temps.'}</p>
   <div class="grid2"><button class="btn ghost" data-act="exp">Exporter</button><label class="btn ghost" style="cursor:pointer">Restaurer<input type="file" accept=".json,application/json" data-ch="imp" class="hidden"></label></div>
+  <div class="grid2" style="margin-top:8px"><button class="btn ghost" data-act="w-csv-exp">Exporter les pesées (CSV)</button><label class="btn ghost" style="cursor:pointer;text-align:center">Importer des pesées (CSV)<input type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" data-ch="wcsv" class="hidden"></label></div>
   <div id="expout"></div>${typeof A.upd==='function'?'<div class="sec" style="margin-top:22px">Application</div><button class="btn ghost block" data-act="upd">Vérifier les mises à jour</button>':''}
   <div class="small muted" style="margin-top:14px">Version ${APP_VER}</div>
   <div class="small muted" style="margin-top:8px">Illustrations des mouvements : Open Exercise Illustrations (CC0, domaine public). Schémas musculaires : tracés de react-body-highlighter, © 2020 GV79, licence MIT. Lecture des codes-barres : ZXing. <a href="THIRD_PARTY.txt" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700">Licences</a></div>`);
@@ -302,21 +304,24 @@ A['set-save']=()=>{
   const g=S.settings,v=id=>num($('#'+id).value);
   g.auto=$('#ga').checked;if(v('gst')>0)g.steps=Math.round(v('gst'));if(v('gpk')>0)g.pkg=v('gpk');if(v('gfk')>0)g.fkg=v('gfk');
   if(v('gk')>0)g.kcal=v('gk');if(v('gp')>0)g.p=v('gp');if(v('gc')>0)g.c=v('gc');if(v('gf')>0)g.f=v('gf');
+  const hc=v('ght');if(hc&&(hc<120||hc>230)){toast('Taille : entre 120 et 230 cm');return}
+  g.heightCm=hc?Math.round(hc):null;
   g.goalW=v('gw')>=20?v('gw'):null;g.step=v('gt')>0?v('gt'):2.5;g.startW=v('gs')>=20?v('gs'):null;if(v('gr')>=10)g.rest=v('gr');
   persist('settings');closeSheet();toast('Réglages enregistrés');render();
 };
-function exportData(){const o=Object.assign({},S);delete o.ui;delete o._t;return JSON.stringify({app:'forme',v:1,date:today(),data:o})}
-A.exp=async()=>{
-  const json=exportData();
+/* enregistre un fichier : téléchargement (téléphone) ou capacité downloads (Claude) ; à défaut, texte à copier */
+async function saveFile(filename,data,type,okMsg){
   try{
     if(!dl)throw{code:'unavailable'};
-    await dl.save({filename:'forme-sauvegarde-'+today()+'.json',data:json});toast('Sauvegarde exportée');
+    await dl.save(dl.phone?{filename,data,type}:{filename,data});toast(okMsg);
   }catch(e){
     if(e&&e.code==='declined')return;
-    const o=$('#expout');if(o)o.innerHTML='<div class="small muted" style="margin:12px 0 6px">Copie ce texte et garde-le dans une note :</div><textarea class="inp" readonly id="expta" style="min-height:120px;font-size:12px">'+esc(json)+'</textarea>';
+    const o=$('#expout');if(o)o.innerHTML='<div class="small muted" style="margin:12px 0 6px">Copie ce texte et garde-le dans une note :</div><textarea class="inp" readonly id="expta" style="min-height:120px;font-size:12px">'+esc(data)+'</textarea>';
     const ta=$('#expta');if(ta){ta.focus();ta.select()}
   }
-};
+}
+function exportData(){const o=Object.assign({},S);delete o.ui;delete o._t;return JSON.stringify({app:'forme',v:1,date:today(),data:o})}
+A.exp=()=>saveFile('forme-sauvegarde-'+today()+'.json',exportData(),'application/json','Sauvegarde exportée');
 I.imp=t=>{
   const f=t.files[0];t.value='';if(!f)return;
   const rd=new FileReader();

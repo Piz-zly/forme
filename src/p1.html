@@ -97,6 +97,26 @@ textarea.inp{padding:12px 14px;min-height:96px;resize:vertical}
 .pill.bad{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}
 .pill.neutral{background:var(--surface2);color:var(--muted)}
 .list>*+*{border-top:1px solid var(--line)}
+/* Poids : détails, historique par semaine (2026.10.14-3) */
+.wmore,.whead{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;text-align:left;font:inherit;color:inherit}
+.wmore{justify-content:center;margin-top:10px;font-weight:700;font-size:14px;color:var(--muted)}
+.wmore svg,.whead svg{width:18px;height:18px;flex:none;transition:transform .2s ease}
+.wmore[aria-expanded="true"] svg{transform:rotate(-90deg)}
+.wmore[aria-expanded="false"] svg{transform:rotate(90deg)}
+.whead[aria-expanded="true"] svg{transform:rotate(90deg)}
+.whead small{margin-left:auto;font:600 12.5px/1.2 var(--font-body);text-transform:none;letter-spacing:0;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.wmore svg,.whead svg{transition:none}}
+.wdet{margin-top:4px;border-top:1px solid var(--line)}
+.wkv{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line)}
+.wkv:last-child{border-bottom:0}
+.wkv>span{color:var(--muted);font-weight:600;font-size:14px}
+.wkv>b{font:800 17px/1.2 var(--font-display);text-align:right}
+.wkv>i{grid-column:1/-1;font-style:normal;font-size:12.5px;color:var(--muted);text-align:right}
+.wvar{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end;font-size:13px;color:var(--muted)}
+.wvar b{font:800 15px/1.2 var(--font-display);margin-left:3px}
+.wsep{padding:10px 0 4px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.list>.wsep+*{border-top:0}
+.wt0{color:var(--muted)}.wtg{color:var(--good)}.wtw{color:var(--warn)}
 .li{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 0;width:100%;text-align:left}
 .li .grow{flex:1;min-width:0}
 .li .t{font-weight:600;overflow-wrap:anywhere}
