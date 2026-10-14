@@ -53,7 +53,9 @@ function allExNames(){
 const mkSets=n=>Array.from({length:n},()=>({kg:'',reps:'',done:false}));
 function startSession(name,exs){
   if(S.active){gymOpen=true;toast('Séance en cours reprise');render();return}
-  S.active={id:uid(),name:name||'Séance',start:Date.now(),exercises:exs.map(e=>({name:e.name,sets:mkSets(e.sets||3).map(x=>({kg:e.kg?String(e.kg):'',reps:e.reps?String(e.reps):'',done:false}))}))};
+  /* exs : [{name, sets:[{kg,reps},…]}] (routine) ; chaque série reprend SON poids et SES répétitions prévus */
+  const str=v=>v==null?'':String(v);
+  S.active={id:uid(),name:name||'Séance',start:Date.now(),exercises:exs.map(e=>({name:e.name,sets:(Array.isArray(e.sets)&&e.sets.length?e.sets:mkSets(3)).map(x=>({kg:str(x.kg),reps:str(x.reps),done:false}))}))};
   persist('active');gymOpen=true;restEnd=0;render();window.scrollTo(0,0);
 }
 VIEWS.gym=()=>S.active&&gymOpen?sessionView():routEdit?routineView():gymHome();
@@ -66,7 +68,7 @@ function sessionsHome(){
   const wk=S.sessions.filter(s=>dn(s.date)>dn(today())-7);
   const active=S.active?`<div class="card" style="background:var(--accent);color:var(--on-accent)"><div class="row sb"><div><div class="small" style="opacity:.85;font-weight:700">SÉANCE EN COURS</div><div class="num" style="font-size:22px;font-weight:800">${esc(S.active.name)}</div></div><button class="btn" style="background:var(--on-accent);color:var(--accent)" data-act="g-resume">Reprendre</button></div></div>`:'';
   const routines=`<div class="card"><div class="row sb" style="margin-bottom:${S.routines.length?'10px':'2px'}"><h2 style="margin:0">Mes routines</h2><button class="chip" data-act="g-rnew">${ICON.plus} Créer</button></div>
-  ${S.routines.length?'<div class="list">'+S.routines.map(r=>`<div class="row"><button class="li" data-act="g-rstart" data-id="${r.id}"><div class="grow"><div class="t">${esc(r.name)}</div><div class="small muted">${r.exercises.length} exercice${r.exercises.length>1?'s':''}${r.exercises.length?' · '+esc(r.exercises.slice(0,3).map(e=>e.name).join(', '))+(r.exercises.length>3?'…':''):''}</div></div><span class="pill neutral">Démarrer</span></button><button class="iconbtn" style="box-shadow:none;background:var(--surface2)" data-act="g-redit" data-id="${r.id}" aria-label="Modifier la routine ${esc(r.name)}"><span style="font-size:19px;line-height:1">⋯</span></button></div>`).join('')+'</div>'
+  ${S.routines.length?'<div class="list">'+S.routines.map(r=>`<div class="row"><button class="li" data-act="g-rstart" data-id="${r.id}"><div class="grow"><div class="t">${esc(r.name)}</div><div class="small muted">${r.exercises.length} exercice${r.exercises.length>1?'s':''}${(n=>n?' · '+n+' série'+(n>1?'s':''):'')(r.exercises.reduce((t,e)=>t+(Array.isArray(e.sets)?e.sets.length:0),0))}${r.exercises.length?' · '+esc(r.exercises.slice(0,3).map(e=>e.name).join(', '))+(r.exercises.length>3?'…':''):''}</div></div><span class="pill neutral">Démarrer</span></button><button class="iconbtn" style="box-shadow:none;background:var(--surface2)" data-act="g-redit" data-id="${r.id}" aria-label="Modifier la routine ${esc(r.name)}"><span style="font-size:19px;line-height:1">⋯</span></button></div>`).join('')+'</div>'
   :'<div class="small muted" style="margin:0 0 2px">Prépare tes séances à l’avance : les exercices, le nombre de séries, et si tu veux les charges prévues.</div>'}</div>`;
 
   const hist=S.sessions.slice(0,30).map(s=>{
@@ -178,7 +180,7 @@ I.exq=t=>{exQuery=t.value;$('#exlist').innerHTML=exPicker()};
 I.exmus=t=>{exMus=t.value;$('#exlist').innerHTML=exPicker()};
 I.exeq=t=>{exEq=t.value;$('#exlist').innerHTML=exPicker()};
 function pushEx(name){
-  if(routEdit&&!(S.active&&gymOpen)){const r=curRoutine();if(r){r.exercises.push({name,sets:3,kg:'',reps:''});persist('routines')}closeSheet();render();return}
+  if(routEdit&&!(S.active&&gymOpen)){rAskSets(name);return}   /* routine : d'abord « Combien de séries ? » (js3b.js) */
   S.active.exercises.push({name,sets:mkSets(3)});persist('active');closeSheet();render();
   setTimeout(()=>{const cs=document.querySelectorAll('.ex');if(cs.length)cs[cs.length-1].scrollIntoView({behavior:'smooth',block:'center'})},60);
 }
@@ -216,14 +218,14 @@ A['g-view']=b=>{
   <div class="grid2" style="margin-bottom:10px"><button class="btn soft" data-act="g-redo" data-id="${s.id}">Refaire</button><button class="btn soft" data-act="g-saver" data-id="${s.id}">En faire une routine</button></div>
   <button class="btn danger block" data-act="g-sdel" data-id="${s.id}">Supprimer</button>`);
 };
-A['g-redo']=b=>{const s=S.sessions.find(x=>x.id===b.dataset.id);closeSheet();if(s)startSession(s.name,s.exercises.map(e=>({name:e.name,sets:e.sets.length})))};
+A['g-redo']=b=>{const s=S.sessions.find(x=>x.id===b.dataset.id);closeSheet();if(s)startSession(s.name,s.exercises.map(e=>({name:e.name,sets:e.sets.map(()=>({kg:'',reps:''}))})))};
 A['g-saver']=b=>{
   const s=S.sessions.find(x=>x.id===b.dataset.id);if(!s)return;
   openSheet(`<h3>Nouvelle routine</h3><div class="field"><label for="rn">Nom</label><input class="inp" id="rn" value="${esc(s.name)}"></div><button class="btn block" data-act="g-saver-ok" data-id="${s.id}">Enregistrer la routine</button>`);
 };
 A['g-saver-ok']=b=>{
   const s=S.sessions.find(x=>x.id===b.dataset.id);if(!s)return;
-  S.routines.push({id:uid(),name:$('#rn').value.trim()||s.name,exercises:s.exercises.map(e=>({name:e.name,sets:e.sets.length}))});
+  S.routines.push({id:uid(),name:$('#rn').value.trim()||s.name,exercises:s.exercises.map(e=>({name:e.name,sets:e.sets.map(()=>({kg:'',reps:''}))}))});
   persist('routines');closeSheet();toast('Routine enregistrée');render();
 };
 A['g-sdel']=b=>confirmSheet('Supprimer cette séance ?','Elle sera retirée de l’historique et de la progression.','Supprimer',()=>{const s=S.sessions.find(x=>x.id===b.dataset.id);S.sessions=S.sessions.filter(x=>x.id!==b.dataset.id);if(s)persist('sessions',s.date);render()});

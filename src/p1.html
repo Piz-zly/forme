@@ -241,10 +241,15 @@ ol.rcl li::marker{font-weight:800;color:var(--accent)}
 .durs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .dur{min-height:52px;border-radius:14px;background:var(--surface2);font-weight:800;font-size:16px;font-variant-numeric:tabular-nums;color:var(--ink)}
 .dur.on{background:var(--accent);color:var(--on-accent)}
-.rr{display:grid;grid-template-columns:40px 54px 40px 1fr 1fr;gap:8px;align-items:center;margin-top:12px}
-.rr>span{text-align:center;line-height:1.1}
-.rr>span b{font:800 18px/1 var(--font-display);display:block;font-variant-numeric:tabular-nums}
-.rr>span i{font-size:11px;color:var(--muted);font-style:normal;font-weight:600}
+.rsets{display:grid;grid-template-columns:62px minmax(0,1fr) minmax(0,1fr) 44px;gap:8px;align-items:center;margin-top:12px}
+.rsets .h{font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;text-align:center}
+.rsets .n{font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap}
+.rsets .rin{min-height:44px;font-size:16px}
+.rsets .rin:focus{outline:none;box-shadow:inset 0 0 0 2px var(--accent)}
+.rsets .rstep{height:44px;font-size:22px}
+.rsets .rstep:disabled{opacity:.35;box-shadow:none;transform:none}
+.rcount{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.rcount .chip{justify-content:center;min-height:52px;font:800 20px/1 var(--font-display);font-variant-numeric:tabular-nums}
 .rstep{height:40px;border-radius:12px;background:var(--surface2);font:800 20px/1 var(--font-display);color:var(--ink)}
 .rin{min-height:40px;border-radius:12px;background:var(--surface2);border:0;text-align:center;font:600 15px/1 var(--font-body);color:var(--ink);font-variant-numeric:tabular-nums;min-width:0}
 .rin::placeholder{color:var(--muted);font-weight:500}

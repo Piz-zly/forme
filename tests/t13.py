@@ -90,6 +90,7 @@ with sync_playwright() as p:
 
     # 4. fiche d'un nouvel exercice (illustration ajoutee en 2026.10.14, pas de schema img2)
     pg.click('#exlist [data-act="g-pickex"]'); pg.wait_for_timeout(300)
+    pg.click('.sheet [data-act="g-rcok"]'); pg.wait_for_timeout(300)  # routine : « Combien de séries ? » (3 par défaut)
     pg.click('[data-act="g-exinfo"][data-name="Curl concentré"]'); pg.wait_for_timeout(300)
     sh = pg.locator('.sheet').last
     t = sh.inner_text().lower()
@@ -107,6 +108,7 @@ with sync_playwright() as p:
     pg.click('[data-act="g-addex"]'); pg.wait_for_timeout(300)
     pg.fill('#exq', 'Soulevé de terre'); pg.wait_for_timeout(150)
     pg.click('#exlist [data-act="g-pickex"][data-name="Soulevé de terre"]'); pg.wait_for_timeout(300)
+    pg.click('.sheet [data-act="g-rcok"]'); pg.wait_for_timeout(300)  # routine : « Combien de séries ? » (3 par défaut)
     pg.click('[data-act="g-exinfo"][data-name="Soulevé de terre"]'); pg.wait_for_timeout(600)
     sh = pg.locator('.sheet').last
     t = sh.inner_text()
@@ -122,6 +124,7 @@ with sync_playwright() as p:
     pg.click('[data-act="g-addex"]'); pg.wait_for_timeout(300)
     pg.fill('#exq', 'tirage vertical'); pg.wait_for_timeout(150)
     pg.click('#exlist [data-act="g-pickex"][data-name="Tirage vertical"]'); pg.wait_for_timeout(300)
+    pg.click('.sheet [data-act="g-rcok"]'); pg.wait_for_timeout(300)  # routine : « Combien de séries ? » (3 par défaut)
     chips = pg.locator('[data-act="g-rgrip"]').all_inner_texts()
     check('routine : choix de prise Large / Serrée / Inversée / Neutre', chips == ['Large', 'Serrée', 'Inversée', 'Neutre'], chips)
     pg.click('[data-act="g-rgrip"][data-n="Tirage vertical prise serrée"]'); pg.wait_for_timeout(300)
@@ -171,6 +174,7 @@ with sync_playwright() as p:
     # 7. exercice perso sans illustration : vignette lettre et fiche propre
     pg.fill('#exq', 'Mon mouvement maison'); pg.wait_for_timeout(150)
     pg.click('[data-act="g-newex"]'); pg.wait_for_timeout(300)
+    pg.click('.sheet [data-act="g-rcok"]'); pg.wait_for_timeout(300)  # routine : « Combien de séries ? » (3 par défaut)
     check('exercice perso : vignette lettre', pg.locator('.thumb.ph').filter(has_text='M').count() >= 1)
     pg.click('[data-act="g-addex"]'); pg.wait_for_timeout(300)
     pg.fill('#exq', 'Mon mouvement maison'); pg.wait_for_timeout(150)

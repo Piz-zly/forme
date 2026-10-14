@@ -84,6 +84,7 @@ def scenario(b, reduced):
         pg.click('[data-act="g-addex"]'); pg.wait_for_timeout(200)
         pg.fill('#exq', n); pg.wait_for_timeout(100)
         pg.click('#exlist [data-act="g-pickex"][data-name="%s"]' % n); pg.wait_for_timeout(200)
+        pg.click('.sheet [data-act="g-rcok"]'); pg.wait_for_timeout(200)  # routine : « Combien de séries ? » (3 par défaut)
     anims()
     pg.click('[data-act="g-rexmenu"][data-i="1"]'); pg.wait_for_timeout(200)
     pg.click('[data-act="g-rmove"][data-i="1"][data-d="-1"]'); pg.wait_for_timeout(50)

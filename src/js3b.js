@@ -103,12 +103,39 @@ A['g-rback']=()=>{
   routEdit=null;render();window.scrollTo(0,0);
 };
 I.rname=t=>{const r=curRoutine();if(r){r.name=t.value;persist('routines')}};
-I.rkg=t=>{const r=curRoutine();if(r){r.exercises[+t.dataset.i].kg=t.value;persist('routines')}};
-I.rreps=t=>{const r=curRoutine();if(r){r.exercises[+t.dataset.i].reps=t.value;persist('routines')}};
-A['g-rsets']=b=>{const r=curRoutine(),e=r.exercises[+b.dataset.i];e.sets=clamp((e.sets||3)+(+b.dataset.d),1,12);persist('routines');render()};
+/* séries d'une routine : e.sets = [{kg,reps},…], une ligne par série, chacune modifiable seule */
+const RSETS_MAX=20;
+/* résumé lisible même quand les séries diffèrent : « 3 × 8 · 60 kg » ou « 3 séries · 60–75 kg · 6–10 reps » */
+function rSum(e){
+  const s=e.sets||[],n=s.length,kg=s.map(x=>num(x.kg)).filter(v=>v>0),rp=s.map(x=>num(x.reps)).filter(v=>v>0);
+  const rng=(a,d,u)=>{if(!a.length)return '';const lo=Math.min(...a),hi=Math.max(...a);return (lo===hi?nf(lo,d):nf(lo,d)+'–'+nf(hi,d))+u};
+  if(n&&rp.length===n&&s.every(x=>x.kg===s[0].kg&&x.reps===s[0].reps))return n+' × '+nf(rp[0],0)+(kg.length?' · '+nf(kg[0],2)+' kg':'');
+  return [n+' série'+(n>1?'s':''),rng(kg,2,' kg'),rng(rp,0,' reps')].filter(Boolean).join(' · ');
+}
+/* ajout d'un exercice : on demande d'abord le nombre de séries ; Annuler = rien n'est ajouté */
+let rPend=null,rPendN=3;
+function rAskSets(name){
+  rPend=name;rPendN=3;
+  openSheet(`<h3>Combien de séries ?</h3><div class="small muted" style="margin:-4px 0 14px">${esc(name)}</div>
+  <div class="rcount" role="group" aria-label="Nombre de séries">${[1,2,3,4,5,6,7,8].map(n=>`<button class="chip" data-act="g-rcnt" data-n="${n}" aria-pressed="${n===rPendN}" aria-label="${n} série${n>1?'s':''}">${n}</button>`).join('')}</div>
+  <div class="grid2" style="margin-top:18px"><button class="btn ghost" data-act="close">Annuler</button><button class="btn" data-act="g-rcok">Valider</button></div>`);
+}
+A['g-rcnt']=b=>{rPendN=clamp(+b.dataset.n,1,8);document.querySelectorAll('[data-act="g-rcnt"]').forEach(x=>x.setAttribute('aria-pressed',String(+x.dataset.n===rPendN)))};
+A['g-rcok']=()=>{
+  const r=curRoutine(),name=rPend;rPend=null;closeSheet();if(!r||!name)return;
+  r.exercises.push({name,sets:Array.from({length:rPendN},()=>({kg:'',reps:''}))});persist('routines');render();
+  setTimeout(()=>{const cs=document.querySelectorAll('#view .card.ex');if(cs.length)cs[cs.length-1].scrollIntoView({behavior:window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'})},60);
+};
+const rSetOf=t=>{const r=curRoutine(),e=r&&r.exercises[+t.dataset.i];return e&&e.sets[+t.dataset.s]?[e,e.sets[+t.dataset.s]]:[]};
+/* saisie : enregistrée à chaque touche, sans redessiner l'écran (pas de saut, le clavier reste ouvert) */
+I.rset=t=>{const [e,s]=rSetOf(t);if(!s)return;s[t.dataset.f==='reps'?'reps':'kg']=t.value;persist('routines');const m=$('#rsum'+t.dataset.i);if(m)m.textContent=rSum(e)};
+/* nouvelle série : reprend le poids et les répétitions de la dernière */
+A['g-raddset']=b=>{const r=curRoutine(),e=r&&r.exercises[+b.dataset.i];if(!e||e.sets.length>=RSETS_MAX)return;const l=e.sets[e.sets.length-1]||{kg:'',reps:''};e.sets.push({kg:l.kg,reps:l.reps});persist('routines');render()};
+/* au moins une série reste */
+A['g-rdelset']=b=>{const [e]=rSetOf(b);if(!e||e.sets.length<=1)return;e.sets.splice(+b.dataset.s,1);persist('routines');render()};
 A['g-rexmenu']=b=>{
   const i=+b.dataset.i,r=curRoutine(),e=r.exercises[i];
-  openSheet(`<h3>${esc(e.name)}</h3><div class="grid2" style="margin-bottom:10px">
+  openSheet(`<h3>${esc(e.name)}</h3><div class="small muted" style="margin:-4px 0 14px">${esc(rSum(e))}</div><div class="grid2" style="margin-bottom:10px">
   <button class="btn ghost" data-act="g-rmove" data-i="${i}" data-d="-1" ${i===0?'disabled style="opacity:.4"':''}>Monter</button>
   <button class="btn ghost" data-act="g-rmove" data-i="${i}" data-d="1" ${i===r.exercises.length-1?'disabled style="opacity:.4"':''}>Descendre</button></div>
   <button class="btn danger block" data-act="g-rdelex" data-i="${i}">Retirer de la routine</button>`);
@@ -118,7 +145,8 @@ A['g-rgrip']=b=>{const r=curRoutine(),e=r&&r.exercises[+b.dataset.i];if(!e)retur
 A['g-rdelex']=b=>{const r=curRoutine();r.exercises.splice(+b.dataset.i,1);persist('routines');closeSheet();render()};
 A['g-rdup']=b=>{
   const r=S.routines.find(x=>x.id===b.dataset.id);if(!r)return;
-  const c={id:uid(),name:r.name+' (copie)',exercises:r.exercises.map(e=>Object.assign({},e))};
+  /* copie profonde : la copie et l'original ne partagent aucune série */
+  const c={id:uid(),name:r.name+' (copie)',exercises:r.exercises.map(e=>({name:e.name,sets:e.sets.map(s=>({kg:s.kg,reps:s.reps}))}))};
   S.routines.push(c);persist('routines');closeSheet();routEdit=c.id;render();
 };
 A['g-rstart']=b=>{const r=S.routines.find(x=>x.id===b.dataset.id);if(!r||!r.exercises.length){toast('Ajoute au moins un exercice');return}routEdit=null;startSession(r.name,r.exercises)};
@@ -127,20 +155,21 @@ function routineView(){
   const occ={};   /* clé d'animation : le nom, numéroté s'il revient deux fois */
   const rows=r.exercises.map((e,i)=>`<div class="card ex" data-ak="${esc(e.name)}#${occ[e.name]=(occ[e.name]||0)+1}" style="padding:14px;margin-bottom:10px">
     <div class="hd"><button class="thumbbtn" data-act="g-exinfo" data-name="${esc(e.name)}" aria-label="Voir ${esc(e.name)}">${thumb(e.name,46)}</button>
-      <b style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(e.name)}</b>
+      <div style="flex:1;min-width:0"><b style="overflow-wrap:anywhere">${esc(e.name)}</b><div class="small muted" id="rsum${i}">${esc(rSum(e))}</div></div>
       <button class="iconbtn" style="width:40px;height:40px;box-shadow:none;background:var(--surface2)" data-act="g-rexmenu" data-i="${i}" aria-label="Options"><span style="font-size:20px;line-height:1">⋯</span></button></div>${gripRow(e.name,'g-rgrip',i)}
-    <div class="rr">
-      <button class="rstep" data-act="g-rsets" data-i="${i}" data-d="-1" aria-label="Une série de moins">−</button>
-      <span><b class="num">${e.sets||3}</b><i>séries</i></span>
-      <button class="rstep" data-act="g-rsets" data-i="${i}" data-d="1" aria-label="Une série de plus">+</button>
-      <input class="rin" inputmode="decimal" data-in="rkg" data-i="${i}" value="${esc(e.kg||'')}" placeholder="kg" aria-label="Charge prévue en kg">
-      <input class="rin" inputmode="numeric" data-in="rreps" data-i="${i}" value="${esc(e.reps||'')}" placeholder="reps" aria-label="Répétitions prévues">
-    </div></div>`).join('');
+    <div class="rsets"><div class="h">Série</div><div class="h">Poids (kg)</div><div class="h">Répétitions</div><div></div>
+      ${e.sets.map((s,si)=>`<div class="n">Série ${si+1}</div>
+      <input class="rin" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" data-in="rset" data-f="kg" data-i="${i}" data-s="${si}" value="${esc(s.kg)}" placeholder="kg" aria-label="Série ${si+1} : poids en kg">
+      <input class="rin" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" enterkeyhint="next" data-in="rset" data-f="reps" data-i="${i}" data-s="${si}" value="${esc(s.reps)}" placeholder="reps" aria-label="Série ${si+1} : répétitions">
+      <button class="rstep" data-act="g-rdelset" data-i="${i}" data-s="${si}" aria-label="Supprimer la série ${si+1}" ${e.sets.length<=1?'disabled':''}>×</button>`).join('')}
+    </div>
+    ${e.sets.length<RSETS_MAX?`<button class="chip" style="margin-top:10px;min-height:44px" data-act="g-raddset" data-i="${i}">${ICON.plus} Ajouter une série</button>`:''}
+    </div>`).join('');
   return `<div class="row sb" style="margin-bottom:12px"><button class="chip" data-act="g-rback">${ICON.chevL} Séances</button>
     <button class="btn" style="min-height:44px" data-act="g-rstart" data-id="${r.id}">Démarrer</button></div>
   <div class="field"><input class="inp" data-in="rname" value="${esc(r.name)}" aria-label="Nom de la routine" style="font-weight:700"></div>
   ${rows?`<div data-ag="r:${r.id}:x">${rows}</div>`:'<div class="card empty">Ajoute les exercices de cette séance, dans l’ordre où tu les fais.</div>'}
   <button class="btn block" data-act="g-addex">${ICON.plus} Ajouter un exercice</button>
-  <div class="small muted" style="margin:12px 2px 0">Les kilos et répétitions sont facultatifs : s’ils sont remplis, ils apparaîtront déjà saisis au début de la séance, il ne restera qu’à valider.</div>
+  <div class="small muted" style="margin:12px 2px 0">Le poids et les répétitions de chaque série sont facultatifs : s’ils sont remplis, chaque série apparaîtra déjà saisie au début de la séance, il ne restera qu’à valider.</div>
   <div class="grid2" style="margin-top:16px"><button class="btn ghost" data-act="g-rdup" data-id="${r.id}">Dupliquer</button><button class="btn danger" data-act="g-rdel" data-id="${r.id}">Supprimer</button></div>`;
 }
