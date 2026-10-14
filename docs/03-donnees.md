@@ -42,7 +42,10 @@ Conséquences à ne jamais perdre de vue :
 
   foods:   [ { id, name, kcal, p, c, f, fav } ],   // favoris et aliments récents
 
-  routines:[ { id, name, exercises: [ { name, sets, kg, reps } ] } ],
+  routines:[ { id, name, exercises: [ { name, sets: [ { kg, reps } ] } ] } ],
+                       // une entrée par série, chacune avec SON poids et SES répétitions
+                       // (textes tels que tapés, "" si vide ; au moins une série)
+                       // avant 2026.10.14-2 : { name, sets: 3, kg: "60", reps: "8" }, voir Migrations
 
   sessions:[ { id, name, date, start, dur,
                exercises: [ { name, sets: [ { kg, reps, done } ] } ] } ],
@@ -125,3 +128,32 @@ installations existantes la récupéreront automatiquement, sans perdre le reste
 
 Pour une nouvelle tranche de données, l'ajouter aussi à `SLICES` dans `js1.js`,
 sinon elle ne sera jamais synchronisée.
+
+### Routines : séries une par une (2026.10.14-2)
+
+`migRoutines(routines)` (`js1.js`) convertit l'ancien format d'un exercice de routine
+`{ name, sets: 3, kg: "60", reps: "8" }` en `{ name, sets: [ {kg:"60",reps:"8"} ×3 ] }` :
+autant de séries identiques que l'ancien nombre, le poids et les répétitions recopiés dans chacune
+(un nombre devient un texte : `42.5` → `"42.5"`). `sets` absent, 0 ou illisible → 3 séries. Les clés
+`kg` et `reps` de l'exercice sont retirées. Une routine déjà au nouveau format est seulement
+nettoyée (chaque série réduite à `{kg, reps}`). Elle renvoie `true` si quelque chose a changé.
+
+Elle est appelée aux trois portes d'entrée des données :
+
+- **au chargement** de `forme.v1` : la conversion est enregistrée sur l'appareil **sans changer
+  l'horodatage** `_t.routines`, et marquée à renvoyer au compte. Ainsi, si le compte a une version
+  plus récente (modifiée ailleurs), c'est elle qui gagne à la synchronisation, puis elle est
+  convertie à son tour ;
+- **à la synchronisation** (`applyDoc`) : une routine reçue à l'ancien format est convertie et
+  renvoyée au compte ;
+- **à l'import** d'une sauvegarde (Réglages → Restaurer) : une ancienne sauvegarde est convertie
+  avant d'être enregistrée.
+
+`index.html` et `forme.html` sont construits depuis les mêmes sources : les deux lisent et écrivent
+le nouveau format. Une version **antérieure** à 2026.10.14-2 qui recevrait le nouveau format
+(par la synchro de la version Claude) démarrerait les séances de ces routines sans série : il
+suffit de la mettre à jour. Le téléphone le fait seul à l'ouverture avec le réseau.
+
+Ce qui ne change pas : la séance en cours (`active`) et l'historique (`sessions`) gardent
+`sets: [ { kg, reps, done } ]`. Au démarrage d'une routine, chaque série de la séance reprend le poids
+et les répétitions de la série correspondante de la routine.

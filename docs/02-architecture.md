@@ -246,6 +246,19 @@ Familles de prises (2026.10.13-3) : `EXV[base] = [libellé, [[bouton, nom], …]
 `gripHidden(n)` retire les prises autres que la base de la liste ; `gripRow(nom, act, i)` dessine les
 boutons sur la carte (séance : `g-grip`, routine : `g-rgrip`), qui remplacent `e.name`.
 
+**Routines, une ligne par série** (`js3b.js`, 2026.10.14-2) — `e.sets = [{kg, reps}, …]` (voir
+`docs/03-donnees.md`). Choisir un exercice dans une routine (`pushEx`, `js3.js`) ouvre d'abord
+`rAskSets(nom)` : feuille « Combien de séries ? », pastilles 1 à 8 (`g-rcnt`, 3 par défaut),
+`g-rcok` ajoute l'exercice, Annuler ferme sans rien ajouter. Chaque série est une ligne de la grille
+`.rsets` : deux champs `data-in="rset"` (`data-i` exercice, `data-s` série, `data-f` kg ou reps),
+enregistrés à chaque touche **sans redessiner** (seul le résumé `#rsum<i>` est mis à jour), et une
+croix `g-rdelset` (désactivée quand il ne reste qu'une série). `g-raddset` ajoute une série qui
+recopie la dernière (20 au plus). `rSum(e)` résume l'exercice : « 3 × 8 · 60 kg » si toutes les séries
+sont identiques, sinon « 3 séries · 60–75 kg · 6–10 reps ». `g-rdup` copie en profondeur.
+`startSession(nom, exercices)` prend ce format (« Refaire » et « Enregistrer comme routine »
+construisent des séries vides, comme avant). Les lignes de séries ne sont pas animées (elles
+bougeraient deux fois quand la carte de l'exercice glisse) ; les cartes d'exercice le restent.
+
 **Fiche d'exercice** (`js3b.js`) — deux `<img>` superposées en fondu, alternées
 toutes les 950 ms par `playMov()`. La boucle s'arrête d'elle-même quand l'élément
 n'est plus dans le document. `ILL` associe le nom français à l'identifiant de

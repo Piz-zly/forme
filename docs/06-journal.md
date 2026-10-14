@@ -5,6 +5,25 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 
 ---
 
+### 2026.10.14-2 — Routines : un poids et des répétitions par série (à essayer sur le téléphone)
+
+- Demandé : régler chaque série d'une routine séparément (ex. 60 kg × 10, 70 kg × 8, 75 kg × 6) au lieu
+  d'un seul poids et d'un seul nombre de répétitions pour toutes.
+- En ajoutant un exercice à une routine, l'appli demande « Combien de séries ? » (1 à 8, 3 par
+  défaut) ; Annuler n'ajoute rien. L'exercice apparaît avec une ligne par série (Série 1, Série 2…),
+  chacune avec son poids (clavier décimal) et ses répétitions (clavier numérique). « Ajouter une
+  série » recopie la dernière ; la croix supprime une série (il en reste toujours une). Le − / + du
+  nombre de séries disparaît.
+- Sous le nom de l'exercice, un résumé : « 3 × 8 · 60 kg », ou « 3 séries · 60–75 kg · 6–10 reps »
+  quand les séries diffèrent. La liste des routines indique le total : « 2 exercices · 5 séries ».
+- Au démarrage, chaque série de la séance est pré-remplie avec SA valeur. La séance, l'historique et
+  la progression ne changent pas.
+- Données : nouveau format `sets: [ {kg, reps}, … ]`. Les anciennes routines sont converties toutes
+  seules, sans perte (3 séries à 60 × 8 restent 3 séries à 60 × 8), à l'ouverture, à l'import d'une
+  ancienne sauvegarde et à la synchronisation (`docs/03-donnees.md`).
+- Tests : `tests/t6.py` réécrit (parcours complet, rechargement, séance, conversion au chargement, à
+  l'import et par la synchro simulée) ; t13 et t15 valident la nouvelle question.
+
 ### 2026.10.14-1 — Une illustration pour chacun des 175 exercices (à essayer sur le téléphone)
 
 - Demandé : des images pour les 115 exercices ajoutés en 2026.10.13-2, uniquement depuis la collection

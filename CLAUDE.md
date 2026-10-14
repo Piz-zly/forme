@@ -114,7 +114,7 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 ├── tests/                     ← tests de bout en bout (Playwright, Chromium)
 │   ├── t4.py  séance, minuteur de repos, fiche d'exercice
 │   ├── t5.py  partage entrant des pas, mise en page de la fiche
-│   ├── t6.py  routines : création, édition, démarrage
+│   ├── t6.py  routines : séries une par une, démarrage, conversion de l'ancien format (chargement, import, synchro)
 │   ├── t7.py  bascule muscles en rouge / image simple
 │   ├── t8.py  recettes : classement, fiche, journal, recettes faites, recette perso
 │   ├── t9.py  Chercher : recherche d'aliments, unités, ajout au journal, favoris
@@ -241,3 +241,7 @@ le demande : il avance sujet par sujet.
 - **2026.10.14-1** (14 octobre 2026) : les 175 exercices de Muscu ont une illustration animée (91
   mouvements ajoutés, dont 26 images proches ou approchantes validées par lui, voir
   `docs/04-images.md`). Testée (`tests/t4.py` à `t15.py`), non publiée.
+- **2026.10.14-2** : routines série par série (« Combien de séries ? » à l'ajout, un poids et des
+  répétitions par série, ajouter / supprimer une série) ; anciennes routines converties sans perte
+  (`docs/03-donnees.md`). Testée (`tests/t4.py` à `t15.py`), non publiée, branche `routines-series`
+  partie de `illustrations-exercices`.

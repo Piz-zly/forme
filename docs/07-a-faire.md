@@ -31,6 +31,14 @@ illustrations sont faites en 2026.10.14-1 (voir ci-dessous). Les schémas
 il faudrait les régénérer avec `tools/gen_schemas_muscles.py`. Lisibilité des menus déroulants et des
 consignes à vérifier sur son écran.
 
+## Routines série par série : fait en 2026.10.14-2, à essayer sur son téléphone
+
+À vérifier avec lui : le clavier qui s'ouvre (décimal pour le poids, avec virgule ; numérique pour les
+répétitions), la taille des champs et de la croix au doigt, que l'écran ne saute pas pendant la
+saisie, et que ses routines existantes sont bien là avec leurs valeurs. Idées en attente, non
+demandées : « Enregistrer comme routine » pourrait reprendre les poids réellement faits (aujourd'hui,
+comme avant, séries vides) ; une flèche pour recopier une série sur les suivantes.
+
 ## Illustrations des 115 exercices : fait en 2026.10.14-1, à essayer sur son téléphone
 
 Les 175 exercices ont une illustration animée (91 nouveaux mouvements, Open Exercise Illustrations,

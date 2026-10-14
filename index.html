@@ -252,10 +252,15 @@ ol.rcl li::marker{font-weight:800;color:var(--accent)}
 .durs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .dur{min-height:52px;border-radius:14px;background:var(--surface2);font-weight:800;font-size:16px;font-variant-numeric:tabular-nums;color:var(--ink)}
 .dur.on{background:var(--accent);color:var(--on-accent)}
-.rr{display:grid;grid-template-columns:40px 54px 40px 1fr 1fr;gap:8px;align-items:center;margin-top:12px}
-.rr>span{text-align:center;line-height:1.1}
-.rr>span b{font:800 18px/1 var(--font-display);display:block;font-variant-numeric:tabular-nums}
-.rr>span i{font-size:11px;color:var(--muted);font-style:normal;font-weight:600}
+.rsets{display:grid;grid-template-columns:62px minmax(0,1fr) minmax(0,1fr) 44px;gap:8px;align-items:center;margin-top:12px}
+.rsets .h{font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;text-align:center}
+.rsets .n{font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap}
+.rsets .rin{min-height:44px;font-size:16px}
+.rsets .rin:focus{outline:none;box-shadow:inset 0 0 0 2px var(--accent)}
+.rsets .rstep{height:44px;font-size:22px}
+.rsets .rstep:disabled{opacity:.35;box-shadow:none;transform:none}
+.rcount{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.rcount .chip{justify-content:center;min-height:52px;font:800 20px/1 var(--font-display);font-variant-numeric:tabular-nums}
 .rstep{height:40px;border-radius:12px;background:var(--surface2);font:800 20px/1 var(--font-display);color:var(--ink)}
 .rin{min-height:40px;border-radius:12px;background:var(--surface2);border:0;text-align:center;font:600 15px/1 var(--font-body);color:var(--ink);font-variant-numeric:tabular-nums;min-width:0}
 .rin::placeholder{color:var(--muted);font-weight:500}
@@ -431,7 +436,7 @@ body.scrolled .top{background:color-mix(in srgb,var(--bg) 80%,transparent);-webk
 <script>
 (function(){'use strict';
 /* ===== utils ===== */
-const APP_VER='2026.10.14-1';
+const APP_VER='2026.10.14-2';
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
@@ -462,6 +467,31 @@ let S=defaults();
 try{const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);S=Object.assign(defaults(),o);S.settings=Object.assign(defaults().settings,o.settings||{})}}catch(e){}
 function migrateSettings(){const g=S.settings;if(!g.v2){g.v2=1;if(g.goalW==null)g.goalW=80;if(!g.step)g.step=2.5;return true}return false}
 const migrated=migrateSettings();
+/* routines (2026.10.14-2) : chaque exercice garde ses séries une par une, {name, sets:[{kg,reps},…]}.
+   Ancien format {name, sets:3, kg:'60', reps:'8'} -> 3 séries identiques ; sets absent ou 0 -> 3 séries.
+   Appelée au chargement, à la synchro (applyDoc) et à l'import d'une sauvegarde. Renvoie true si modifié. */
+function migRoutines(rs){
+  if(!Array.isArray(rs))return false;
+  const str=v=>v==null?'':String(v);let ch=false;
+  for(const r of rs){
+    if(!r||!Array.isArray(r.exercises))continue;
+    for(const e of r.exercises){
+      if(!e||typeof e!=='object')continue;
+      const before=JSON.stringify(e);
+      if(Array.isArray(e.sets)&&e.sets.length)e.sets=e.sets.map(s=>({kg:str(s&&s.kg),reps:str(s&&s.reps)}));
+      else{
+        let n=Math.round(num(e.sets));if(!(n>=1))n=3;
+        e.sets=Array.from({length:Math.min(n,50)},()=>({kg:str(e.kg),reps:str(e.reps)}));
+      }
+      delete e.kg;delete e.reps;
+      if(JSON.stringify(e)!==before)ch=true;
+    }
+  }
+  return ch;
+}
+/* au chargement : convertie sans changer la date de modification, pour qu'une version plus récente
+   sur le compte (synchro) garde la priorité ; renvoyée au compte au prochain envoi */
+const migratedR=migRoutines(S.routines);
 const SLICES=['settings','weights','foods','routines','exercises','scans','act','recipes','active'];
 const docOf=(slice,key)=>slice==='meals'?'meals_'+String(key).slice(0,7):slice==='sessions'?'sessions_'+String(key).slice(0,4):slice;
 function docValue(id){
@@ -472,7 +502,8 @@ function docValue(id){
 function applyDoc(id,v){
   if(id.startsWith('meals_')){const p=id.slice(6);for(const k of Object.keys(S.meals))if(k.startsWith(p))delete S.meals[k];Object.assign(S.meals,v||{})}
   else if(id.startsWith('sessions_')){const y=id.slice(9);S.sessions=S.sessions.filter(x=>!x.date.startsWith(y)).concat(v||[])}
-  else if(SLICES.includes(id)){S[id]=v===null&&id!=='active'?defaults()[id]:v;if(id==='settings'){S.settings=Object.assign(defaults().settings,S.settings);if(migrateSettings())dirty.add('settings')}}
+  else if(SLICES.includes(id)){S[id]=v===null&&id!=='active'?defaults()[id]:v;if(id==='settings'){S.settings=Object.assign(defaults().settings,S.settings);if(migrateSettings())dirty.add('settings')}
+    if(id==='routines'&&migRoutines(S.routines))dirty.add('routines')}
 }
 function localIds(){
   const ids=new Set(SLICES);
@@ -1527,7 +1558,9 @@ function allExNames(){
 const mkSets=n=>Array.from({length:n},()=>({kg:'',reps:'',done:false}));
 function startSession(name,exs){
   if(S.active){gymOpen=true;toast('Séance en cours reprise');render();return}
-  S.active={id:uid(),name:name||'Séance',start:Date.now(),exercises:exs.map(e=>({name:e.name,sets:mkSets(e.sets||3).map(x=>({kg:e.kg?String(e.kg):'',reps:e.reps?String(e.reps):'',done:false}))}))};
+  /* exs : [{name, sets:[{kg,reps},…]}] (routine) ; chaque série reprend SON poids et SES répétitions prévus */
+  const str=v=>v==null?'':String(v);
+  S.active={id:uid(),name:name||'Séance',start:Date.now(),exercises:exs.map(e=>({name:e.name,sets:(Array.isArray(e.sets)&&e.sets.length?e.sets:mkSets(3)).map(x=>({kg:str(x.kg),reps:str(x.reps),done:false}))}))};
   persist('active');gymOpen=true;restEnd=0;render();window.scrollTo(0,0);
 }
 VIEWS.gym=()=>S.active&&gymOpen?sessionView():routEdit?routineView():gymHome();
@@ -1540,7 +1573,7 @@ function sessionsHome(){
   const wk=S.sessions.filter(s=>dn(s.date)>dn(today())-7);
   const active=S.active?`<div class="card" style="background:var(--accent);color:var(--on-accent)"><div class="row sb"><div><div class="small" style="opacity:.85;font-weight:700">SÉANCE EN COURS</div><div class="num" style="font-size:22px;font-weight:800">${esc(S.active.name)}</div></div><button class="btn" style="background:var(--on-accent);color:var(--accent)" data-act="g-resume">Reprendre</button></div></div>`:'';
   const routines=`<div class="card"><div class="row sb" style="margin-bottom:${S.routines.length?'10px':'2px'}"><h2 style="margin:0">Mes routines</h2><button class="chip" data-act="g-rnew">${ICON.plus} Créer</button></div>
-  ${S.routines.length?'<div class="list">'+S.routines.map(r=>`<div class="row"><button class="li" data-act="g-rstart" data-id="${r.id}"><div class="grow"><div class="t">${esc(r.name)}</div><div class="small muted">${r.exercises.length} exercice${r.exercises.length>1?'s':''}${r.exercises.length?' · '+esc(r.exercises.slice(0,3).map(e=>e.name).join(', '))+(r.exercises.length>3?'…':''):''}</div></div><span class="pill neutral">Démarrer</span></button><button class="iconbtn" style="box-shadow:none;background:var(--surface2)" data-act="g-redit" data-id="${r.id}" aria-label="Modifier la routine ${esc(r.name)}"><span style="font-size:19px;line-height:1">⋯</span></button></div>`).join('')+'</div>'
+  ${S.routines.length?'<div class="list">'+S.routines.map(r=>`<div class="row"><button class="li" data-act="g-rstart" data-id="${r.id}"><div class="grow"><div class="t">${esc(r.name)}</div><div class="small muted">${r.exercises.length} exercice${r.exercises.length>1?'s':''}${(n=>n?' · '+n+' série'+(n>1?'s':''):'')(r.exercises.reduce((t,e)=>t+(Array.isArray(e.sets)?e.sets.length:0),0))}${r.exercises.length?' · '+esc(r.exercises.slice(0,3).map(e=>e.name).join(', '))+(r.exercises.length>3?'…':''):''}</div></div><span class="pill neutral">Démarrer</span></button><button class="iconbtn" style="box-shadow:none;background:var(--surface2)" data-act="g-redit" data-id="${r.id}" aria-label="Modifier la routine ${esc(r.name)}"><span style="font-size:19px;line-height:1">⋯</span></button></div>`).join('')+'</div>'
   :'<div class="small muted" style="margin:0 0 2px">Prépare tes séances à l’avance : les exercices, le nombre de séries, et si tu veux les charges prévues.</div>'}</div>`;
 
   const hist=S.sessions.slice(0,30).map(s=>{
@@ -1652,7 +1685,7 @@ I.exq=t=>{exQuery=t.value;$('#exlist').innerHTML=exPicker()};
 I.exmus=t=>{exMus=t.value;$('#exlist').innerHTML=exPicker()};
 I.exeq=t=>{exEq=t.value;$('#exlist').innerHTML=exPicker()};
 function pushEx(name){
-  if(routEdit&&!(S.active&&gymOpen)){const r=curRoutine();if(r){r.exercises.push({name,sets:3,kg:'',reps:''});persist('routines')}closeSheet();render();return}
+  if(routEdit&&!(S.active&&gymOpen)){rAskSets(name);return}   /* routine : d'abord « Combien de séries ? » (js3b.js) */
   S.active.exercises.push({name,sets:mkSets(3)});persist('active');closeSheet();render();
   setTimeout(()=>{const cs=document.querySelectorAll('.ex');if(cs.length)cs[cs.length-1].scrollIntoView({behavior:'smooth',block:'center'})},60);
 }
@@ -1690,14 +1723,14 @@ A['g-view']=b=>{
   <div class="grid2" style="margin-bottom:10px"><button class="btn soft" data-act="g-redo" data-id="${s.id}">Refaire</button><button class="btn soft" data-act="g-saver" data-id="${s.id}">En faire une routine</button></div>
   <button class="btn danger block" data-act="g-sdel" data-id="${s.id}">Supprimer</button>`);
 };
-A['g-redo']=b=>{const s=S.sessions.find(x=>x.id===b.dataset.id);closeSheet();if(s)startSession(s.name,s.exercises.map(e=>({name:e.name,sets:e.sets.length})))};
+A['g-redo']=b=>{const s=S.sessions.find(x=>x.id===b.dataset.id);closeSheet();if(s)startSession(s.name,s.exercises.map(e=>({name:e.name,sets:e.sets.map(()=>({kg:'',reps:''}))})))};
 A['g-saver']=b=>{
   const s=S.sessions.find(x=>x.id===b.dataset.id);if(!s)return;
   openSheet(`<h3>Nouvelle routine</h3><div class="field"><label for="rn">Nom</label><input class="inp" id="rn" value="${esc(s.name)}"></div><button class="btn block" data-act="g-saver-ok" data-id="${s.id}">Enregistrer la routine</button>`);
 };
 A['g-saver-ok']=b=>{
   const s=S.sessions.find(x=>x.id===b.dataset.id);if(!s)return;
-  S.routines.push({id:uid(),name:$('#rn').value.trim()||s.name,exercises:s.exercises.map(e=>({name:e.name,sets:e.sets.length}))});
+  S.routines.push({id:uid(),name:$('#rn').value.trim()||s.name,exercises:s.exercises.map(e=>({name:e.name,sets:e.sets.map(()=>({kg:'',reps:''}))}))});
   persist('routines');closeSheet();toast('Routine enregistrée');render();
 };
 A['g-sdel']=b=>confirmSheet('Supprimer cette séance ?','Elle sera retirée de l’historique et de la progression.','Supprimer',()=>{const s=S.sessions.find(x=>x.id===b.dataset.id);S.sessions=S.sessions.filter(x=>x.id!==b.dataset.id);if(s)persist('sessions',s.date);render()});
@@ -1841,12 +1874,39 @@ A['g-rback']=()=>{
   routEdit=null;render();window.scrollTo(0,0);
 };
 I.rname=t=>{const r=curRoutine();if(r){r.name=t.value;persist('routines')}};
-I.rkg=t=>{const r=curRoutine();if(r){r.exercises[+t.dataset.i].kg=t.value;persist('routines')}};
-I.rreps=t=>{const r=curRoutine();if(r){r.exercises[+t.dataset.i].reps=t.value;persist('routines')}};
-A['g-rsets']=b=>{const r=curRoutine(),e=r.exercises[+b.dataset.i];e.sets=clamp((e.sets||3)+(+b.dataset.d),1,12);persist('routines');render()};
+/* séries d'une routine : e.sets = [{kg,reps},…], une ligne par série, chacune modifiable seule */
+const RSETS_MAX=20;
+/* résumé lisible même quand les séries diffèrent : « 3 × 8 · 60 kg » ou « 3 séries · 60–75 kg · 6–10 reps » */
+function rSum(e){
+  const s=e.sets||[],n=s.length,kg=s.map(x=>num(x.kg)).filter(v=>v>0),rp=s.map(x=>num(x.reps)).filter(v=>v>0);
+  const rng=(a,d,u)=>{if(!a.length)return '';const lo=Math.min(...a),hi=Math.max(...a);return (lo===hi?nf(lo,d):nf(lo,d)+'–'+nf(hi,d))+u};
+  if(n&&rp.length===n&&s.every(x=>x.kg===s[0].kg&&x.reps===s[0].reps))return n+' × '+nf(rp[0],0)+(kg.length?' · '+nf(kg[0],2)+' kg':'');
+  return [n+' série'+(n>1?'s':''),rng(kg,2,' kg'),rng(rp,0,' reps')].filter(Boolean).join(' · ');
+}
+/* ajout d'un exercice : on demande d'abord le nombre de séries ; Annuler = rien n'est ajouté */
+let rPend=null,rPendN=3;
+function rAskSets(name){
+  rPend=name;rPendN=3;
+  openSheet(`<h3>Combien de séries ?</h3><div class="small muted" style="margin:-4px 0 14px">${esc(name)}</div>
+  <div class="rcount" role="group" aria-label="Nombre de séries">${[1,2,3,4,5,6,7,8].map(n=>`<button class="chip" data-act="g-rcnt" data-n="${n}" aria-pressed="${n===rPendN}" aria-label="${n} série${n>1?'s':''}">${n}</button>`).join('')}</div>
+  <div class="grid2" style="margin-top:18px"><button class="btn ghost" data-act="close">Annuler</button><button class="btn" data-act="g-rcok">Valider</button></div>`);
+}
+A['g-rcnt']=b=>{rPendN=clamp(+b.dataset.n,1,8);document.querySelectorAll('[data-act="g-rcnt"]').forEach(x=>x.setAttribute('aria-pressed',String(+x.dataset.n===rPendN)))};
+A['g-rcok']=()=>{
+  const r=curRoutine(),name=rPend;rPend=null;closeSheet();if(!r||!name)return;
+  r.exercises.push({name,sets:Array.from({length:rPendN},()=>({kg:'',reps:''}))});persist('routines');render();
+  setTimeout(()=>{const cs=document.querySelectorAll('#view .card.ex');if(cs.length)cs[cs.length-1].scrollIntoView({behavior:window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'})},60);
+};
+const rSetOf=t=>{const r=curRoutine(),e=r&&r.exercises[+t.dataset.i];return e&&e.sets[+t.dataset.s]?[e,e.sets[+t.dataset.s]]:[]};
+/* saisie : enregistrée à chaque touche, sans redessiner l'écran (pas de saut, le clavier reste ouvert) */
+I.rset=t=>{const [e,s]=rSetOf(t);if(!s)return;s[t.dataset.f==='reps'?'reps':'kg']=t.value;persist('routines');const m=$('#rsum'+t.dataset.i);if(m)m.textContent=rSum(e)};
+/* nouvelle série : reprend le poids et les répétitions de la dernière */
+A['g-raddset']=b=>{const r=curRoutine(),e=r&&r.exercises[+b.dataset.i];if(!e||e.sets.length>=RSETS_MAX)return;const l=e.sets[e.sets.length-1]||{kg:'',reps:''};e.sets.push({kg:l.kg,reps:l.reps});persist('routines');render()};
+/* au moins une série reste */
+A['g-rdelset']=b=>{const [e]=rSetOf(b);if(!e||e.sets.length<=1)return;e.sets.splice(+b.dataset.s,1);persist('routines');render()};
 A['g-rexmenu']=b=>{
   const i=+b.dataset.i,r=curRoutine(),e=r.exercises[i];
-  openSheet(`<h3>${esc(e.name)}</h3><div class="grid2" style="margin-bottom:10px">
+  openSheet(`<h3>${esc(e.name)}</h3><div class="small muted" style="margin:-4px 0 14px">${esc(rSum(e))}</div><div class="grid2" style="margin-bottom:10px">
   <button class="btn ghost" data-act="g-rmove" data-i="${i}" data-d="-1" ${i===0?'disabled style="opacity:.4"':''}>Monter</button>
   <button class="btn ghost" data-act="g-rmove" data-i="${i}" data-d="1" ${i===r.exercises.length-1?'disabled style="opacity:.4"':''}>Descendre</button></div>
   <button class="btn danger block" data-act="g-rdelex" data-i="${i}">Retirer de la routine</button>`);
@@ -1856,7 +1916,8 @@ A['g-rgrip']=b=>{const r=curRoutine(),e=r&&r.exercises[+b.dataset.i];if(!e)retur
 A['g-rdelex']=b=>{const r=curRoutine();r.exercises.splice(+b.dataset.i,1);persist('routines');closeSheet();render()};
 A['g-rdup']=b=>{
   const r=S.routines.find(x=>x.id===b.dataset.id);if(!r)return;
-  const c={id:uid(),name:r.name+' (copie)',exercises:r.exercises.map(e=>Object.assign({},e))};
+  /* copie profonde : la copie et l'original ne partagent aucune série */
+  const c={id:uid(),name:r.name+' (copie)',exercises:r.exercises.map(e=>({name:e.name,sets:e.sets.map(s=>({kg:s.kg,reps:s.reps}))}))};
   S.routines.push(c);persist('routines');closeSheet();routEdit=c.id;render();
 };
 A['g-rstart']=b=>{const r=S.routines.find(x=>x.id===b.dataset.id);if(!r||!r.exercises.length){toast('Ajoute au moins un exercice');return}routEdit=null;startSession(r.name,r.exercises)};
@@ -1865,21 +1926,22 @@ function routineView(){
   const occ={};   /* clé d'animation : le nom, numéroté s'il revient deux fois */
   const rows=r.exercises.map((e,i)=>`<div class="card ex" data-ak="${esc(e.name)}#${occ[e.name]=(occ[e.name]||0)+1}" style="padding:14px;margin-bottom:10px">
     <div class="hd"><button class="thumbbtn" data-act="g-exinfo" data-name="${esc(e.name)}" aria-label="Voir ${esc(e.name)}">${thumb(e.name,46)}</button>
-      <b style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(e.name)}</b>
+      <div style="flex:1;min-width:0"><b style="overflow-wrap:anywhere">${esc(e.name)}</b><div class="small muted" id="rsum${i}">${esc(rSum(e))}</div></div>
       <button class="iconbtn" style="width:40px;height:40px;box-shadow:none;background:var(--surface2)" data-act="g-rexmenu" data-i="${i}" aria-label="Options"><span style="font-size:20px;line-height:1">⋯</span></button></div>${gripRow(e.name,'g-rgrip',i)}
-    <div class="rr">
-      <button class="rstep" data-act="g-rsets" data-i="${i}" data-d="-1" aria-label="Une série de moins">−</button>
-      <span><b class="num">${e.sets||3}</b><i>séries</i></span>
-      <button class="rstep" data-act="g-rsets" data-i="${i}" data-d="1" aria-label="Une série de plus">+</button>
-      <input class="rin" inputmode="decimal" data-in="rkg" data-i="${i}" value="${esc(e.kg||'')}" placeholder="kg" aria-label="Charge prévue en kg">
-      <input class="rin" inputmode="numeric" data-in="rreps" data-i="${i}" value="${esc(e.reps||'')}" placeholder="reps" aria-label="Répétitions prévues">
-    </div></div>`).join('');
+    <div class="rsets"><div class="h">Série</div><div class="h">Poids (kg)</div><div class="h">Répétitions</div><div></div>
+      ${e.sets.map((s,si)=>`<div class="n">Série ${si+1}</div>
+      <input class="rin" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" data-in="rset" data-f="kg" data-i="${i}" data-s="${si}" value="${esc(s.kg)}" placeholder="kg" aria-label="Série ${si+1} : poids en kg">
+      <input class="rin" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" enterkeyhint="next" data-in="rset" data-f="reps" data-i="${i}" data-s="${si}" value="${esc(s.reps)}" placeholder="reps" aria-label="Série ${si+1} : répétitions">
+      <button class="rstep" data-act="g-rdelset" data-i="${i}" data-s="${si}" aria-label="Supprimer la série ${si+1}" ${e.sets.length<=1?'disabled':''}>×</button>`).join('')}
+    </div>
+    ${e.sets.length<RSETS_MAX?`<button class="chip" style="margin-top:10px;min-height:44px" data-act="g-raddset" data-i="${i}">${ICON.plus} Ajouter une série</button>`:''}
+    </div>`).join('');
   return `<div class="row sb" style="margin-bottom:12px"><button class="chip" data-act="g-rback">${ICON.chevL} Séances</button>
     <button class="btn" style="min-height:44px" data-act="g-rstart" data-id="${r.id}">Démarrer</button></div>
   <div class="field"><input class="inp" data-in="rname" value="${esc(r.name)}" aria-label="Nom de la routine" style="font-weight:700"></div>
   ${rows?`<div data-ag="r:${r.id}:x">${rows}</div>`:'<div class="card empty">Ajoute les exercices de cette séance, dans l’ordre où tu les fais.</div>'}
   <button class="btn block" data-act="g-addex">${ICON.plus} Ajouter un exercice</button>
-  <div class="small muted" style="margin:12px 2px 0">Les kilos et répétitions sont facultatifs : s’ils sont remplis, ils apparaîtront déjà saisis au début de la séance, il ne restera qu’à valider.</div>
+  <div class="small muted" style="margin:12px 2px 0">Le poids et les répétitions de chaque série sont facultatifs : s’ils sont remplis, chaque série apparaîtra déjà saisie au début de la séance, il ne restera qu’à valider.</div>
   <div class="grid2" style="margin-top:16px"><button class="btn ghost" data-act="g-rdup" data-id="${r.id}">Dupliquer</button><button class="btn danger" data-act="g-rdel" data-id="${r.id}">Supprimer</button></div>`;
 }
 
@@ -2388,7 +2450,7 @@ I.imp=t=>{
     try{
       const o=JSON.parse(rd.result);if(!o||o.app!=='forme'||!o.data)throw 0;
       confirmSheet('Restaurer cette sauvegarde ?','Elle remplace les données actuelles de l’appli.','Restaurer',()=>{
-        const keep=S.ui,t=S._t;S=Object.assign(defaults(),o.data);S.settings=Object.assign(defaults().settings,o.data.settings||{});S.ui=keep;S._t=t;
+        const keep=S.ui,t=S._t;S=Object.assign(defaults(),o.data);S.settings=Object.assign(defaults().settings,o.data.settings||{});S.ui=keep;S._t=t;migRoutines(S.routines);  /* une ancienne sauvegarde peut avoir l'ancien format */
         localIds().forEach(id=>{S._t[id]=Date.now();dirty.add(id)});saveLocal();flush();toast('Sauvegarde restaurée');render();
       });
     }catch(_){toast('Fichier non reconnu')}
@@ -2399,6 +2461,7 @@ I.imp=t=>{
 /* ===== boot ===== */
 render();
 if(migrated)persist('settings');
+if(migratedR){dirty.add('routines');saveLocal()}
 setInterval(tick,1000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
 initDb();
