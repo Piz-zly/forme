@@ -267,5 +267,5 @@ le demande : il avance sujet par sujet.
 - **2026.10.14-5** : Muscu — records battus en direct (bannière), types de série (échauffement, échec,
   drop set), suggestion de charge (double progression 10–12, palier 2,5 kg, réglables), carte « Séries
   par muscle (7 jours) » dans Progression, écran allumé pendant la séance (téléphone). Testée
-  (`tests/t4.py` à `t19.py`), non publiée, branche `muscu-progression`. L'écran allumé n'est vérifiable
+  (`tests/t4.py` à `t19.py`), publiée le 14 octobre 2026, pas encore essayée sur son téléphone. L'écran allumé n'est vérifiable
   que sur son téléphone.
