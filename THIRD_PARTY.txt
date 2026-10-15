@@ -10,7 +10,9 @@ Forme - licences des éléments tiers
    Copyright (c) 2020 GV79 - licence MIT (https://github.com/giavinh79/react-body-highlighter)
 3) Lecture des codes-barres : ZXing (@zxing/library) - Apache License 2.0
 4) Fiches produits : Open Food Facts - données sous Open Database License (ODbL)
-5) Polices : Bricolage Grotesque et Figtree - SIL Open Font License (Google Fonts)
+5) Polices (copiées dans vendor/fonts/, sous-ensemble latin, fichiers non modifiés) : Zen Maru Gothic
+   (500, 700, 900) et Figtree (400 à 700) - SIL Open Font License 1.1, via les paquets Fontsource.
+   Licences : vendor/fonts/ZenMaruGothic-OFL.txt et vendor/fonts/Figtree-OFL.txt.
 6) Aliments de la recherche du Repas (src/js2g.js) : Source : Anses, Table de composition
    nutritionnelle des aliments Ciqual 2025 (https://doi.org/10.57745/RDMHWY).
    Licence Ouverte Etalab 2.0 (https://www.etalab.gouv.fr/licence-ouverte-open-licence).

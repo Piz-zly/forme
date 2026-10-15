@@ -1,6 +1,6 @@
 /* Forme : fonctionne hors ligne. Changer VERSION force la mise à jour chez tout le monde. */
-const VERSION='forme-2026.10.14-5';
-const SHELL=['./','index.html','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','vendor/zxing.min.js','vendor/fuse.basic.min.js'];
+const VERSION='forme-2026.10.15-1';
+const SHELL=['./','index.html','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','vendor/zxing.min.js','vendor/fuse.basic.min.js','vendor/fonts/zen-maru-gothic-latin-500-normal.woff2','vendor/fonts/zen-maru-gothic-latin-700-normal.woff2','vendor/fonts/zen-maru-gothic-latin-900-normal.woff2','vendor/fonts/figtree-latin-400-normal.woff2','vendor/fonts/figtree-latin-500-normal.woff2','vendor/fonts/figtree-latin-600-normal.woff2','vendor/fonts/figtree-latin-700-normal.woff2'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(VERSION).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==VERSION).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{

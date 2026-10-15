@@ -1,3 +1,11 @@
+/* Polices locales (SIL OFL, vendor/fonts/) : la version telephone ne charge plus rien depuis Google Fonts */
+@font-face{font-family:'Zen Maru Gothic';font-style:normal;font-weight:500;font-display:swap;src:url('vendor/fonts/zen-maru-gothic-latin-500-normal.woff2') format('woff2')}
+@font-face{font-family:'Zen Maru Gothic';font-style:normal;font-weight:700;font-display:swap;src:url('vendor/fonts/zen-maru-gothic-latin-700-normal.woff2') format('woff2')}
+@font-face{font-family:'Zen Maru Gothic';font-style:normal;font-weight:900;font-display:swap;src:url('vendor/fonts/zen-maru-gothic-latin-900-normal.woff2') format('woff2')}
+@font-face{font-family:'Figtree';font-style:normal;font-weight:400;font-display:swap;src:url('vendor/fonts/figtree-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Figtree';font-style:normal;font-weight:500;font-display:swap;src:url('vendor/fonts/figtree-latin-500-normal.woff2') format('woff2')}
+@font-face{font-family:'Figtree';font-style:normal;font-weight:600;font-display:swap;src:url('vendor/fonts/figtree-latin-600-normal.woff2') format('woff2')}
+@font-face{font-family:'Figtree';font-style:normal;font-weight:700;font-display:swap;src:url('vendor/fonts/figtree-latin-700-normal.woff2') format('woff2')}
 #live{position:fixed;inset:0;z-index:100;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center}
 #live video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 #live .lframe{position:relative;width:min(82vw,360px);height:min(36vw,160px);border:3px solid #fff;border-radius:18px;box-shadow:0 0 0 100vmax rgba(0,0,0,.5)}

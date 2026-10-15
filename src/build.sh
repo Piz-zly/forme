@@ -49,7 +49,7 @@ cat <<'HEAD'
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 HEAD
-sed 's#<link rel="preconnect" href="https://fonts.googleapis.com">##' p1.html \
+sed -e 's#<link rel="preconnect" href="https://fonts.googleapis.com">##' -e 's#<link rel="stylesheet" href="https://fonts.googleapis.com[^>]*>##' p1.html \
  | python3 -c "import sys;s=sys.stdin.read();css=open('p1.pwa.css').read();print(s.replace('</style>','</style>\n<style>'+css+'</style>',1),end='')"
 echo '<script src="vendor/fuse.basic.min.js"></script>'   # Fuse.js : fichier local, mis en cache par sw.js
 echo '<script>'; echo "(function(){'use strict';"
