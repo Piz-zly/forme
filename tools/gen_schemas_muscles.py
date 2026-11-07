@@ -4,15 +4,19 @@ principaux en rouge et secondaires en rose, une paire par exercice.
 Trace vectoriel repris de react-body-highlighter (MIT, (c) 2020 GV79).
 Voir docs/04-images.md.
 
-ATTENTION : chemins absolus de l'atelier d'origine (bodydata.json, exmap.json,
-src/exercises.json, src/map.json). Les adapter avant toute reexecution.
+Fichiers d'entree (hors depot) dans le dossier d'atelier FORME_ATELIER (comme paint.py) :
+bodydata.json, exmap.json, src/exercises.json, src/map.json. Ecrit dans img2/ du depot.
+
+    FORME_ATELIER=/chemin/atelier python3 tools/gen_schemas_muscles.py
 """
-import json,sys
+import json,os,sys
 from PIL import Image,ImageDraw
-B=json.load(open('/tmp/claude-0/-home-claude/9c32212f-2212-5398-b296-2f368ca4e5ff/scratchpad/t/bodydata.json'))
-EXI=json.load(open('exmap.json'))
-D={x['id']:x for x in json.load(open('src/exercises.json'))}
-M=dict(json.load(open('src/map.json')))
+A=os.path.abspath(os.environ.get('FORME_ATELIER','oei'))   # avant le chdir
+os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..'))   # img2/ du depot
+B=json.load(open(A+'/bodydata.json'))
+EXI=json.load(open(A+'/exmap.json'))
+D={x['id']:x for x in json.load(open(A+'/src/exercises.json'))}
+M=dict(json.load(open(A+'/src/map.json')))
 # DB muscle -> polygons (view, muscle)
 MAP={'chest':[('a','chest')],'shoulders':[('a','front-deltoids'),('p','back-deltoids')],'biceps':[('a','biceps')],'triceps':[('a','triceps'),('p','triceps')],
 'forearms':[('a','forearm'),('p','forearm')],'lats':[('p','upper-back')],'middle back':[('p','upper-back')],'lower back':[('p','lower-back')],'traps':[('p','trapezius')],
