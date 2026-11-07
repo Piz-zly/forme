@@ -214,7 +214,7 @@ function render(){
   renderBehind();
   if(typeof syncRestBar==='function')syncRestBar();
 }
-function renderBehind(){const h=$('#hud');if(h&&typeof hudHtml==='function')h.innerHTML=hudHtml();const f=VIEWS[tab];if(f){const st=window.scrollY;$('#view').innerHTML=f();VIEWS[tab+'_after']&&VIEWS[tab+'_after']();}}
+function renderBehind(){const h=$('#hud');if(h&&typeof hudHtml==='function')h.innerHTML=hudHtml();const f=VIEWS[tab];if(f){$('#view').innerHTML=f();VIEWS[tab+'_after']&&VIEWS[tab+'_after']();}}
 addEventListener('scroll',()=>document.body.classList.toggle('scrolled',window.scrollY>6),{passive:true});
 document.querySelector('.tabbar').addEventListener('click',e=>{
   const b=e.target.closest('.tab');if(!b)return;

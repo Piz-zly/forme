@@ -160,7 +160,7 @@ function rcDraw(){
     :'<button class="btn soft block" data-act="rc-made">✓ Je l’ai préparée</button>';
 }
 function rcMark(id,date){
-  const dn=RC().done,d=dn[id]||(dn[id]={n:0,last:''});
+  const dd=RC().done,d=dd[id]||(dd[id]={n:0,last:''});
   if(d.n&&d.last===date)return false;
   d.n++;if(date>d.last)d.last=date;persist('recipes');return true;
 }

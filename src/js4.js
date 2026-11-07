@@ -199,7 +199,6 @@ function resultCard(p){
   ${code?'<div style="margin-top:12px">'+code+'</div>':''}
   <div class="small muted" style="margin-top:10px">Note maison : 70 % Nutri-Score simplifié, pénalités selon les additifs. Elle n’est pas celle de Yuka.</div></div>`;
 }
-I['s-files']=null;
 document.addEventListener('change',e=>{
   const t=e.target,k=t.dataset&&t.dataset.ch;if(!k)return;
   if(k==='s-files'){

@@ -128,7 +128,6 @@ function sessionsHome(){
 A['g-start']=()=>startSession('Séance',[]);
 A['g-resume']=()=>{gymOpen=true;render();window.scrollTo(0,0)};
 A['g-back']=()=>{gymOpen=false;render()};
-A['g-start-r']=b=>{const r=S.routines.find(x=>x.id===b.dataset.id);if(r)startSession(r.name,r.exercises)};
 A['g-rdel']=b=>confirmSheet('Supprimer cette routine ?','Les séances déjà faites ne sont pas touchées.','Supprimer',()=>{routEdit=null;S.routines=S.routines.filter(r=>r.id!==b.dataset.id);persist('routines');render()});
 
 /* active session */
@@ -162,7 +161,6 @@ function tick(){
   if(typeof syncRestBar==='function')syncRestBar();
   if(typeof wakeSync==='function')wakeSync();   /* écran allumé pendant la séance (js5.js, téléphone seulement) */
 }
-VIEWS.gym_after=tick;
 I.sname=t=>{if(S.active){S.active.name=t.value;persist('active')}};
 I.set=t=>{const a=S.active;if(!a)return;const s=a.exercises[+t.dataset.e].sets[+t.dataset.s];s[t.dataset.f]=t.value;persist('active')};
 A['g-check']=b=>{
@@ -341,8 +339,6 @@ function progressView(){
   const rows=names.map(n=>{const h=history(n);return{n,h,last:h[h.length-1]}}).sort((a,b)=>b.last.date.localeCompare(a.last.date));
   if(!progEx||!names.includes(progEx))progEx=rows[0].n;
   const cur=rows.find(r=>r.n===progEx),h=cur.h;
-  const val=p=>progMetric==='top'?num(p.top.kg):progMetric==='e1'?p.e1:p.vol;
-  const unit='kg';
   const best=h.reduce((b,p)=>!b||num(p.top.kg)>num(b.top.kg)?p:b,null),bestE=h.reduce((m,p)=>Math.max(m,p.e1),0);
   const list=rows.map(r=>{
     const l=r.h[r.h.length-1],pv=r.h[r.h.length-2],dl=pv?num(l.top.kg)-num(pv.top.kg):null;

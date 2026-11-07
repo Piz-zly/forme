@@ -94,7 +94,6 @@ function parseShared(txt){
   const kcal =grab(/([\d][\d .,']*)\s*(?:kcal|calories|calorie|cal\b)/)||grab(/(?:kcal|calories|cal)\s*[:=]?\s*([\d][\d .,']*)/);
   return {steps,kcal};
 }
-A['share-open']=()=>{};
 function shareSheet(raw,s,k){
   const d=today(),found=s||k;
   openSheet(`<h3>Reçu de ton podomètre</h3>

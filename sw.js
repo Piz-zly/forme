@@ -6,7 +6,7 @@ self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.
 self.addEventListener('fetch',e=>{
   const r=e.request,u=new URL(r.url);
   if(r.method!=='GET')return;
-  if(u.origin!==location.origin&&!/fonts\.(googleapis|gstatic)\.com$/.test(u.hostname))return; /* Open Food Facts : toujours en direct */
+  if(u.origin!==location.origin)return; /* Open Food Facts : toujours en direct */
   const page=r.mode==='navigate';
   e.respondWith(
     page?fetch(r).then(x=>{const c=x.clone();caches.open(VERSION).then(k=>k.put('index.html',c));return x}).catch(()=>caches.match('index.html'))
