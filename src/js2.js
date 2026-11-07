@@ -313,14 +313,8 @@ const SLOTS=[['bk','Petit-déjeuner'],['lu','Déjeuner'],['di','Dîner'],['sn','
 /* repas de l'heure, la même règle partout : avant 10 h petit-déjeuner, 10 h–15 h déjeuner, 15 h–18 h collation,
    ensuite dîner ; snack=false pour un écran qui ne propose pas la collation (dîner à la place) */
 const slotNow=(snack=true)=>{const h=new Date().getHours();return h<10?'bk':h<15?'lu':h<18&&snack?'sn':'di'};
-/* Icônes des repas : une seule table à remplacer plus tard (SVG 24x24, trait currentColor). */
-const SLOT_ICONS={
-  bk:'<path d="M5 9h11v5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V9z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3v3M12 3v3"/>',
-  lu:'<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
-  di:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
-  sn:'<circle cx="12" cy="12" r="8"/><circle cx="9" cy="10" r=".9" fill="currentColor"/><circle cx="14.5" cy="9" r=".9" fill="currentColor"/><circle cx="13" cy="14.5" r=".9" fill="currentColor"/>'
-};
-const slotIcon=k=>'<span class="sloticon" aria-hidden="true"><svg viewBox="0 0 24 24">'+(SLOT_ICONS[k]||'')+'</svg></span>';
+/* Icônes des repas : emojis Fluent en couleur (tools/gen_icones.py, repas-bk, -lu, -di, -sn). */
+const slotIcon=k=>'<span class="sloticon" aria-hidden="true">'+icon('repas-'+k)+'</span>';
 const FAVVOC={};
 let fDate=today(),addTab=null,aiItems=[],aiBusy=false,hasAI=false,sampleFn=null,pickMap={},favQuery='';
 const r1=v=>Math.round(num(v)*10)/10;

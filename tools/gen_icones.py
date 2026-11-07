@@ -40,6 +40,11 @@ ICONES = {
     'fermer':              ('ph', 'x-bold'),
     'menu':                ('ph', 'dots-three-bold'),
     'minuteur':            ('ph', 'timer-bold'),
+    # repas (Fluent, style Flat : le style Color pèse 51 ko pour ces 4 icônes)
+    'repas-bk':            ('fluent-flat', 'hot-beverage'),
+    'repas-lu':            ('fluent-flat', 'green-salad'),
+    'repas-di':            ('fluent-flat', 'shallow-pan-of-food'),
+    'repas-sn':            ('fluent-flat', 'red-apple'),
 }
 
 PAQUETS = {'ph': '@iconify-json/ph', 'fluent': '@iconify-json/fluent-emoji',

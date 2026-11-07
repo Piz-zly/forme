@@ -3,6 +3,7 @@
   1. icônes Phosphor : barre d'onglets (duotone au repos, pleine sur l'onglet actif), roue des
      Réglages, chevrons ; toutes dessinées (aucune icône vide), dans les trois ambiances ; le rebond
      de l'onglet actif est coupé avec « réduire les animations » ;
+  2. emojis Fluent (style Flat) des quatre repas, en couleur, dans leur pastille ;
   aucune erreur JavaScript, sur index.html et forme.html.
 
     python3 -m http.server 8765
@@ -43,6 +44,11 @@ with sync_playwright() as p:
             check(f'{t} : aucune icône vide', vides == 0, vides)
             coul = pg.evaluate("()=>getComputedStyle(document.querySelector('.tab[aria-selected=\"true\"] .ico.on')).color")
             check(f'{t} : icône active colorée (pas transparente)', 'rgba(0, 0, 0, 0)' not in coul, coul)
+            # 2. emojis Fluent des repas, dans une pastille
+            pg.click('.tab[data-t="food"]'); pg.click('[data-act="food-sub"][data-s="journal"]'); pg.wait_for_timeout(200)
+            emo = pg.evaluate("""()=>[...document.querySelectorAll('.sloticon')].map(s=>{const v=s.querySelector('svg.ico');
+              return v&&v.getBoundingClientRect().width>0&&v.querySelector('path[fill^="#"]')?1:0})""")
+            check(f'{t} : 4 repas avec leur emoji en couleur', len(emo) >= 4 and all(emo), emo)
             check(f'{t} : aucune erreur JavaScript', not errs, errs)
             ctx.close()
         # rebond coupé si le téléphone demande moins d'animations
