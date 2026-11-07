@@ -20,9 +20,14 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 - **Glissement** entre onglets et sous-onglets (View Transitions de Chrome, `slide()` dans `js1.js`) ; seul le
   contenu glisse, les appuis ne sont jamais bloqués.
 - Rien de tout ça pendant une séance Muscu, ni si le téléphone demande moins d'animations.
-- Poids ajouté : `index.html` 846 368 → 863 270 octets (+16,9 ko), `vendor/` +33,8 ko, soit 50,7 ko sur 60 autorisés.
+- Poids ajouté : `index.html` 846 368 → 882 232 octets (+35,9 ko), `vendor/` +33,8 ko, soit 69,6 ko sur 72 autorisés
+  (budget relevé de 60 à 72 ko à sa demande pour les sections et les insignes).
 - Nouveau test `tests/t24.py` ; `tests/t19.py` attend la fin du défilement du volume avant de le lire.
-- En attente de son choix : insignes de niveau (Game-icons), icônes des sections d'aliments, coach (DiceBear).
+- **Icônes des sections d'aliments** (Fluent Flat) dans « Chercher » et la bibliothèque du Scan, choisies par lui.
+- **Insignes de niveau** (Game-icons.net, CC BY 3.0, auteurs dans `THIRD_PARTY.txt`) dans la pastille du bandeau,
+  avec le numéro dessous ; un appui ouvre « Mes insignes » (gagnés en couleur, suivants grisés). Mention dans
+  les Réglages. Le 11e (infini) a été remplacé par le sablier : son auteur n'est pas nommé dans game-icons.
+- Coach « Maître » choisi (DiceBear, CC0) et rangé dans `coach/`, affiché nulle part pour l'instant.
 
 ### 2026.11.07-2 — Ambiance Lune + Kikkō (à essayer sur le téléphone)
 

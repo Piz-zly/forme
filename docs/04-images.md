@@ -148,7 +148,12 @@ onglets. Tailles 192, 512, 512 masquable et 180 pour Apple. Déclarées dans
 Seuls les tracés SVG utilisés sont recopiés, par `tools/gen_icones.py`, depuis les paquets Iconify téléchargés
 hors du dépôt (`npm pack`) : **Phosphor Icons** (`@iconify-json/ph` 1.2.2, MIT) pour la barre d'onglets et les
 boutons, en couleur du texte ; **Fluent Emoji** de Microsoft (`@iconify-json/fluent-emoji-flat` 1.2.6, MIT),
-style « Flat », pour les quatre repas. La liste est en tête du script : y ajouter une ligne, relancer le
+style « Flat », pour les quatre repas et les onze sections d'aliments (Chercher, bibliothèque du Scan) ;
+**Game-icons.net** (`@iconify-json/game-icons` 1.2.4, **CC BY 3.0** : attribution obligatoire) pour les
+11 insignes de niveau. Les auteurs de chaque insigne sont dans `THIRD_PARTY.txt` (point 16) et la mention
+« Insignes : game-icons.net, CC BY 3.0 » est visible dans les Réglages et la feuille « Mes insignes ».
+Pour en ajouter un : vérifier son auteur dans le dépôt game-icons (dossier = auteur) ; éviter le dossier
+« various-artists », sans auteur nommé. La liste est en tête du script : y ajouter une ligne, relancer le
 script puis le build. Le style Fluent « Color » (dégradés) a été écarté pour son poids (51 ko pour quatre emojis).
 
 ## `vendor/zxing.min.js`

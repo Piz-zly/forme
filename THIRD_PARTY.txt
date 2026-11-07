@@ -54,7 +54,7 @@ Forme - licences des éléments tiers
 12) Icônes de la barre d'onglets et des boutons : Phosphor Icons - https://github.com/phosphor-icons/core
    Copyright (c) 2023 Phosphor Icons - licence MIT. Tracés recopiés depuis le paquet @iconify-json/ph 1.2.2
    (seules les icônes utilisées, dans src/js1c.js, par tools/gen_icones.py).
-13) Emojis des repas : Fluent Emoji (style Flat) - https://github.com/microsoft/fluentui-emoji
+13) Emojis des repas et des sections d'aliments : Fluent Emoji (style Flat) - https://github.com/microsoft/fluentui-emoji
    Copyright (c) Microsoft Corporation - licence MIT. Tracés recopiés depuis le paquet
    @iconify-json/fluent-emoji-flat 1.2.6 (seules les icônes utilisées, dans src/js1c.js).
 14) Chiffres qui défilent : countUp.js 2.10.1 (vendor/countUp.umd.js, fichier non modifié)
@@ -63,7 +63,17 @@ Forme - licences des éléments tiers
 15) Confettis : canvas-confetti 1.9.4 (vendor/confetti.browser.js, fichier non modifié)
    https://github.com/catdad/canvas-confetti - Copyright (c) 2020, Kiril Vatev - licence ISC.
    Texte complet : vendor/canvas-confetti-LICENSE.txt.
-16) Coach « Maître » (dossier coach/, affiché nulle part pour l'instant) : personnages originaux fabriqués avec
+16) Insignes de niveau (bandeau, feuille « Mes insignes ») : icônes de game-icons.net
+   https://game-icons.net - https://github.com/game-icons/icons - licence Creative Commons Attribution 3.0
+   (CC BY 3.0, https://creativecommons.org/licenses/by/3.0/). Tracés recopiés depuis le paquet
+   @iconify-json/game-icons 1.2.4 (src/js1c.js, tools/gen_icones.py), couleur réglée pour Forme. Auteurs :
+   - Skoll : rank-1, rank-2, rank-3 (niveaux 1 à 3) ;
+   - Lorc : sword-wound, winged-sword, sands-of-time, hourglass
+     (niveaux 4, 6, 10, 11) ;
+   - Delapouite : stars-stack, diamond-trophy, mountain-road (niveaux 5, 7, 9) ;
+   - Carl Olsen : flame (niveau 8).
+   Mention visible dans les Réglages et dans la feuille « Mes insignes ».
+17) Coach « Maître » (dossier coach/, affiché nulle part pour l'instant) : personnages originaux fabriqués avec
    DiceBear 9.4 (https://github.com/dicebear/dicebear, outil MIT), styles en domaine public CC0 1.0 :
    coach/maitre.svg - style Thumbs, par DiceBear, mot de départ « Maitre » ;
    coach/maitre-reserve.svg - style Notionists, par Zoish, mot de départ « Sensei ».

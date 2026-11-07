@@ -87,7 +87,7 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── p1.html                ← titre, polices, variables CSS, feuille de style, structure
 │   ├── p1.pwa.css             ← CSS en plus, uniquement pour la version téléphone
 │   ├── js1.js                 ← utilitaires, état, stockage, synchro, graphique, navigation, glissement entre onglets (slide)
-│   ├── js1c.js                ← icônes Phosphor et emojis Fluent utilisés — GÉNÉRÉ par tools/gen_icones.py, ne pas éditer
+│   ├── js1c.js                ← icônes Phosphor, emojis Fluent et insignes Game-icons utilisés — GÉNÉRÉ par tools/gen_icones.py, ne pas éditer
 │   ├── js1b.js                ← animations douces (outil maison) et chiffres qui défilent (countUp) autour du dessin des écrans — à retirer de build.sh pour s'en passer
 │   ├── js2.js                 ← onglet Poids (cercle, paliers) + onglet Repas
 │   ├── js2b.js                ← carte « Journée » (pas, dépense, apport)
@@ -297,6 +297,6 @@ le demande : il avance sujet par sujet.
   lavande avec halo, motif japonais Kikkō (Pattern Monster, MIT) devant, nuages retirés, cartes un peu plus
   opaques. Sakura et Néon inchangées. Testée (`tests/t4.py` à `t23.py`), publiée le 7 novembre 2026.
 - **2026.11.07-3** (7 novembre 2026, branche `esthetique`) : icônes Phosphor, emojis Fluent des repas, chiffres qui
-  défilent (countUp.js), confettis à chaque palier franchi (canvas-confetti), glissement entre onglets. ≈ 51 ko
-  ajoutés sur 60 autorisés. Testée (`tests/t4.py` à `t24.py`), pas encore envoyée. En attente de son choix :
-  insignes de niveau (Game-icons), icônes des sections d'aliments, coach DiceBear (voir `docs/07-a-faire.md`).
+  défilent (countUp.js), confettis à chaque palier franchi (canvas-confetti), glissement entre onglets, icônes
+  des sections d'aliments, insignes de niveau (Game-icons, CC BY 3.0). 69,6 ko ajoutés sur 72 autorisés.
+  Testée (`tests/t4.py` à `t24.py`), envoyée sur la branche `esthetique`, pas encore fusionnée dans `main`.

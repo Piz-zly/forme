@@ -170,11 +170,9 @@ avec son halo, en haut à droite ; motif japonais Kikkō (hexagones, Pattern Mon
 nuages retirés ; cartes un peu plus opaques ; étoiles gardées, pas de grain. Le nom dans Réglages reste
 « Lune ». Sakura et Néon inchangées (captures identiques au pixel).
 
-**Esthétique, six dépôts libres : étapes 1, 2 (repas), 3, 4 et 6 faites en 2026.11.07-3, à essayer sur son
-téléphone.** En attente de son choix (planches montrées) :
-- icônes Fluent des **sections d'aliments** (Repas, bibliothèque du Scan) ;
-- **insignes de niveau** Game-icons (étape 5, CC BY 3.0 : auteurs dans `THIRD_PARTY.txt` et une ligne dans
-  les Réglages). Budget restant ≈ 9 ko : choisir des icônes légères (moins de 800 octets chacune) ;
+**Esthétique, six dépôts libres : faite en 2026.11.07-3, à essayer sur son téléphone.** Icônes des sections
+d'aliments et insignes de niveau choisis par lui sur planche ; budget relevé de 60 à 72 ko à sa demande
+(69,6 ko utilisés).
 - **coach « Maître »** : choisi le 7 novembre 2026 parmi douze candidats DiceBear en styles CC0 :
   `coach/maitre.svg` (Thumbs, orange), et `coach/maitre-reserve.svg` (Notionists, « Sensei ») en réserve.
   Affichés nulle part pour l'instant (chantier Motivation).
