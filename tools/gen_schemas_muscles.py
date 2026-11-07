@@ -56,20 +56,5 @@ for fr,i in M.items():
     # trim: units 200x200 -> keep 400x400 (aspect 1:1)
     big=big.convert('RGBA').quantize(colors=24,method=Image.FASTOCTREE) if False else big
     p=f'img2/{slug}-m.png';big.save(p,optimize=True);tot+=len(open(p,'rb').read())
-    # thumb: zoom on the primary muscles in the best view
-    cnt={'a':0,'p':0}
-    for v,m in pri:cnt[v]+=1
-    v='a' if cnt['a']>=cnt['p'] else 'p'
-    pts=[pt for (vv,m) in pri if vv==v for poly in polys(vv,m) for pt in poly]
-    if not pts: pts=[pt for (vv,m) in sec if vv==v for poly in polys(vv,m) for pt in poly] or [(50,100)]
-    xs=[x for x,y in pts];ys=[y for x,y in pts]
-    cx,cy=(min(xs)+max(xs))/2,(min(ys)+max(ys))/2
-    side=max(max(xs)-min(xs),max(ys)-min(ys))+22;side=max(side,56)
-    x0=cx-side/2;y0=cy-side/2
-    x0=min(max(x0,-6),100+6-side);y0=min(max(y0,-4),200+4-side)
-    T=120;scale=T/side
-    img=Image.new('RGBA',(T*SS,T*SS),(0,0,0,0));dd=ImageDraw.Draw(img)
-    draw_view(dd,v,-x0*scale*SS,-y0*scale*SS,scale*SS,{x for x in pri},{x for x in sec})
-    img=img.resize((T,T),Image.LANCZOS)
-    p=f'img2/{slug}-t.png';img.save(p,optimize=True);tot+=len(open(p,'rb').read())
+    # plus de vignette -t.png : l'appli ne les affichait pas (retirées au nettoyage de 2026.11)
 print('done',tot//1024,'KB')

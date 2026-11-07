@@ -126,8 +126,8 @@ proche** plutôt que rien. Choix validés avec lui le 14 octobre 2026 :
 ## `img2/` — schémas anatomiques
 
 Deux silhouettes, face et dos, muscles principaux en rouge et secondaires en rose,
-une paire par exercice (`<slug>-m.png`), plus une vignette inutilisée
-(`<slug>-t.png`).
+une paire par exercice (`<slug>-m.png`). Les vignettes `<slug>-t.png`, jamais affichées, ont été
+retirées au nettoyage de novembre 2026 (240 Ko, 60 fichiers de moins à joindre à la version Claude).
 
 Tracés vectoriels repris de
 [react-body-highlighter](https://github.com/giavinh79/react-body-highlighter),
