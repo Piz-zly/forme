@@ -611,7 +611,7 @@ assert len(ids) == len(set(ids)), 'identifiants en double'
 
 here = os.path.dirname(os.path.abspath(__file__))
 dest = os.path.join(here, '..', 'src', 'js2c.js')
-with open(dest, 'w', encoding='utf8') as fh:
+with open(dest, 'w', encoding='utf8', newline='\n') as fh:   # fins de ligne Unix, même sous Windows
     fh.write("/* ===== RECETTES - fichier genere par tools/gen_recettes.py, ne pas editer a la main ===== */\n")
     fh.write("/* Valeurs par portion, calculees d'apres des valeurs moyennes pour 100 g : indicatives. */\n")
     fh.write("const RECIPES=" + json.dumps(out, ensure_ascii=False, indent=0, separators=(',', ':')).replace('\n', '') + ";\n")

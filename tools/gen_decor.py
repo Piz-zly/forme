@@ -19,5 +19,5 @@ s = open(P1, encoding='utf-8').read()
 a = s.index('<!-- deco:debut')
 b = s.index('<!-- deco:fin -->') + len('<!-- deco:fin -->')
 s = s[:a] + deco + s[b:]
-open(P1, 'w', encoding='utf-8').write(s)
+open(P1, 'w', encoding='utf-8', newline='\n').write(s)   # fins de ligne Unix, même sous Windows
 print('décor écrit dans src/p1.html :', len(deco), 'caractères')

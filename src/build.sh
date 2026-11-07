@@ -50,7 +50,7 @@ cat <<'HEAD'
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 HEAD
 sed -e 's#<link rel="preconnect" href="https://fonts.googleapis.com">##' -e 's#<link rel="stylesheet" href="https://fonts.googleapis.com[^>]*>##' p1.html \
- | python3 -c "import sys;s=sys.stdin.read();css=open('p1.pwa.css').read();print(s.replace('</style>','</style>\n<style>'+css+'</style>',1),end='')"
+ | python3 -c "import sys;sys.stdin.reconfigure(encoding='utf-8');s=sys.stdin.read();css=open('p1.pwa.css',encoding='utf-8').read();sys.stdout.buffer.write(s.replace('</style>','</style>\n<style>'+css+'</style>',1).encode('utf-8'))"   # octets bruts : pas de fins de ligne Windows
 echo '<script src="vendor/fuse.basic.min.js"></script>'   # Fuse.js : fichier local, mis en cache par sw.js
 echo '<script>'; echo "(function(){'use strict';"
 cat js1.js js1b.js js2.js js2b.js js2c.js js2d.js js2e.js js2g.js js2f.js js2h.js js3c.js js3.js js3b.js js4b.js js4c.js js4.js js5.js
@@ -61,8 +61,8 @@ echo '})();'; echo '</script>'; echo '</body></html>'
 python3 - "$ROOT/sw.js" "$V" <<'PY'
 import re,sys
 p,v=sys.argv[1],sys.argv[2]
-s=open(p,encoding='utf8').read()
-open(p,'w',encoding='utf8').write(re.sub(r"const VERSION='[^']*'","const VERSION='forme-%s'"%v,s))
+s=open(p,encoding='utf8',newline='').read()   # fins de ligne du fichier gardées telles quelles
+open(p,'w',encoding='utf8',newline='').write(re.sub(r"const VERSION='[^']*'","const VERSION='forme-%s'"%v,s))
 PY
 
 rm -rf "$TMP"
