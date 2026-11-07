@@ -67,12 +67,28 @@ button{cursor:pointer;border:0;background:none;padding:0}
 .top h1{margin:0;font:800 26px/1 var(--font-display)}
 .top h1 span{color:var(--accent)}
 .iconbtn{width:44px;height:44px;border-radius:14px;box-shadow:var(--shadow);display:grid;place-items:center}
-.iconbtn svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.iconbtn svg{width:22px;height:22px;color:var(--ink)}
 
 /* tab bar */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(4,1fr);gap:4px;max-width:560px;margin-inline:auto}
 .tab{height:52px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--muted);font-size:11.5px;font-weight:600}
-.tab svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab svg{width:24px;height:24px}
+/* icônes Phosphor (js1c.js) : aplats en currentColor ; onglet au repos en duotone, actif en plein avec un petit rebond */
+.ico *{stroke:none}
+.ico.gl{width:.8em;height:.8em;vertical-align:-.1em}
+.tab .ico.on,.tab[aria-selected="true"] .ico.off{display:none}
+.tab[aria-selected="true"] .ico.on{display:block;animation:tabpop .3s cubic-bezier(.3,1.6,.5,1)}
+@keyframes tabpop{0%{transform:scale(.7)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+/* glissement entre onglets et sous-onglets (slide(), js1.js) : seul le contenu glisse ; barre d'onglets et bandeau restent en place.
+   Le calque de la transition laisse passer les appuis : rien n'est bloqué pendant les 0,3 s. */
+#view{view-transition-name:vue}
+::view-transition{pointer-events:none}
+::view-transition-old(vue){animation:.3s ease both vtout}
+::view-transition-new(vue){animation:.3s ease both vtin}
+html[data-vt="d"]{--vtd:-1}
+@keyframes vtout{to{opacity:0;transform:translateX(calc(var(--vtd,1) * -24%))}}
+@keyframes vtin{from{opacity:0;transform:translateX(calc(var(--vtd,1) * 24%))}}
+@media (prefers-reduced-motion:reduce){.tab[aria-selected="true"] .ico.on{animation:none}}
 .tab[aria-selected="true"]{color:var(--tc);background:var(--tcs)}
 .tab[data-t="weight"]{--tc:var(--c-weight)}
 .tab[data-t="food"]{--tc:var(--c-food)}
@@ -266,7 +282,7 @@ button.sug{min-height:44px}
 .sets input{width:100%;min-height:44px;border-radius:12px;border:1.5px solid var(--line);text-align:center;font:700 17px var(--font-display);font-variant-numeric:tabular-nums;padding:0 4px;min-width:0}
 .sets input:focus{border-color:var(--accent);outline:none;background:var(--surface)}
 .sets .ck{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;justify-self:center}
-.sets .ck svg{width:22px;height:22px;stroke:var(--muted);fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.sets .ck svg{width:22px;height:22px;color:var(--muted)}
 .sets .done input{background:color-mix(in srgb,var(--good) 14%,transparent);border-color:transparent}
 .rest{position:sticky;top:calc(env(safe-area-inset-top,0px) + 66px);z-index:15;background:var(--ink);color:var(--bg);border-radius:16px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .rest b{font:800 24px/1 var(--font-display);font-variant-numeric:tabular-nums}
@@ -299,8 +315,8 @@ button.sug{min-height:44px}
 .thumbbtn{flex:none;border-radius:12px;padding:0;line-height:0}
 .bcbox{border:2px dashed var(--line);border-radius:18px;padding:18px;text-align:center}
 .bcnum{font:800 22px var(--font-display);letter-spacing:.04em;font-variant-numeric:tabular-nums}
-.sloticon{width:36px;height:36px;border-radius:12px;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);display:grid;place-items:center;flex:none}
-.sloticon svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.sloticon{width:36px;height:36px;border-radius:12px;background:var(--surface2);display:grid;place-items:center;flex:none}
+.sloticon svg{width:22px;height:22px}
 .mmap{width:100%;max-width:320px;display:block;margin:0 auto;background:var(--surface);border-radius:18px}
 .thumb{padding:2px}
 .ringbig{width:100%;max-width:300px;aspect-ratio:1;margin:0 auto 4px}
@@ -431,12 +447,11 @@ body.scrolled .top{background:color-mix(in srgb,var(--bg) 80%,transparent);-webk
 .sets input{border-width:1.5px;background:var(--surface)}
 .sets .ck{background:var(--surface);border:1.5px solid var(--line);box-shadow:var(--press)}
 .sets .ck[aria-pressed="true"]{background:var(--good);border-color:transparent;box-shadow:0 3px 0 color-mix(in srgb,var(--good) 55%,#000),0 0 10px color-mix(in srgb,var(--good) var(--glow),transparent)}
-.sets .ck[aria-pressed="true"] svg{stroke:var(--on-accent)}
+.sets .ck[aria-pressed="true"] svg{color:var(--on-accent)}
 .rest,.rbar.on{background:var(--timer);border:1.5px solid transparent;color:#fff}
 .rbar{background:var(--panel);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 .scrim{background:rgba(14,9,32,.45);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 .sheet{border-top:1.5px solid var(--line);box-shadow:0 -8px 30px rgba(0,0,0,.3)}
-.sloticon{border:1.5px solid color-mix(in srgb,var(--accent) 35%,transparent)}
 .list>*+*,.entry,.addslot,.nrow{border-color:var(--line)}
 .toast{background:var(--surface2);color:var(--ink);border:1.5px solid var(--line)}
 
@@ -464,7 +479,7 @@ body.scrolled .top{background:color-mix(in srgb,var(--bg) 80%,transparent);-webk
 [data-theme="light"] .card{background:var(--panel);-webkit-backdrop-filter:blur(10px) saturate(1.15);backdrop-filter:blur(10px) saturate(1.15)}
 [data-theme="light"] .card h2::before{background:var(--sakura-d);-webkit-mask-image:var(--flower);mask-image:var(--flower)}
 [data-theme="light"] .tab[aria-selected="true"]{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--tc) 45%,transparent)}
-[data-theme="light"] .sets .ck[aria-pressed="true"] svg{stroke:#fff}
+[data-theme="light"] .sets .ck[aria-pressed="true"] svg{color:#fff}
 [data-theme="light"] .scrim{background:rgba(36,30,58,.38)}
 [data-theme="light"] .sheet{box-shadow:0 -8px 30px rgba(0,0,0,.18)}
 [data-theme="light"] .toast{background:var(--ink);color:#fff;border:0}
@@ -505,25 +520,25 @@ body.scrolled .top{background:color-mix(in srgb,var(--bg) 80%,transparent);-webk
 <div id="app" data-tab="weight">
   <header class="top">
     <h1 id="title">Poids</h1>
-    <button class="iconbtn" data-act="settings" aria-label="Réglages et sauvegarde">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-    </button>
+    <button class="iconbtn" data-act="settings" aria-label="Réglages et sauvegarde"></button>
   </header>
   <div id="hud" class="hud"></div>
   <main id="view"></main>
   <nav class="tabbar" role="tablist" aria-label="Sections">
-    <button class="tab" role="tab" data-t="weight" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M3 20h18M6 20V10M12 20V4M18 20v-7"/></svg>Poids</button>
-    <button class="tab" role="tab" data-t="food" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M7 3v8a3 3 0 0 0 3 3v7M7 3v5M10 3v5M4 3v5a3 3 0 0 0 3 3M17 21V3c-2.5 1.5-4 4.5-4 8h4"/></svg>Repas</button>
-    <button class="tab" role="tab" data-t="gym" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg>Muscu</button>
-    <button class="tab" role="tab" data-t="scan" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 8v8M11 8v8M14 8v8M17 8v8"/></svg>Scan</button>
+    <button class="tab" role="tab" data-t="weight" aria-selected="true">Poids</button>
+    <button class="tab" role="tab" data-t="food" aria-selected="false">Repas</button>
+    <button class="tab" role="tab" data-t="gym" aria-selected="false">Muscu</button>
+    <button class="tab" role="tab" data-t="scan" aria-selected="false">Scan</button>
   </nav>
 </div>
 <div id="layer"></div>
 <script src="vendor/fuse.basic.min.js"></script>
+<script src="vendor/countUp.umd.js"></script>
+<script src="vendor/confetti.browser.js"></script>
 <script>
 (function(){'use strict';
 /* ===== utils ===== */
-const APP_VER='2026.11.07-2';
+const APP_VER='2026.11.07-3';
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
@@ -537,15 +552,18 @@ const fmtLong=s=>parseD(s).toLocaleDateString('fr-FR',{weekday:'long',day:'numer
 const fmtShort=s=>parseD(s).toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
 const fmtDay=s=>parseD(s).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
 const nf=(n,d=1)=>Number(n).toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:d});
+/* même texte que nf, marqué pour défiler (js1b.js, countUp) ; k : nom unique du chiffre dans l'appli */
+const nfc=(k,n,d=1)=>'<data data-cu="'+k+'" value="'+n+'" data-d="'+d+'">'+nf(n,d)+'</data>';
 /* espaces ignorées : nf écrit « 2 200 » (espace fine), qui doit se relire 2200 et non 2 */
 const num=v=>{const n=parseFloat(String(v??'').replace(/\s/g,'').replace(',','.'));return isFinite(n)?n:0};
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+/* icônes des boutons : Phosphor (js1c.js, généré) ; lues au moment du dessin, js1c.js venant après ce fichier */
 const ICON={
-  check:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
-  plus:'<svg viewBox="0 0 24 24" width="20" height="20" style="stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg>',
-  chev:'<svg viewBox="0 0 24 24" width="22" height="22" style="stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M9 5l7 7-7 7"/></svg>',
-  chevL:'<svg viewBox="0 0 24 24" width="22" height="22" style="stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M15 5l-7 7 7 7"/></svg>',
-  cam:'<svg viewBox="0 0 24 24" width="22" height="22" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'
+  get check(){return icon('coche')},
+  get plus(){return icon('plus','',20)},
+  get chev(){return icon('droite','',22)},
+  get chevL(){return icon('gauche','',22)},
+  get cam(){return icon('photo','',22)}
 };
 
 /* ===== state & storage ===== */
@@ -752,8 +770,48 @@ addEventListener('scroll',()=>document.body.classList.toggle('scrolled',window.s
 document.querySelector('.tabbar').addEventListener('click',e=>{
   const b=e.target.closest('.tab');if(!b)return;
   if(tab===b.dataset.t){window.scrollTo({top:0,behavior:'smooth'});return}
-  tab=b.dataset.t;S.ui.tab=tab;saveLocal();closeSheet();render();window.scrollTo(0,0);
+  tab=b.dataset.t;S.ui.tab=tab;saveLocal();closeSheet();slide(b,()=>{render();window.scrollTo(0,0)});
 });
+/* glissement entre onglets et sous-onglets (View Transitions de Chrome) : b = bouton choisi, parmi des frères marqués
+   aria-selected ; le sens suit l'ordre des boutons. Sans la fonction, avec moins d'animations ou pendant une séance :
+   changement direct, comme avant. Seul #view glisse (CSS « vue » dans p1.html). */
+function slide(b,fn){
+  const sib=[...b.parentElement.children],cur=sib.findIndex(x=>x.getAttribute('aria-selected')==='true');
+  if(!document.startViewTransition||cur<0||S.active||matchMedia('(prefers-reduced-motion: reduce)').matches){fn();return}
+  const r=document.documentElement;r.dataset.vt=sib.indexOf(b)>cur?'g':'d';
+  document.startViewTransition(fn).finished.finally(()=>delete r.dataset.vt);
+}
+/* ===== ICÔNES : GÉNÉRÉ par tools/gen_icones.py, ne pas éditer =====
+   Seules les icônes utilisées sont recopiées. Sources et licences :
+   - Fluent Emoji, Microsoft (github.com/microsoft/fluentui-emoji), MIT, paquet @iconify-json/fluent-emoji-flat 1.2.6
+   - Phosphor Icons (github.com/phosphor-icons/core), MIT, paquet @iconify-json/ph 1.2.2
+   Textes complets des licences : THIRD_PARTY.txt et vendor/. */
+const ICONS={
+  "onglet-poids":["0 0 256 256","<g fill=\"currentColor\"><path d=\"m56 88l32 80c0 17.67-20 24-32 24s-32-6.33-32-24Zm144-32l-32 80c0 17.67 20 24 32 24s32-6.33 32-24Z\" opacity=\".2\"/><path d=\"m239.43 133l-32-80a8 8 0 0 0-9.16-4.84L136 62V40a8 8 0 0 0-16 0v25.58L54.26 80.19A8 8 0 0 0 48.57 85v.06l-32 79.94a7.9 7.9 0 0 0-.57 3c0 23.31 24.54 32 40 32s40-8.69 40-32a7.9 7.9 0 0 0-.57-3L66.92 93.77L120 82v126h-16a8 8 0 0 0 0 16h48a8 8 0 0 0 0-16h-16V78.42l51-11.32l-26.43 65.9a7.9 7.9 0 0 0-.57 3c0 23.31 24.54 32 40 32s40-8.69 40-32a7.9 7.9 0 0 0-.57-3M56 184c-7.53 0-22.76-3.61-23.93-14.64L56 109.54l23.93 59.82C78.76 180.39 63.53 184 56 184m144-32c-7.53 0-22.76-3.61-23.93-14.64L200 77.54l23.93 59.82C222.76 148.39 207.53 152 200 152\"/></g>"],
+  "onglet-poids-actif":["0 0 256 256","<path fill=\"currentColor\" d=\"m239.43 133l-32-80a8 8 0 0 0-7.43-5a8.3 8.3 0 0 0-1.73.21L136 62V40a8 8 0 0 0-16 0v25.58L54.27 80.21a8 8 0 0 0-5.7 4.79l-32 80a7.9 7.9 0 0 0-.57 3c0 23.31 24.54 32 40 32s40-8.69 40-32a7.9 7.9 0 0 0-.57-3L66.92 93.77L120 82v126h-16a8 8 0 0 0 0 16h48a8 8 0 0 0 0-16h-16V78.42l51-11.32l-26.43 65.9a7.9 7.9 0 0 0-.57 3c0 23.31 24.54 32 40 32s40-8.69 40-32a7.9 7.9 0 0 0-.57-3m-160 35H32.62L56 109.54Zm97.24-32L200 77.54L223.38 136Z\"/>"],
+  "onglet-repas":["0 0 256 256","<g fill=\"currentColor\"><path d=\"M208 40v128h-56s0-104 56-128\" opacity=\".2\"/><path d=\"M72 88V40a8 8 0 0 1 16 0v48a8 8 0 0 1-16 0m144-48v184a8 8 0 0 1-16 0v-48h-48a8 8 0 0 1-8-8a268.8 268.8 0 0 1 7.22-56.88c9.78-40.49 28.32-67.63 53.63-78.47A8 8 0 0 1 216 40m-16 13.9c-32.17 24.57-38.47 84.42-39.7 106.1H200Zm-80.11-15.21a8 8 0 1 0-15.78 2.63L112 88.63a32 32 0 0 1-64 0l7.88-47.31a8 8 0 1 0-15.78-2.63l-8 48A8 8 0 0 0 32 88a48.07 48.07 0 0 0 40 47.32V224a8 8 0 0 0 16 0v-88.68A48.07 48.07 0 0 0 128 88a8 8 0 0 0-.11-1.31Z\"/></g>"],
+  "onglet-repas-actif":["0 0 256 256","<path fill=\"currentColor\" d=\"M216 40v184a8 8 0 0 1-16 0v-48h-48a8 8 0 0 1-8-8a268.8 268.8 0 0 1 7.22-56.88c9.78-40.49 28.32-67.63 53.63-78.47A8 8 0 0 1 216 40m-96.11-1.31a8 8 0 1 0-15.78 2.63L111.89 88H88V40a8 8 0 0 0-16 0v48H48.11l7.78-46.68a8 8 0 1 0-15.78-2.63l-8 48A8 8 0 0 0 32 88a48.07 48.07 0 0 0 40 47.32V224a8 8 0 0 0 16 0v-88.68A48.07 48.07 0 0 0 128 88a8 8 0 0 0-.11-1.31Z\"/>"],
+  "onglet-muscu":["0 0 256 256","<g fill=\"currentColor\"><path d=\"M96 64v128a8 8 0 0 1-8 8H64a8 8 0 0 1-8-8V64a8 8 0 0 1 8-8h24a8 8 0 0 1 8 8m96-8h-24a8 8 0 0 0-8 8v128a8 8 0 0 0 8 8h24a8 8 0 0 0 8-8V64a8 8 0 0 0-8-8\" opacity=\".2\"/><path d=\"M248 120h-8V88a16 16 0 0 0-16-16h-16v-8a16 16 0 0 0-16-16h-24a16 16 0 0 0-16 16v56h-48V64a16 16 0 0 0-16-16H64a16 16 0 0 0-16 16v8H32a16 16 0 0 0-16 16v32H8a8 8 0 0 0 0 16h8v32a16 16 0 0 0 16 16h16v8a16 16 0 0 0 16 16h24a16 16 0 0 0 16-16v-56h48v56a16 16 0 0 0 16 16h24a16 16 0 0 0 16-16v-8h16a16 16 0 0 0 16-16v-32h8a8 8 0 0 0 0-16M32 168V88h16v80Zm56 24H64V64h24zm104 0h-24V64h24zm32-24h-16V88h16Z\"/></g>"],
+  "onglet-muscu-actif":["0 0 256 256","<path fill=\"currentColor\" d=\"M200 64v128a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16v-56h-48v56a16 16 0 0 1-16 16H72a16 16 0 0 1-16-16V64a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v56h48V64a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16M36 72h-4a16 16 0 0 0-16 16v32H8.27A8.18 8.18 0 0 0 0 127.47A8 8 0 0 0 8 136h8v32a16 16 0 0 0 16 16h4a4 4 0 0 0 4-4V76a4 4 0 0 0-4-4m220 55.47a8.18 8.18 0 0 0-8.25-7.47H240V88a16 16 0 0 0-16-16h-4a4 4 0 0 0-4 4v104a4 4 0 0 0 4 4h4a16 16 0 0 0 16-16v-32h8a8 8 0 0 0 8-8.53\"/>"],
+  "onglet-scan":["0 0 256 256","<g fill=\"currentColor\"><path d=\"M224 48v160H32V48Z\" opacity=\".2\"/><path d=\"M232 48v40a8 8 0 0 1-16 0V56h-32a8 8 0 0 1 0-16h40a8 8 0 0 1 8 8M72 200H40v-32a8 8 0 0 0-16 0v40a8 8 0 0 0 8 8h40a8 8 0 0 0 0-16m152-40a8 8 0 0 0-8 8v32h-32a8 8 0 0 0 0 16h40a8 8 0 0 0 8-8v-40a8 8 0 0 0-8-8M32 96a8 8 0 0 0 8-8V56h32a8 8 0 0 0 0-16H32a8 8 0 0 0-8 8v40a8 8 0 0 0 8 8m48-16a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8m104 88V88a8 8 0 0 0-16 0v80a8 8 0 0 0 16 0m-40-88a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8m-32 0a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8\"/></g>"],
+  "onglet-scan-actif":["0 0 256 256","<path fill=\"currentColor\" d=\"M224 40H32a8 8 0 0 0-8 8v160a8 8 0 0 0 8 8h192a8 8 0 0 0 8-8V48a8 8 0 0 0-8-8M40 64a8 8 0 0 1 8-8h32a8 8 0 0 1 0 16H56v24a8 8 0 0 1-16 0Zm40 136H48a8 8 0 0 1-8-8v-32a8 8 0 0 1 16 0v24h24a8 8 0 0 1 0 16m24-48a8 8 0 0 1-16 0v-48a8 8 0 0 1 16 0Zm32 0a8 8 0 0 1-16 0v-48a8 8 0 0 1 16 0Zm24 8a8 8 0 0 1-8-8v-48a8 8 0 0 1 16 0v48a8 8 0 0 1-8 8m56 32a8 8 0 0 1-8 8h-32a8 8 0 0 1 0-16h24v-24a8 8 0 0 1 16 0Zm0-96a8 8 0 0 1-16 0V72h-24a8 8 0 0 1 0-16h32a8 8 0 0 1 8 8Z\"/>"],
+  "reglages":["0 0 256 256","<path fill=\"currentColor\" d=\"M128 80a48 48 0 1 0 48 48a48.05 48.05 0 0 0-48-48m0 80a32 32 0 1 1 32-32a32 32 0 0 1-32 32m109.94-52.79a8 8 0 0 0-3.89-5.4l-29.83-17l-.12-33.62a8 8 0 0 0-2.83-6.08a111.9 111.9 0 0 0-36.72-20.67a8 8 0 0 0-6.46.59L128 41.85L97.88 25a8 8 0 0 0-6.47-.6a112.1 112.1 0 0 0-36.68 20.75a8 8 0 0 0-2.83 6.07l-.15 33.65l-29.83 17a8 8 0 0 0-3.89 5.4a106.5 106.5 0 0 0 0 41.56a8 8 0 0 0 3.89 5.4l29.83 17l.12 33.62a8 8 0 0 0 2.83 6.08a111.9 111.9 0 0 0 36.72 20.67a8 8 0 0 0 6.46-.59L128 214.15L158.12 231a7.9 7.9 0 0 0 3.9 1a8.1 8.1 0 0 0 2.57-.42a112.1 112.1 0 0 0 36.68-20.73a8 8 0 0 0 2.83-6.07l.15-33.65l29.83-17a8 8 0 0 0 3.89-5.4a106.5 106.5 0 0 0-.03-41.52m-15 34.91l-28.57 16.25a8 8 0 0 0-3 3c-.58 1-1.19 2.06-1.81 3.06a7.94 7.94 0 0 0-1.22 4.21l-.15 32.25a95.9 95.9 0 0 1-25.37 14.3L134 199.13a8 8 0 0 0-3.91-1h-3.83a8.1 8.1 0 0 0-4.1 1l-28.84 16.1A96 96 0 0 1 67.88 201l-.11-32.2a8 8 0 0 0-1.22-4.22c-.62-1-1.23-2-1.8-3.06a8.1 8.1 0 0 0-3-3.06l-28.6-16.29a90.5 90.5 0 0 1 0-28.26l28.52-16.28a8 8 0 0 0 3-3c.58-1 1.19-2.06 1.81-3.06a7.94 7.94 0 0 0 1.22-4.21l.15-32.25a95.9 95.9 0 0 1 25.37-14.3L122 56.87a8 8 0 0 0 4.1 1h3.64a8.1 8.1 0 0 0 4.1-1l28.84-16.1A96 96 0 0 1 188.12 55l.11 32.2a8 8 0 0 0 1.22 4.22c.62 1 1.23 2 1.8 3.06a8.1 8.1 0 0 0 3 3.06l28.6 16.29a90.5 90.5 0 0 1 .05 28.29Z\"/>"],
+  "plus":["0 0 256 256","<path fill=\"currentColor\" d=\"M228 128a12 12 0 0 1-12 12h-76v76a12 12 0 0 1-24 0v-76H40a12 12 0 0 1 0-24h76V40a12 12 0 0 1 24 0v76h76a12 12 0 0 1 12 12\"/>"],
+  "droite":["0 0 256 256","<path fill=\"currentColor\" d=\"m184.49 136.49l-80 80a12 12 0 0 1-17-17L159 128L87.51 56.49a12 12 0 1 1 17-17l80 80a12 12 0 0 1-.02 17\"/>"],
+  "gauche":["0 0 256 256","<path fill=\"currentColor\" d=\"M168.49 199.51a12 12 0 0 1-17 17l-80-80a12 12 0 0 1 0-17l80-80a12 12 0 0 1 17 17L97 128Z\"/>"],
+  "ouvrir":["0 0 256 256","<path fill=\"currentColor\" d=\"m216.49 104.49l-80 80a12 12 0 0 1-17 0l-80-80a12 12 0 0 1 17-17L128 159l71.51-71.52a12 12 0 0 1 17 17Z\"/>"],
+  "coche":["0 0 256 256","<path fill=\"currentColor\" d=\"m232.49 80.49l-128 128a12 12 0 0 1-17 0l-56-56a12 12 0 1 1 17-17L96 183L215.51 63.51a12 12 0 0 1 17 17Z\"/>"],
+  "photo":["0 0 256 256","<path fill=\"currentColor\" d=\"M208 52h-25.58L170 33.34A12 12 0 0 0 160 28H96a12 12 0 0 0-10 5.34L73.57 52H48a28 28 0 0 0-28 28v112a28 28 0 0 0 28 28h160a28 28 0 0 0 28-28V80a28 28 0 0 0-28-28m4 140a4 4 0 0 1-4 4H48a4 4 0 0 1-4-4V80a4 4 0 0 1 4-4h32a12 12 0 0 0 10-5.34L102.42 52h51.15L166 70.66A12 12 0 0 0 176 76h32a4 4 0 0 1 4 4ZM128 84a48 48 0 1 0 48 48a48.05 48.05 0 0 0-48-48m0 72a24 24 0 1 1 24-24a24 24 0 0 1-24 24\"/>"],
+  "fermer":["0 0 256 256","<path fill=\"currentColor\" d=\"M208.49 191.51a12 12 0 0 1-17 17L128 145l-63.51 63.49a12 12 0 0 1-17-17L111 128L47.51 64.49a12 12 0 0 1 17-17L128 111l63.51-63.52a12 12 0 0 1 17 17L145 128Z\"/>"],
+  "menu":["0 0 256 256","<path fill=\"currentColor\" d=\"M144 128a16 16 0 1 1-16-16a16 16 0 0 1 16 16m-84-16a16 16 0 1 0 16 16a16 16 0 0 0-16-16m136 0a16 16 0 1 0 16 16a16 16 0 0 0-16-16\"/>"],
+  "minuteur":["0 0 256 256","<path fill=\"currentColor\" d=\"M128 44a96 96 0 1 0 96 96a96.11 96.11 0 0 0-96-96m0 168a72 72 0 1 1 72-72a72.08 72.08 0 0 1-72 72m36.49-112.49a12 12 0 0 1 0 17l-28 28a12 12 0 0 1-17-17l28-28a12 12 0 0 1 17 0M92 16a12 12 0 0 1 12-12h48a12 12 0 0 1 0 24h-48a12 12 0 0 1-12-12\"/>"],
+  "repas-bk":["0 0 32 32","<g fill=\"none\"><path fill=\"#d3d3d3\" d=\"M14.5 30C20.851 30 26 24.851 26 18.5S20.851 7 14.5 7S3 12.149 3 18.5S8.149 30 14.5 30\"/><path fill=\"#9b9b9b\" d=\"M14.42 27.5c-5.17 0-9.38-4.7-9.38-9.87H23.8c0 5.17-4.21 9.87-9.38 9.87\"/><path fill=\"#e6e6e6\" d=\"M21.4 12.38a9.35 9.35 0 0 0-6.98-3.13a9.37 9.37 0 0 0-6.99 3.13H5.04v5.25c0 5.17 4.21 9.38 9.38 9.38c4.378 0 8.068-3.019 9.095-7.083l1.06-1.04s-.788-.652-.779-.996q.004-.13.004-.261v-5.25z\"/><path fill=\"#f4f4f4\" d=\"M23.79 12.38a9.38 9.38 0 1 1-1.08-4.372Q22.865 8 23.02 8c3.3 0 5.98 2.68 5.98 5.98a5.984 5.984 0 0 1-5.488 5.96a9.4 9.4 0 0 0 .285-2.056A3.994 3.994 0 0 0 27 13.98c0-2.03-1.53-3.718-3.507-3.952c.194.752.297 1.54.297 2.352\"/><path fill=\"#7d4533\" d=\"M14.41 20.67a8.29 8.29 0 0 0 8.29-8.29c0-4.578-5.035-7.29-8.29-7.29c-2.786 0-8.29 2.712-8.29 7.29a8.29 8.29 0 0 0 8.29 8.29\"/><path fill=\"#9b9b9b\" d=\"M6.14 12.966c.301-3.1 3.889-6.876 8.27-6.876c4.38 0 7.967 3.827 8.27 6.88q.02-.293.02-.59a8.29 8.29 0 1 0-16.56.586\"/></g>"],
+  "repas-lu":["0 0 32 32","<g fill=\"none\"><path fill=\"#b4acbc\" d=\"M18.69 29.52h-5.41C7.05 29.52 2 24.46 2 18.23v-5.27h27.97v5.27c0 6.23-5.05 11.29-11.28 11.29\"/><path fill=\"#e1d8ec\" d=\"M21.97 4.96H10c-4.42 0-8 3.58-8 8s3.58 8 8 8h11.97c4.42 0 8-3.58 8-8s-3.58-8-8-8\"/><path fill=\"#44911b\" d=\"M28.24 11.69c0-.1-.01-.2-.01-.31c-.18-2.41-2.12-4.35-4.52-4.52c-.03 0-.06 0-.09-.01c-1.5-.08-2.87-.83-3.81-2.01a4.862 4.862 0 0 0-7.62 0c-.94 1.18-2.31 1.93-3.81 2.01c-.03 0-.06 0-.09.01c-2.4.17-4.34 2.11-4.52 4.52c-.01.1-.01.21-.01.31c0 3.77 3.06 6.83 6.83 6.83h10.83c3.76 0 6.82-3.06 6.82-6.83\"/><path fill=\"#f8312f\" d=\"M24.83 12.23a5.17 5.17 0 0 0 .08-6.65a.755.755 0 0 0-1.17-.01l-1.047 1.216l-.623 2.817l-2.936 1.321l-1.054 1.226c-.31.36-.22.91.19 1.16c2.11 1.25 4.89.85 6.56-1.08\"/><path fill=\"#86d72f\" d=\"M27.274 15.26a5.78 5.78 0 0 1-5.304 3.48H10a5.79 5.79 0 0 1-5.418-3.764A7.17 7.17 0 0 1 9.56 12.42c1.54-.1 2.97.27 4.19.99c1.27.75 2.88.75 4.15 0a7.14 7.14 0 0 1 4.18-.98c2.108.148 3.976 1.23 5.194 2.83\"/><path fill=\"#f92f60\" d=\"M7.98 16.01c2.33 1.03 5.02.21 6.39-1.84c.26-.39.11-.93-.32-1.13l-1.473-.652l-2.93-.08l-2.057-2.127l-1.47-.651c-.44-.2-.94.05-1.06.51c-.59 2.39.59 4.94 2.92 5.97\"/><path fill=\"#ca0b4a\" d=\"M22.72 6.75c1.16 1 1.29 2.75.29 3.91s-2.75 1.3-3.91.29zm-10.1 5.66a2.774 2.774 0 0 1-5.07-2.25z\"/><path fill=\"#f9c23c\" d=\"M14.57 10.49a1.83 1.83 0 1 0 0-3.66a1.83 1.83 0 0 0 0 3.66m9.58 5.56a1.83 1.83 0 1 0 0-3.66a1.83 1.83 0 0 0 0 3.66m-8.8.27a1.83 1.83 0 1 1-3.66 0a1.83 1.83 0 0 1 3.66 0\"/></g>"],
+  "repas-di":["0 0 32 32","<g fill=\"none\"><path fill=\"#533566\" d=\"M12.053 6.72L9.98 4.648a3.08 3.08 0 0 0-4.35 0L4 6.278a3.08 3.08 0 0 0 0 4.35L6.373 13A10.08 10.08 0 0 0 8.87 23.129A10.08 10.08 0 0 0 19 25.627L21.372 28a3.08 3.08 0 0 0 4.35 0l1.63-1.63a3.08 3.08 0 0 0 0-4.35l-2.073-2.073a10.085 10.085 0 0 0-2.151-11.076a10.085 10.085 0 0 0-11.076-2.15m-3.554-.592l1.656 1.656a10.15 10.15 0 0 0-2.879 3.158L5.481 9.147a.984.984 0 0 1 0-1.389l1.63-1.63a.984.984 0 0 1 1.388 0m15.717 15.717l1.656 1.656a.984.984 0 0 1 0 1.388l-1.63 1.63a.984.984 0 0 1-1.389 0l-1.795-1.795a10.15 10.15 0 0 0 3.158-2.879\"/><path fill=\"#635994\" d=\"M24 24c-4.418 4.418-11.582 4.418-16 0S3.582 12.418 8 8s11.582-4.418 16 0s4.418 11.582 0 16m-1.942-1.942A8.568 8.568 0 1 0 9.941 9.942a8.568 8.568 0 0 0 12.117 12.116\"/><path fill=\"#fcd53f\" d=\"M16 22.893c.764 0 1.583.335 2.285.117c.717-.234 1.17-.998 1.777-1.435c.608-.436 1.466-.64 1.91-1.24c.437-.592.36-1.481.593-2.198c.226-.694.811-1.357.811-2.137c0-.764-.585-1.442-.81-2.136c-.235-.718-.165-1.599-.593-2.2c-.437-.607-1.302-.802-1.91-1.239c-.593-.437-1.061-1.2-1.778-1.435c-.694-.226-1.505.117-2.285.117c-.764 0-1.583-.335-2.285-.117c-.717.234-1.17.998-1.777 1.435c-.609.437-1.466.64-1.91 1.24c-.437.592-.36 1.481-.593 2.199c-.226.694-.811 1.356-.811 2.136c0 .764.585 1.443.81 2.137c.235.717.164 1.598.593 2.198c.437.608 1.302.803 1.91 1.24c.593.437 1.061 1.2 1.778 1.435c.71.226 1.52-.117 2.285-.117\"/><path fill=\"#44911b\" d=\"M15.26 12.28a.63.63 0 0 1-.421.782l-2.292.686a.628.628 0 1 1-.36-1.204l2.292-.686c.332-.1.682.09.782.422m4.106 2.172a.63.63 0 0 1 .52.72l-.382 2.363a.628.628 0 0 1-1.24-.2l.382-2.363a.63.63 0 0 1 .72-.52m-4.339 6.018a.628.628 0 0 0 .884-.893l-1.7-1.684a.628.628 0 0 0-.884.892z\"/><path fill=\"#f8312f\" d=\"M17.053 12.593a.661.661 0 1 0 .935-.936a.661.661 0 0 0-.935.936m1.27 8.039a.662.662 0 1 0 .936-.936a.662.662 0 0 0-.936.936m-6.963-2.831a.662.662 0 1 1-.935-.935a.662.662 0 0 1 .936.935\"/></g>"],
+  "repas-sn":["0 0 32 32","<g fill=\"none\"><path fill=\"#00d26a\" d=\"M10.25 2H4.22a5.92 5.92 0 0 0 5.92 5.92h6.03C16.18 4.66 13.52 2 10.25 2\"/><path fill=\"#f8312f\" d=\"M18.09 7.38c-1.34.57-2.86.57-4.2 0c-4.2-1.77-9.04.26-10.72 4.51a16.72 16.72 0 0 0 0 12.29a9.227 9.227 0 0 0 11.06 5.49c1.15-.32 2.37-.32 3.52 0a9.203 9.203 0 0 0 11.06-5.49c1.56-3.95 1.56-8.34 0-12.29c-1.67-4.25-6.51-6.28-10.72-4.51\"/></g>"]
+};
+/* balise <svg> d'une icône ; taille facultative en px (attribut : le CSS d'un composant reste prioritaire) */
+function icon(n,c,s){const i=ICONS[n];if(!i)return '';return '<svg class="ico'+(c?' '+c:'')+'" viewBox="'+i[0]+'"'+(s?' width="'+s+'" height="'+s+'"':'')+' aria-hidden="true">'+i[1]+'</svg>'}
 /* ===== ANIMATIONS DOUCES : outil maison (remplace AutoAnimate, non retenu) =====
    L'appli redessine l'écran entier à chaque action (render). Cet outil s'intercale autour :
    juste avant, il note la place des lignes marquées ; juste après, il fait glisser celles qui ont
@@ -826,6 +884,26 @@ function animPlay(s){
     try{animPlay(s)}catch(e){}
   };
 }
+
+/* chiffres qui défilent : countUp.js (vendor/countUp.umd.js, MIT). Les chiffres marqués par nfc() (js1.js)
+   défilent jusqu'à leur valeur, avec le même format que nf. Seulement si la valeur a changé depuis le dernier
+   affichage, ou au premier affichage du jour (mémoire du téléphone, pas localStorage) ; jamais pendant une
+   séance Muscu ni si le téléphone demande moins d'animations. Sans countUp, le chiffre reste affiché tel quel. */
+const cuSeen=new Map();
+function cuPlay(){
+  const off=animOff()||S.active||!window.countUp,day=today();
+  document.querySelectorAll('[data-cu]').forEach(el=>{
+    const k=el.dataset.cu,v=+el.value,d=+el.dataset.d||0,o=cuSeen.get(k),same=o&&o.day===day;
+    cuSeen.set(k,{v,day});
+    if(off||!isFinite(v)||(same&&o.v===v))return;
+    try{new countUp.CountUp(el,v,{startVal:same?o.v:0,decimalPlaces:d,duration:1,formattingFn:n=>nf(n,d)}).start()}catch(e){el.textContent=nf(v,d)}
+  });
+}
+{
+  const draw=renderBehind,sheet=openSheet;
+  renderBehind=function(){draw();try{cuPlay()}catch(e){}};
+  openSheet=function(){const r=sheet.apply(this,arguments);try{cuPlay()}catch(e){}return r};
+}
 /* ===== WEIGHT ===== */
 let wRange=30,wDate=null,wVal=null,wAll=false;
 const sortedW=()=>Object.keys(S.weights).sort().map(d=>({d,x:dn(d),y:S.weights[d]}));
@@ -882,8 +960,8 @@ function ringCard(arr){
   return `<div class="card"><div class="row sb" style="margin-bottom:2px"><h2 style="margin:0">Objectif ${nf(g)} kg</h2><span class="pill neutral">${reached} / ${N} paliers</span></div>
   <div class="ringbig"><svg viewBox="0 0 280 280" role="img" aria-label="Progression vers ${nf(g)} kg : ${pct} pour cent, ${reached} paliers sur ${N}">${tracks}${fills}${ticks}${marker}${labels}</svg>
     <div class="c"><b class="num">${nf(cur)}</b><span class="muted small">kg</span><span class="pill ${done?'good':'neutral'}" style="margin-top:6px">${done?'Objectif atteint':pct+' %'}</span></div></div>
-  <div style="text-align:center;margin:0 0 4px;font-weight:600">${done?'Bravo, tu es à ton objectif.':next==null?'':'Prochain palier : <b class="num">'+nf(next,2)+' kg</b> <span class="muted">· encore '+nf(left,1)+' kg</span>'}</div>
-  <div class="small muted" style="text-align:center;margin-bottom:12px">Départ ${nf(start,1)} kg · ${nf(Math.abs(start-cur),1)} kg parcourus sur ${nf(total,1)}</div>
+  <div style="text-align:center;margin:0 0 4px;font-weight:600">${done?'Bravo, tu es à ton objectif.':next==null?'':'Prochain palier : <b class="num">'+nf(next,2)+' kg</b> <span class="muted">· encore '+nfc('w-left',left,1)+' kg</span>'}</div>
+  <div class="small muted" style="text-align:center;margin-bottom:12px">Départ ${nf(start,1)} kg · ${nfc('w-done',Math.abs(start-cur),1)} kg parcourus sur ${nf(total,1)}</div>
   <div class="pals">${chips}</div></div>`;
 }
 
@@ -901,6 +979,34 @@ function hudHtml(){
   if(reached>=N)return box(lv,name,'MAX',100,'objectif atteint, bravo');
   const lo=bounds[reached],hi=bounds[reached+1],pct=Math.round(clamp(Math.abs(cur-lo)/Math.abs(hi-lo),0,1)*100),left=Math.abs(cur-hi);
   return box(lv,name,pct+' %','' +pct,'encore <b class="num">'+nf(left,1)+' kg</b> avant '+nf(hi,2)+' kg');
+}
+/* paliers franchis vers l'objectif (le niveau du bandeau moins 1) et l'objectif qui les définit ; null sans objectif ni pesée */
+function palReached(){
+  const g=S.settings.goalW,step=S.settings.step||2.5,arr=sortedW();
+  if(!g||!arr.length)return null;
+  const start=S.settings.startW||arr[0].y,cur=arr[arr.length-1].y,dir=start>g?-1:1;
+  if(Math.abs(start-g)<0.05)return null;
+  let n=0;milestones(start,g,step).forEach(v=>{if(dir<0?cur<=v+0.05:cur>=v-0.05)n++});
+  return {k:start+'|'+g+'|'+step,n};
+}
+/* confettis une seule fois par palier (= niveau gagné), onglet Poids seulement. S.settings.fete = {k: objectif, n: paliers fêtés}.
+   Première fois, objectif changé, import ou synchro sans ce champ : on note sans fêter. Pesée corrigée : n ne redescend pas. */
+function feteCheck(){
+  const p=palReached(),f=S.settings.fete;if(!p)return;
+  const same=f&&f.k===p.k;
+  if(same&&p.n<=f.n)return;
+  S.settings.fete={k:p.k,n:p.n};persist('settings');
+  if(same&&!S.active)fete();
+}
+/* canvas-confetti (vendor/confetti.browser.js, ISC) : une salve d'environ 2 s aux couleurs de l'ambiance, avec des étoiles */
+function fete(){
+  if(!window.confetti||(typeof animOff==='function'&&animOff()))return;
+  try{
+    const cs=getComputedStyle(document.documentElement),c=['--c-weight','--c-gym','--c-scan','--warn'].map(v=>cs.getPropertyValue(v).trim());
+    const star=confetti.shapeFromPath({path:'M12 0l3.1 8.4H24l-7.2 5.3 2.8 8.6L12 17l-7.6 5.3 2.8-8.6L0 8.4h8.9z'});
+    confetti({particleCount:90,spread:75,startVelocity:38,ticks:120,origin:{y:.6},colors:c,disableForReducedMotion:true});
+    confetti({particleCount:28,spread:110,scalar:1.4,ticks:120,shapes:[star],origin:{y:.55},colors:[c[3],c[0]],disableForReducedMotion:true});
+  }catch(e){}
 }
 /* ===== POIDS : statistiques détaillées, historique par semaine, dépense estimée (2026.10.14-3) ===== */
 /* sens de l'objectif : -1 pour perdre, +1 pour prendre, 0 sans objectif */
@@ -1016,6 +1122,7 @@ VIEWS.weight=()=>{
   :'<div class="card empty">Entre ton premier poids ci-dessus.<br>Le graphique et la tendance apparaîtront dès la 2e pesée.</div>'}`;
 };
 VIEWS.weight_after=()=>{
+  feteCheck();
   const el=$('#wchart');if(!el)return;
   const arr=sortedW();if(!arr.length)return;
   const lastX=arr[arr.length-1].x,avg=movAvg(arr);
@@ -1141,14 +1248,8 @@ const SLOTS=[['bk','Petit-déjeuner'],['lu','Déjeuner'],['di','Dîner'],['sn','
 /* repas de l'heure, la même règle partout : avant 10 h petit-déjeuner, 10 h–15 h déjeuner, 15 h–18 h collation,
    ensuite dîner ; snack=false pour un écran qui ne propose pas la collation (dîner à la place) */
 const slotNow=(snack=true)=>{const h=new Date().getHours();return h<10?'bk':h<15?'lu':h<18&&snack?'sn':'di'};
-/* Icônes des repas : une seule table à remplacer plus tard (SVG 24x24, trait currentColor). */
-const SLOT_ICONS={
-  bk:'<path d="M5 9h11v5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V9z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3v3M12 3v3"/>',
-  lu:'<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
-  di:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
-  sn:'<circle cx="12" cy="12" r="8"/><circle cx="9" cy="10" r=".9" fill="currentColor"/><circle cx="14.5" cy="9" r=".9" fill="currentColor"/><circle cx="13" cy="14.5" r=".9" fill="currentColor"/>'
-};
-const slotIcon=k=>'<span class="sloticon" aria-hidden="true"><svg viewBox="0 0 24 24">'+(SLOT_ICONS[k]||'')+'</svg></span>';
+/* Icônes des repas : emojis Fluent en couleur (tools/gen_icones.py, repas-bk, -lu, -di, -sn). */
+const slotIcon=k=>'<span class="sloticon" aria-hidden="true">'+icon('repas-'+k)+'</span>';
 const FAVVOC={};
 let fDate=today(),addTab=null,aiItems=[],aiBusy=false,hasAI=false,sampleFn=null,pickMap={},favQuery='';
 const r1=v=>Math.round(num(v)*10)/10;
@@ -1175,7 +1276,7 @@ function dateBar(){
 let foodSub='journal';
 const FOOD_SUBS=[['journal','Journal'],['recipes','Recettes'],['done','Déjà faites'],['week','Semaine'],['bilan','Bilan']];
 const foodSeg=()=>'<div class="seg seg5" role="tablist">'+FOOD_SUBS.map(([k,n])=>`<button role="tab" data-act="food-sub" data-s="${k}" aria-selected="${foodSub===k}">${n}</button>`).join('')+'</div>';
-A['food-sub']=b=>{foodSub=b.dataset.s;render();window.scrollTo(0,0)};
+A['food-sub']=b=>{foodSub=b.dataset.s;slide(b,()=>{render();window.scrollTo(0,0)})};
 VIEWS.food=()=>{
   if(foodSub==='week')return foodSeg()+weekView();
   if(foodSub==='bilan')return foodSeg()+bilanView();
@@ -1194,7 +1295,7 @@ VIEWS.food=()=>{
   ${dateBar()}
   <div class="card"><div class="row" style="gap:18px">
     <div class="ring"><svg viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="var(--surface2)" stroke-width="12"/><circle cx="66" cy="66" r="56" fill="none" stroke="${over?'var(--bad)':'var(--accent)'}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${(C*prog).toFixed(1)} ${C.toFixed(1)}"/></svg>
-      <div class="c"><b>${nf(t.kcal,0)}</b><span class="small muted">sur ${nf(g.kcal,0)} kcal</span></div></div>
+      <div class="c"><b>${nfc('food-kcal',t.kcal,0)}</b><span class="small muted">sur ${nf(g.kcal,0)} kcal</span></div></div>
     <div style="flex:1;min-width:0">${mac('Protéines',t.p,g.p)}${mac('Glucides',t.c,g.c)}${mac('Lipides',t.f,g.f)}
       <div class="small" style="margin-top:2px"><b class="num" style="color:${over?'var(--bad)':'var(--ink)'}">${nf(Math.abs(rem),0)} kcal</b> <span class="muted">${over?'au-dessus de l’objectif':'restantes'}</span></div>${(st=>st.n>=2?`<div class="small" id="fstreak" style="margin-top:4px;font-weight:700">🔥 ${st.n} jours notés de suite</div>`:'')(mealStreak())}</div>
   </div>${g.auto?`<div class="small muted" style="margin-top:12px">Objectifs calculés pour ${nf(g.w)} kg : ${nf(S.settings.pkg||2)} g de protéines et ${nf(S.settings.fkg||1)} g de lipides par kilo, glucides pour compléter les calories.${g.low?' Les calories sont trop basses pour ces réglages.':''}</div>`:''}</div>${slots}<button class="btn ghost block" style="margin-bottom:14px" data-act="f-copy" data-slot="">Copier une journée entière</button>`;
@@ -1216,7 +1317,7 @@ function mineList(slot){
   const q=favQuery.trim(),rl=recents();
   const keys=S.foods.concat(rl).map(e=>normTxt(e.name)),t=q?fzAlts(q,fzCache(FAVVOC,keys.join('\n'),()=>keys)):[];
   const match=e=>!q||fzScore(normTxt(e.name),t)!==null;
-  const mk=(e,fav)=>{const id=uid();pickMap[id]=e;return `<div class="row" style="border-top:1px solid var(--line)"><button class="li" style="border:0" data-act="f-pick" data-id="${id}" data-slot="${slot}"><div class="grow"><div class="t">${esc(e.name)}</div><div class="small muted">P ${nf(e.p,0)} · G ${nf(e.c,0)} · L ${nf(e.f,0)}</div></div><b class="num">${nf(e.kcal,0)}</b></button>${fav?`<button class="iconbtn" style="box-shadow:none;background:none" data-act="fav-del" data-fid="${e.id}" data-slot="${slot}" aria-label="Retirer des favoris"><span style="font-size:22px;color:var(--muted)">×</span></button>`:''}</div>`};
+  const mk=(e,fav)=>{const id=uid();pickMap[id]=e;return `<div class="row" style="border-top:1px solid var(--line)"><button class="li" style="border:0" data-act="f-pick" data-id="${id}" data-slot="${slot}"><div class="grow"><div class="t">${esc(e.name)}</div><div class="small muted">P ${nf(e.p,0)} · G ${nf(e.c,0)} · L ${nf(e.f,0)}</div></div><b class="num">${nf(e.kcal,0)}</b></button>${fav?`<button class="iconbtn" style="box-shadow:none;background:none" data-act="fav-del" data-fid="${e.id}" data-slot="${slot}" aria-label="Retirer des favoris"><span style="font-size:22px;color:var(--muted)">${icon('fermer','gl')}</span></button>`:''}</div>`};
   const fav=S.foods.filter(match),rec=rl.filter(match);
   return combosHtml(slot,q)+(q?'':oftenHtml(slot))+(fav.length?'<div class="sec">Favoris</div>'+fav.map(e=>mk(e,true)).join(''):'')+(rec.length?'<div class="sec" style="margin-top:14px">Récents</div>'+rec.map(e=>mk(e,false)).join(''):'')+
     (!fav.length&&!rec.length&&!CB().length?'<div class="empty">Rien pour l’instant. Ce que tu ajoutes apparaît ici pour le retrouver en un geste.</div>':'');
@@ -1333,9 +1434,9 @@ function actCard(){
       <input type="date" data-ch="actdate" value="${d}" max="${today()}" aria-label="Jour affiché" style="position:absolute;inset:0;opacity:0;width:100%;height:100%">
     </label></div>
   <button class="actgrid" data-act="act-edit" aria-label="Modifier les pas et la dépense du jour">
-    <div class="stat"><span>Pas</span><b>${a.s?nf(a.s,0):'—'}</b><span>sur ${nf(goalS,0)}</span></div>
-    <div class="stat"><span>Dépensées</span><b>${hasK?nf(a.k,0):'—'}</b><span>kcal</span></div>
-    <div class="stat"><span>Mangées</span><b>${hasE?nf(eaten,0):'—'}</b><span>kcal</span></div>
+    <div class="stat"><span>Pas</span><b>${a.s?nfc('act-s',a.s,0):'—'}</b><span>sur ${nf(goalS,0)}</span></div>
+    <div class="stat"><span>Dépensées</span><b>${hasK?nfc('act-k',a.k,0):'—'}</b><span>kcal</span></div>
+    <div class="stat"><span>Mangées</span><b>${hasE?nfc('act-e',eaten,0):'—'}</b><span>kcal</span></div>
   </button>
   <div class="bar" style="margin:12px 0 4px"><i style="width:${sPct}%"></i></div>
   <div class="small muted" style="margin-bottom:14px">${a.s?nf(sPct,0)+' % de ton objectif de pas':'Saisis tes pas depuis Step Counter Pedometer.'}</div>
@@ -1487,7 +1588,7 @@ function rcSheet(){
   const r=recipeById(rcOpenId);if(!r)return;
   const note=RC().notes[r.id]||'';
   openSheet(`<div class="rc"><h3>${esc(r.n)}</h3>
-  <div class="row" style="flex-wrap:wrap;gap:6px;margin:-6px 0 14px"><span class="pill neutral">⏱ ${r.t} min</span>${r.veg?'<span class="pill good">Végétarien</span>':''}${r.prep?'<span class="pill neutral">À préparer à l’avance</span>':''}${r.mine?'<span class="pill neutral">Ma recette</span>':''}</div>
+  <div class="row" style="flex-wrap:wrap;gap:6px;margin:-6px 0 14px"><span class="pill neutral">${icon('minuteur','gl')} ${r.t} min</span>${r.veg?'<span class="pill good">Végétarien</span>':''}${r.prep?'<span class="pill neutral">À préparer à l’avance</span>':''}${r.mine?'<span class="pill neutral">Ma recette</span>':''}</div>
   <div class="sec">Portions</div>
   <div class="seg" id="rcseg" role="tablist" aria-label="Nombre de portions">${[[.5,'½'],[1,'1'],[1.5,'1,5'],[2,'2']].map(([k,n])=>`<button role="tab" data-act="rc-k" data-k="${k}" aria-selected="${rcK===k}">${n}</button>`).join('')}</div>
   <div class="stats" id="rcstats" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px"></div>
@@ -1830,7 +1931,7 @@ A['cb-save-ok']=b=>{
 function combosHtml(slot,q){
   const t=q?fzWords(q):[],list=CB().filter(c=>!t.length||t.every(w=>normTxt(c.name+' '+c.items.map(i=>i.name).join(' ')).includes(w)));
   if(!list.length)return '';
-  return '<div class="sec">Mes repas types</div><div class="list" style="margin-bottom:14px">'+list.map(c=>`<div class="row" style="border-top:1px solid var(--line)"><button class="li" style="border:0" data-act="cb-add" data-id="${c.id}" data-slot="${slot}"><div class="grow"><div class="t">${esc(c.name)}</div><div class="small muted">${c.items.length} aliment${c.items.length>1?'s':''} · ${esc(c.items.slice(0,3).map(i=>i.name).join(', ')+(c.items.length>3?'…':''))}</div></div><b class="num">${nf(kcalOf(c.items),0)}</b></button><button class="iconbtn" style="box-shadow:none;width:44px;height:44px" data-act="cb-del" data-id="${c.id}" data-slot="${slot}" aria-label="Supprimer le repas type ${esc(c.name)}">×</button></div>`).join('')+'</div>';
+  return '<div class="sec">Mes repas types</div><div class="list" style="margin-bottom:14px">'+list.map(c=>`<div class="row" style="border-top:1px solid var(--line)"><button class="li" style="border:0" data-act="cb-add" data-id="${c.id}" data-slot="${slot}"><div class="grow"><div class="t">${esc(c.name)}</div><div class="small muted">${c.items.length} aliment${c.items.length>1?'s':''} · ${esc(c.items.slice(0,3).map(i=>i.name).join(', ')+(c.items.length>3?'…':''))}</div></div><b class="num">${nf(kcalOf(c.items),0)}</b></button><button class="iconbtn" style="box-shadow:none;width:44px;height:44px" data-act="cb-del" data-id="${c.id}" data-slot="${slot}" aria-label="Supprimer le repas type ${esc(c.name)}">${icon('fermer','gl')}</button></div>`).join('')+'</div>';
 }
 A['cb-add']=b=>{
   const c=CB().find(x=>x.id===b.dataset.id);if(!c)return;
@@ -1995,7 +2096,7 @@ function weekView(){
   const P=PL(),old=Object.keys(P.days).filter(d=>d<addDays(today(),-14));if(old.length){old.forEach(d=>delete P.days[d]);persist('plan')}
   const day=d=>{
     const pd=planDay(d),rows=SLOTS.map(([s])=>{
-      const items=(pd[s]||[]).map((it,i)=>{const r=recipeById(it.r);if(!r)return '';return `<div class="plitem${it.ok?' ok':''}"><button class="plck" data-act="pl-log" data-d="${d}" data-s="${s}" data-i="${i}" aria-pressed="${!!it.ok}" aria-label="${it.ok?'Déjà notée au journal':'Noter au journal'}">✓</button><button class="grow plname" data-act="rc-open" data-id="${esc(r.id)}">${esc(r.n)} <span class="muted">· ${nf(r.k,0)} kcal</span></button><button class="plx" data-act="pl-del" data-d="${d}" data-s="${s}" data-i="${i}" aria-label="Retirer ${esc(r.n)}">×</button></div>`}).join('');
+      const items=(pd[s]||[]).map((it,i)=>{const r=recipeById(it.r);if(!r)return '';return `<div class="plitem${it.ok?' ok':''}"><button class="plck" data-act="pl-log" data-d="${d}" data-s="${s}" data-i="${i}" aria-pressed="${!!it.ok}" aria-label="${it.ok?'Déjà notée au journal':'Noter au journal'}">✓</button><button class="grow plname" data-act="rc-open" data-id="${esc(r.id)}">${esc(r.n)} <span class="muted">· ${nf(r.k,0)} kcal</span></button><button class="plx" data-act="pl-del" data-d="${d}" data-s="${s}" data-i="${i}" aria-label="Retirer ${esc(r.n)}">${icon('fermer','gl')}</button></div>`}).join('');
       return items?`<div class="plslot"><div class="small muted">${SLOT_SHORT[s]}</div>${items}</div>`:'';
     }).join(''),k=SLOTS.reduce((t,[s])=>t+(pd[s]||[]).reduce((u,it)=>{const r=recipeById(it.r);return u+(r?r.k:0)},0),0);
     return `<div class="card plday"><div class="row sb"><h4 style="margin:0">${d===today()?'Aujourd’hui':esc(fmtDay(d))}</h4>${k?`<span class="small muted num">${nf(k,0)} kcal prévues</span>`:''}</div>${rows}<button class="addslot" data-act="pl-add" data-d="${d}">${ICON.plus} Ajouter une recette</button></div>`;
@@ -2052,7 +2153,7 @@ function shopQty(o){
 function shopCard(){
   const P=PL(),items=shopItems(),done=P.shop.done,secs=[...new Set(items.map(o=>o.sec))].sort((a,b)=>secOrder(a)-secOrder(b));
   const row=o=>{const on=!!done[o.k],name=o.free?o.n:(o.u?ingLabel(o.n):ingLabel(rcPl(o.n,o.q)));
-    return `<div class="shrow${on?' on':''}"><button class="shck" data-act="sh-tog" data-k="${esc(o.k)}" aria-pressed="${on}"><span class="box" aria-hidden="true">✓</span><span class="grow">${esc(name)}</span><b class="num">${esc(shopQty(o))}</b></button>${!o.src.size?`<button class="plx" data-act="sh-del" data-k="${esc(o.k)}" aria-label="Retirer ${esc(name)}">×</button>`:''}</div>`};
+    return `<div class="shrow${on?' on':''}"><button class="shck" data-act="sh-tog" data-k="${esc(o.k)}" aria-pressed="${on}"><span class="box" aria-hidden="true">✓</span><span class="grow">${esc(name)}</span><b class="num">${esc(shopQty(o))}</b></button>${!o.src.size?`<button class="plx" data-act="sh-del" data-k="${esc(o.k)}" aria-label="Retirer ${esc(name)}">${icon('fermer','gl')}</button>`:''}</div>`};
   const nOn=items.filter(o=>done[o.k]).length;
   return `<div class="card" id="shop"><div class="row sb"><h2 style="margin:0">Liste de courses</h2>${items.length?`<span class="small muted">${nOn} / ${items.length}</span>`:''}</div>
   ${items.length?secs.map(s=>`<div class="sec" style="margin-top:14px">${esc(secName(s))}</div>${items.filter(o=>o.sec===s).sort((a,b)=>a.n.localeCompare(b.n,'fr')).map(row).join('')}`).join(''):'<div class="small muted" style="margin-top:8px">Vide pour l’instant : pose des recettes dans la semaine, ou ajoute un article.</div>'}
@@ -2270,12 +2371,12 @@ function gymHome(){
   const seg=`<div class="seg" role="tablist"><button role="tab" data-act="g-tab" data-t="sessions" aria-selected="${gymTab==='sessions'}">Séances</button><button role="tab" data-act="g-tab" data-t="progress" aria-selected="${gymTab==='progress'}">Progression</button></div>`;
   return seg+(gymTab==='sessions'?sessionsHome():progressView());
 }
-A['g-tab']=b=>{gymTab=b.dataset.t;render()};
+A['g-tab']=b=>{gymTab=b.dataset.t;slide(b,render)};
 function sessionsHome(){
   const wk=S.sessions.filter(s=>dn(s.date)>dn(today())-7);
   const active=S.active?`<div class="card" style="background:var(--accent);color:var(--on-accent)"><div class="row sb"><div><div class="small" style="opacity:.85;font-weight:700">SÉANCE EN COURS</div><div class="num" style="font-size:22px;font-weight:800">${esc(S.active.name)}</div></div><button class="btn" style="background:var(--on-accent);color:var(--accent)" data-act="g-resume">Reprendre</button></div></div>`:'';
   const routines=`<div class="card"><div class="row sb" style="margin-bottom:${S.routines.length?'10px':'2px'}"><h2 style="margin:0">Mes routines</h2><button class="chip" data-act="g-rnew">${ICON.plus} Créer</button></div>
-  ${S.routines.length?'<div class="list">'+S.routines.map(r=>`<div class="row"><button class="li" data-act="g-rstart" data-id="${r.id}"><div class="grow"><div class="t">${esc(r.name)}</div><div class="small muted">${r.exercises.length} exercice${r.exercises.length>1?'s':''}${(n=>n?' · '+n+' série'+(n>1?'s':''):'')(r.exercises.reduce((t,e)=>t+(Array.isArray(e.sets)?e.sets.length:0),0))}${r.exercises.length?' · '+esc(r.exercises.slice(0,3).map(e=>e.name).join(', '))+(r.exercises.length>3?'…':''):''}</div></div><span class="pill neutral">Démarrer</span></button><button class="iconbtn" style="box-shadow:none;background:var(--surface2)" data-act="g-redit" data-id="${r.id}" aria-label="Modifier la routine ${esc(r.name)}"><span style="font-size:19px;line-height:1">⋯</span></button></div>`).join('')+'</div>'
+  ${S.routines.length?'<div class="list">'+S.routines.map(r=>`<div class="row"><button class="li" data-act="g-rstart" data-id="${r.id}"><div class="grow"><div class="t">${esc(r.name)}</div><div class="small muted">${r.exercises.length} exercice${r.exercises.length>1?'s':''}${(n=>n?' · '+n+' série'+(n>1?'s':''):'')(r.exercises.reduce((t,e)=>t+(Array.isArray(e.sets)?e.sets.length:0),0))}${r.exercises.length?' · '+esc(r.exercises.slice(0,3).map(e=>e.name).join(', '))+(r.exercises.length>3?'…':''):''}</div></div><span class="pill neutral">Démarrer</span></button><button class="iconbtn" style="box-shadow:none;background:var(--surface2)" data-act="g-redit" data-id="${r.id}" aria-label="Modifier la routine ${esc(r.name)}"><span style="font-size:19px;line-height:1">${icon('menu','gl')}</span></button></div>`).join('')+'</div>'
   :'<div class="small muted" style="margin:0 0 2px">Prépare tes séances à l’avance : les exercices, le nombre de séries, et si tu veux les charges prévues.</div>'}</div>`;
 
   const hist=S.sessions.slice(0,30).map(s=>{
@@ -2306,7 +2407,7 @@ function sessionView(){
       <input inputmode="numeric" data-in="set" data-e="${ei}" data-s="${si}" data-f="reps" value="${esc(s.reps)}" placeholder="${p?nf(num(p.reps),0):'reps'}" aria-label="Répétitions série ${si+1}">
       <button class="ck" data-act="g-check" data-e="${ei}" data-s="${si}" aria-pressed="${s.done}" aria-label="Série ${si+1} faite">${ICON.check}</button></div>${ban}`;
     }).join('');
-    return `<div class="card ex"><div class="hd"><button class="thumbbtn" data-act="g-exinfo" data-name="${esc(e.name)}" aria-label="Voir l’exercice ${esc(e.name)}">${thumb(e.name,48)}</button><b style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(e.name)}</b><button class="iconbtn" style="width:40px;height:40px;box-shadow:none;background:var(--surface2)" data-act="g-exmenu" data-e="${ei}" aria-label="Options de l’exercice"><span style="font-size:20px;line-height:1">⋯</span></button></div>${gripRow(e.name,'g-grip',ei)}
+    return `<div class="card ex"><div class="hd"><button class="thumbbtn" data-act="g-exinfo" data-name="${esc(e.name)}" aria-label="Voir l’exercice ${esc(e.name)}">${thumb(e.name,48)}</button><b style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(e.name)}</b><button class="iconbtn" style="width:40px;height:40px;box-shadow:none;background:var(--surface2)" data-act="g-exmenu" data-e="${ei}" aria-label="Options de l’exercice"><span style="font-size:20px;line-height:1">${icon('menu','gl')}</span></button></div>${gripRow(e.name,'g-grip',ei)}
     ${sg?(t=>`<button class="sug" data-act="g-sug" data-e="${ei}" data-kg="${sg.kg}" title="${t}" aria-label="${t}">💡 <b>Suggestion</b> · ${sg.up?`${fmtKg(sg.kg)} kg (+${fmtKg(sg.st)}), repars à ${sg.lo} reps`:`reste à ${fmtKg(sg.kg)} kg, vise ${sg.hi} reps`}</button>`)(sugTxt(sg,'Aujourd’hui')+' Touche pour pré-remplir la charge.'):''}
     <div class="sets"><div class="h">#</div><div class="h">Avant</div><div class="h">kg</div><div class="h">Reps</div><div class="h">OK</div>${rows}</div>
     ${live?`<div class="sug" title="${sugTxt(live,'Prochaine fois')}"><span aria-hidden="true">💡 <b>Suggestion</b> · ${live.up?`prochaine fois ${fmtKg(live.kg)} kg, ${live.lo} reps`:`reste à ${fmtKg(live.kg)} kg, vise ${live.hi} reps`}</span><span class="sr">${sugTxt(live,'Prochaine fois')}</span></div>`:''}
@@ -2442,7 +2543,7 @@ function finishSession(){
   S.sessions.unshift(ses);S.sessions.sort((x,y)=>y.date.localeCompare(x.date));
   S.active=null;restEnd=0;gymOpen=false;prBan=null;persist('sessions',date);persist('active');
   const recs=prs.map(r=>r.txt);
-  openSheet(`<h3>Séance enregistrée</h3><div class="stats" style="margin-bottom:14px"><div class="stat"><span>Durée</span><b>${ses.dur}</b><span>min</span></div><div class="stat"><span>Séries</span><b>${exs.reduce((t,e)=>t+e.sets.length,0)}</b><span>validées</span></div><div class="stat"><span>Volume</span><b>${nf(sessVol(ses),0)}</b><span>kg</span></div></div>
+  openSheet(`<h3>Séance enregistrée</h3><div class="stats" style="margin-bottom:14px"><div class="stat"><span>Durée</span><b>${ses.dur}</b><span>min</span></div><div class="stat"><span>Séries</span><b>${exs.reduce((t,e)=>t+e.sets.length,0)}</b><span>validées</span></div><div class="stat"><span>Volume</span><b>${nfc('ses-vol',sessVol(ses),0)}</b><span>kg</span></div></div>
   ${recs.length?'<div class="card" style="box-shadow:none"><h2>Records battus</h2>'+recs.map(r=>'<div style="padding:4px 0;font-weight:600">🏆 '+esc(r)+'</div>').join('')+'</div>':''}
   <div class="grid2"><button class="btn soft" data-act="g-saver" data-id="${ses.id}">Garder comme routine</button><button class="btn" data-act="close">Fermer</button></div>`);
   render();
@@ -2547,8 +2648,8 @@ function syncRestBar(){
         <button class="rclock" data-act="g-rest-dur" aria-label="Changer la durée du repos"><span class="small" style="opacity:.75;font-weight:700">REPOS</span><b id="rclk">0:00</b></button>
         <button class="rmain" data-act="g-rest-more" aria-label="Ajouter 15 secondes">+15</button>
         <button class="rmain" data-act="g-rest-skip">Passer</button>`
-      :`<button class="rgo" data-act="g-rest-go">⏱ Démarrer le repos</button>
-        <button class="rdur" data-act="g-rest-dur" aria-label="Changer la durée du repos"><span id="rdef">${mmss(S.settings.rest)}</span> ▾</button>`;
+      :`<button class="rgo" data-act="g-rest-go">${icon('minuteur','gl')} Démarrer le repos</button>
+        <button class="rdur" data-act="g-rest-dur" aria-label="Changer la durée du repos"><span id="rdef">${mmss(S.settings.rest)}</span> ${icon('ouvrir','gl')}</button>`;
     document.body.appendChild(el);restBarState=want;
   }
   if(want==='on'){
@@ -2686,12 +2787,12 @@ function routineView(){
   const rows=r.exercises.map((e,i)=>`<div class="card ex" data-ak="${esc(e.name)}#${occ[e.name]=(occ[e.name]||0)+1}" style="padding:14px;margin-bottom:10px">
     <div class="hd"><button class="thumbbtn" data-act="g-exinfo" data-name="${esc(e.name)}" aria-label="Voir ${esc(e.name)}">${thumb(e.name,46)}</button>
       <div style="flex:1;min-width:0"><b style="overflow-wrap:anywhere">${esc(e.name)}</b><div class="small muted" id="rsum${i}">${esc(rSum(e))}</div></div>
-      <button class="iconbtn" style="width:40px;height:40px;box-shadow:none;background:var(--surface2)" data-act="g-rexmenu" data-i="${i}" aria-label="Options"><span style="font-size:20px;line-height:1">⋯</span></button></div>${gripRow(e.name,'g-rgrip',i)}
+      <button class="iconbtn" style="width:40px;height:40px;box-shadow:none;background:var(--surface2)" data-act="g-rexmenu" data-i="${i}" aria-label="Options"><span style="font-size:20px;line-height:1">${icon('menu','gl')}</span></button></div>${gripRow(e.name,'g-rgrip',i)}
     <div class="rsets"><div class="h">Série</div><div class="h">Poids (kg)</div><div class="h">Répétitions</div><div></div>
       ${e.sets.map((s,si)=>`<button class="n${STYPES[s.t]?' t'+s.t:''}" data-act="g-stype" data-c="r" data-e="${i}" data-s="${si}" aria-label="Série ${si+1}, ${STYPES[s.t]?STYPES[s.t][1].toLowerCase():'normale'} : changer le type">${STYPES[s.t]?(s.t==='d'?'Drop set':s.t==='w'?'Échauff.':'Échec'):'Série '+setLab(e.sets,si)}</button>
       <input class="rin" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" data-in="rset" data-f="kg" data-i="${i}" data-s="${si}" value="${esc(s.kg)}" placeholder="kg" aria-label="Série ${si+1} : poids en kg">
       <input class="rin" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" enterkeyhint="next" data-in="rset" data-f="reps" data-i="${i}" data-s="${si}" value="${esc(s.reps)}" placeholder="reps" aria-label="Série ${si+1} : répétitions">
-      <button class="rstep" data-act="g-rdelset" data-i="${i}" data-s="${si}" aria-label="Supprimer la série ${si+1}" ${e.sets.length<=1?'disabled':''}>×</button>`).join('')}
+      <button class="rstep" data-act="g-rdelset" data-i="${i}" data-s="${si}" aria-label="Supprimer la série ${si+1}" ${e.sets.length<=1?'disabled':''}>${icon('fermer','gl')}</button>`).join('')}
     </div>
     ${e.sets.length<RSETS_MAX?`<button class="chip" style="margin-top:10px;min-height:44px" data-act="g-raddset" data-i="${i}">${ICON.plus} Ajouter une série</button>`:''}
     </div>`).join('');
@@ -2782,7 +2883,7 @@ const libPrompt=()=>`\nAjoute aussi la clé "category" : un identifiant choisi U
 let scanSub='scan',libQ='',libOpen=new Set();
 const SCAN_SUBS=[['scan','Scanner'],['lib','Bibliothèque']];
 const scanSeg=()=>'<div class="seg" role="tablist">'+SCAN_SUBS.map(([k,n])=>`<button role="tab" data-act="scan-sub" data-s="${k}" aria-selected="${scanSub===k}">${n}${k==='lib'&&S.scans.length?` <span class="small" style="opacity:.7">${libDistinct()}</span>`:''}</button>`).join('')+'</div>';
-A['scan-sub']=b=>{scanSub=b.dataset.s;render();window.scrollTo(0,0)};
+A['scan-sub']=b=>{scanSub=b.dataset.s;slide(b,()=>{render();window.scrollTo(0,0)})};
 A['lib-go']=()=>{scanSub='lib';render();window.scrollTo(0,0)};
 
 /* Un meme produit scanne sous plusieurs marques ne compte qu'une fois : meme rangement, memes
@@ -3218,7 +3319,7 @@ VIEWS.scan=()=>{
   ${canVision?`<p class="muted small" style="margin:0 0 12px">Photographie le tableau nutritionnel et la liste d’ingrédients (jusqu’à ${maxImgs} photos). La note est calculée à partir du Nutri-Score et des additifs.</p>
   <div class="grid2"><label class="btn" style="cursor:pointer">${ICON.cam} Photo<input type="file" accept="image/*" capture="environment" data-ch="s-files" class="hidden"></label>
   <label class="btn ghost" style="cursor:pointer">Galerie<input type="file" accept="image/*" multiple data-ch="s-files" class="hidden"></label></div>${thumbs}
-  ${scanUrls.length?`<div class="row" style="margin-top:6px"><button class="btn block" id="sgo" data-act="s-go" ${scanBusy?'disabled':''}>${scanBusy?'<span class="spin"></span> Analyse…':'Analyser'}</button><button class="btn ghost" data-act="s-clear" aria-label="Effacer les photos">×</button></div>`:''}`
+  ${scanUrls.length?`<div class="row" style="margin-top:6px"><button class="btn block" id="sgo" data-act="s-go" ${scanBusy?'disabled':''}>${scanBusy?'<span class="spin"></span> Analyse…':'Analyser'}</button><button class="btn ghost" data-act="s-clear" aria-label="Effacer les photos">${icon('fermer','gl')}</button></div>`:''}`
   :(typeof ocrBtns==='function'&&ocrBtns('scan',''))||`<p class="muted small" style="margin:0 0 12px">L’analyse par photo n’est pas disponible ici. Tu peux saisir les valeurs de l’étiquette à la main.</p>`}
   ${scanErr?`<div class="pill bad" style="margin-top:10px;white-space:normal">${esc(scanErr)}</div>`:''}
   <button class="btn soft block" style="margin-top:12px" data-act="s-manual">Saisir les valeurs à la main</button></div>
@@ -3387,6 +3488,9 @@ I.imp=t=>{
 };
 
 /* ===== boot ===== */
+/* icônes fixes de la page (js1c.js) : réglages, et pour chaque onglet la version au repos (duotone) et active (pleine) */
+$('[data-act="settings"]').innerHTML=icon('reglages');
+document.querySelectorAll('.tab').forEach(b=>{const n='onglet-'+{weight:'poids',food:'repas',gym:'muscu',scan:'scan'}[b.dataset.t];b.insertAdjacentHTML('afterbegin',icon(n,'off')+icon(n+'-actif','on'))});
 render();
 if(lsBroken)openSheet('<h3>Données illisibles</h3><p class="muted" style="margin:0 0 16px">Tes données enregistrées sur ce téléphone n’ont pas pu être lues. Une copie est gardée de côté : ne désinstalle pas l’appli et n’efface pas les données du navigateur, puis demande de l’aide pour la récupérer. Si tu as une sauvegarde, tu peux aussi la restaurer dans Réglages.</p><button class="btn block" data-act="close">J’ai compris</button>');
 if(migrated)persist('settings');
