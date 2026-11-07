@@ -393,7 +393,6 @@ function mineList(slot){
 function addSheet(slot){
   if(!addTab)addTab='basic';
   const tabs=[['basic','Chercher'],...(hasAI?[['ai','Décrire']]:[]),['scan','Scanner'],['mine','Favoris'],['manual','Manuel']];
-  const slotName=SLOTS.find(s=>s[0]===slot)[1];
   let body='';
   if(addTab==='basic'){
     bSlot=slot;body=bSel?foodQtyHtml():foodSearchHtml(slot);
@@ -416,7 +415,7 @@ function addSheet(slot){
     <button class="btn block" data-act="f-manual" data-slot="${slot}">Ajouter</button>`;
   }
   /* feuille déjà ouverte (changement d'onglet) : contenu remplacé sans rejouer l'ouverture, retour en haut */
-  const html=`<div class="rc"><h3 class="row" style="gap:10px">${slotIcon(slot)}${esc(slotName)}</h3><div class="seg rcslotseg" role="tablist">${tabs.map(t=>`<button role="tab" data-act="add-tab" data-t="${t[0]}" data-slot="${slot}" aria-selected="${addTab===t[0]}">${t[1]}</button>`).join('')}</div>${body}</div>`;
+  const html=`<div class="rc"><h3 class="row" style="gap:10px">${slotIcon(slot)}${esc(slotName(slot))}</h3><div class="seg rcslotseg" role="tablist">${tabs.map(t=>`<button role="tab" data-act="add-tab" data-t="${t[0]}" data-slot="${slot}" aria-selected="${addTab===t[0]}">${t[1]}</button>`).join('')}</div>${body}</div>`;
   if(sheetOpen()){reSheet(html);$('#layer .sheet').scrollTop=0}else openSheet(html);
 }
 A['f-add']=b=>{addTab=null;favQuery='';aiItems=[];bcReset();bq='';bcat='top';bSel=null;addSheet(b.dataset.slot)};

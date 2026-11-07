@@ -168,8 +168,7 @@ function chart(el,o){
   let g='';
   for(let v=y0;v<=y1+1e-9;v+=step){const yy=Y(v);g+='<line x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+yy+'" y2="'+yy+'" stroke="var(--line)" stroke-width="1"/><text x="'+(m.l-8)+'" y="'+(yy+4)+'" text-anchor="end" font-size="11" fill="var(--muted)">'+nf(v,step<1?1:0)+'</text>'}
   const xl=[[x0,'start'],[(x0+x1)/2,'middle'],[x1,'end']];
-  const dstr=x=>{const d=new Date(x*864e5);return fmtShort(d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate()))};
-  xl.forEach(([x,a])=>{g+='<text x="'+(a==='start'?m.l:a==='end'?W-m.r:X(x))+'" y="'+(H-6)+'" text-anchor="'+a+'" font-size="11" fill="var(--muted)">'+dstr(Math.round(x))+'</text>'});
+  xl.forEach(([x,a])=>{g+='<text x="'+(a==='start'?m.l:a==='end'?W-m.r:X(x))+'" y="'+(H-6)+'" text-anchor="'+a+'" font-size="11" fill="var(--muted)">'+fmtShort(xToDate(Math.round(x)))+'</text>'});
   if(o.goal!=null)g+='<line x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+Y(o.goal)+'" y2="'+Y(o.goal)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/><text x="'+(W-m.r)+'" y="'+(Y(o.goal)-5)+'" text-anchor="end" font-size="11" fill="var(--muted)">objectif</text>';
   const R=o.dot||3;
   if(o.lineRaw&&pts.length>1)g+='<path d="'+pts.map((p,i)=>(i?'L':'M')+X(p.x).toFixed(1)+' '+Y(p.y).toFixed(1)).join('')+'" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
