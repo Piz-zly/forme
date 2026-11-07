@@ -20,10 +20,7 @@ def jsarr(src, name):
     return json.loads(src[i:src.index(';\n', i)])
 FOODS = jsarr(rd('src', 'js2e.js'), 'FOODS')
 CIQUAL = jsarr(rd('src', 'js2g.js'), 'CIQUAL')
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if extra and not ok else ''))
-    if not ok: fails.append(label)
+from commun import check, fails, termine
 
 # ---- ancien algorithme de foodSearch (avant Fuse.js), pour la non-regression
 def norm(s):
@@ -139,4 +136,4 @@ with sync_playwright() as p:
     check('aucune erreur JavaScript', not errs, errs)
     b.close()
 
-print('\n%d echec(s)' % len(fails) if fails else '\nTOUT EST OK')
+termine()

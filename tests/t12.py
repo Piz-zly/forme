@@ -17,10 +17,7 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 src = open(os.path.join(ROOT, 'src', 'js2g.js'), encoding='utf-8').read()
 CIQUAL = json.loads(src[src.index('const CIQUAL=') + len('const CIQUAL='):src.rindex(';')])
 SHOT = os.path.join(tempfile.gettempdir(), 't12_ciqual.png')
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if extra and not ok else ''))
-    if not ok: fails.append(label)
+from commun import check, fails, termine
 
 check('plus de 3000 aliments Ciqual', len(CIQUAL) > 3000, len(CIQUAL))
 
@@ -86,4 +83,4 @@ with sync_playwright() as p:
     check('aucune erreur JavaScript', not errs, errs)
     b.close()
 
-print('\n%d echec(s)' % len(fails) if fails else '\nTOUT EST OK')
+termine()

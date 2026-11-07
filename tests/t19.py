@@ -21,11 +21,7 @@ from playwright.sync_api import sync_playwright
 BASE = 'http://localhost:8765/'
 TODAY = datetime.date.today()
 D = lambda k: (TODAY - datetime.timedelta(days=k)).isoformat()
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if not ok and extra != '' else ''))
-    if not ok: fails.append(label)
-clean = lambda t: re.sub(r'[  ]', ' ', t)
+from commun import check, fails, termine, clean
 S_ = lambda kg, reps, t=None: dict(kg=kg, reps=reps, **({'t': t} if t else {}))
 SESSIONS = [
     dict(id='s1', date=D(10), name='Jambes', dur=50, exercises=[
@@ -336,4 +332,4 @@ with sync_playwright() as pw:
     ctx.close()
     b.close()
 
-print('\n' + ('TOUT EST OK' if not fails else '%d ECHEC(S) : %s' % (len(fails), fails)))
+termine()

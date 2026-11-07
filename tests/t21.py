@@ -13,10 +13,7 @@ import datetime, re
 from playwright.sync_api import sync_playwright
 
 BASE = 'http://localhost:8765/'
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if not ok and extra != '' else ''))
-    if not ok: fails.append(label)
+from commun import check, fails, termine
 SCAN = {'id': 'p1', 'date': '2026-01-01', 'name': 'Yaourt', 'brand': '', 'code': '', 'src': 'manual',
         'per': {'kcal': 60, 'fat': 3, 'sat': 2, 'carbs': 5, 'sugar': 5, 'salt': .1, 'fiber': 0, 'prot': 4, 'fv': 0}, 'additives': []}
 # accents remplacés par \S{1,3} : forme.html servie en local n'a pas de <meta charset> (« dã©j. »)
@@ -59,4 +56,4 @@ with sync_playwright() as p:
             pg.close()
     b.close()
 
-print('\n' + ('TOUT EST OK' if not fails else '%d ECHEC(S) : %s' % (len(fails), fails)))
+termine()

@@ -8,10 +8,7 @@ from playwright.sync_api import sync_playwright
 
 PAGE = sys.argv[1] if len(sys.argv) > 1 else 'index.html'
 TODAY = datetime.date.today().isoformat()
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if extra and not ok else ''))
-    if not ok: fails.append(label)
+from commun import check, fails, termine
 
 with sync_playwright() as p:
     b = p.chromium.launch()
@@ -105,5 +102,4 @@ with sync_playwright() as p:
     print('ERRS', errs)
     check('aucune erreur JS', not errs, errs)
     b.close()
-print('\nECHECS:', fails if fails else 'aucun')
-sys.exit(1 if fails else 0)
+termine()

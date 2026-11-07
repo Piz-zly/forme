@@ -11,10 +11,7 @@
 from playwright.sync_api import sync_playwright
 
 BASE = 'http://localhost:8765/'
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if not ok and extra != '' else ''))
-    if not ok: fails.append(label)
+from commun import check, fails, termine
 BROKEN = '{"settings":{"kcal":2200},"weights":{"2026-11-01":9'   # coupé en plein milieu
 FULL = """()=>{const set=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='forme.v1')throw new DOMException('plein','QuotaExceededError');return set.call(this,k,v)}}"""
 
@@ -49,4 +46,4 @@ with sync_playwright() as p:
         pg.close()
     b.close()
 
-print('\n' + ('TOUT EST OK' if not fails else '%d ECHEC(S) : %s' % (len(fails), fails)))
+termine()

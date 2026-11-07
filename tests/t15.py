@@ -18,10 +18,7 @@ from playwright.sync_api import sync_playwright
 
 TODAY = datetime.date.today()
 D = lambda n: (TODAY - datetime.timedelta(days=n)).isoformat()
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if extra and not ok else ''))
-    if not ok: fails.append(label)
+from commun import check, fails, termine
 
 SPY = """window.__anims=[];const _a=Element.prototype.animate;
 Element.prototype.animate=function(k,o){window.__anims.push({ak:this.dataset&&this.dataset.ak||null,ghost:this.getAttribute('aria-hidden')==='true',kf:JSON.stringify(k[0])});return _a.call(this,k,o)};"""
@@ -138,4 +135,4 @@ with sync_playwright() as p:
     scenario(b, reduced=False)
     scenario(b, reduced=True)
     b.close()
-print('\n%d echec(s)' % len(fails) if fails else '\nTOUT EST OK')
+termine()

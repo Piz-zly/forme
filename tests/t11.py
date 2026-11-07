@@ -15,10 +15,7 @@ from playwright.sync_api import sync_playwright
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 src = open(os.path.join(ROOT, 'src', 'js2e.js'), encoding='utf-8').read()
 FOODS = json.loads(src[src.index('const FOODS=') + len('const FOODS='):src.rindex(';')])
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if extra and not ok else ''))
-    if not ok: fails.append(label)
+from commun import check, fails, termine
 
 with sync_playwright() as p:
     b = p.chromium.launch()
@@ -90,5 +87,4 @@ print('  coherence : %d / %d (%.0f %%)' % (ok, n_seen, ratio * 100))
 for d in diff: print('     ', d)
 check('rangement table des aliments et regles de la bibliotheque coherents (>= 95 %)', ratio >= .95, '%.0f %%' % (ratio * 100))
 check('aucune erreur JS', not errs, errs)
-print('\nECHECS:', fails if fails else 'aucun')
-sys.exit(1 if fails else 0)
+termine()

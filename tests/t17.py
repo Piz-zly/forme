@@ -20,11 +20,7 @@ from playwright.sync_api import sync_playwright
 URL = 'http://localhost:8765/index.html'
 TODAY = datetime.date.today()
 D = lambda k: (TODAY - datetime.timedelta(days=k)).isoformat()
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if extra != '' and not ok else ''))
-    if not ok: fails.append(label)
-clean = lambda t: re.sub(r'[  ]', ' ', t)
+from commun import check, fails, termine, clean
 E = lambda i, slot, name, k, p=10, c=20, f=5: dict(id=i, slot=slot, name=name, kcal=k, p=p, c=c, f=f)
 
 with sync_playwright() as pw:
@@ -280,4 +276,4 @@ with sync_playwright() as pw:
     ctx.close()
     b.close()
 
-print('\n%d echec(s) : %s' % (len(fails), fails) if fails else '\nTOUT EST OK')
+termine()

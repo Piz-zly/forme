@@ -25,10 +25,7 @@ EXD = json.loads(src[src.index('const EXD=') + len('const EXD='):src.index(';\n'
 EXV = json.loads(src[src.index('const EXV=') + len('const EXV='):src.rindex(';')])
 HIDDEN = {n for b, (l, o) in EXV.items() for t, n in o if n != b}
 SHOT = tempfile.gettempdir()
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if extra and not ok else ''))
-    if not ok: fails.append(label)
+from commun import check, fails, termine
 
 # 1. donnees
 new = [n for n, e in EXD.items() if e.get('g')]
@@ -189,4 +186,4 @@ with sync_playwright() as p:
     check('aucune requete en erreur', not badreq, badreq[:5])
     b.close()
 
-print('\n%d echec(s)' % len(fails) if fails else '\nTOUT EST OK')
+termine()

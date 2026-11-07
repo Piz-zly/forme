@@ -19,10 +19,7 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 rd = lambda *p: open(os.path.join(ROOT, *p), encoding='utf-8').read()
 URL = 'http://localhost:8765/'
 TMP = tempfile.mkdtemp(prefix='t18_')
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if extra != '' and not ok else ''))
-    if not ok: fails.append(label)
+from commun import check, fails, termine
 
 # ---------- fausses etiquettes ----------
 def font(sz, bold=False):
@@ -160,4 +157,4 @@ with sync_playwright() as p:
     ctx.close()
     b.close()
 
-print('\n%d echec(s) : %s' % (len(fails), fails) if fails else '\nTOUT EST OK')
+termine()

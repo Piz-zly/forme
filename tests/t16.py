@@ -24,11 +24,7 @@ URL = 'http://localhost:8765/'
 TODAY = datetime.date.today()
 D = lambda k: (TODAY - datetime.timedelta(days=k)).isoformat()
 TMP = tempfile.mkdtemp(prefix='t16_')
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if extra != '' and not ok else ''))
-    if not ok: fails.append(label)
-clean = lambda t: re.sub(r'[  ]', ' ', t)
+from commun import check, fails, termine, clean
 SPY = """window.__anims=[];const _a=Element.prototype.animate;
 Element.prototype.animate=function(k,o){window.__anims.push({ak:this.dataset&&this.dataset.ak||null,ghost:this.getAttribute('aria-hidden')==='true',kf:JSON.stringify(k[0])});return _a.call(this,k,o)};"""
 
@@ -290,4 +286,4 @@ with sync_playwright() as p:
     ctx.close()
     b.close()
 
-print('\n%d echec(s) : %s' % (len(fails), fails) if fails else '\nTOUT EST OK')
+termine()

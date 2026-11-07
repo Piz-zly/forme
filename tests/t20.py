@@ -14,10 +14,7 @@ from playwright.sync_api import sync_playwright
 
 BASE = 'http://localhost:8765/'
 TODAY = datetime.date.today().isoformat()
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if not ok and extra != '' else ''))
-    if not ok: fails.append(label)
+from commun import check, fails, termine
 state = lambda pg: json.loads(pg.evaluate("localStorage.getItem('forme.v1')"))
 
 with sync_playwright() as p:
@@ -52,4 +49,4 @@ with sync_playwright() as p:
         ctx.close()
     b.close()
 
-print('\n' + ('TOUT EST OK' if not fails else '%d ECHEC(S) : %s' % (len(fails), fails)))
+termine()

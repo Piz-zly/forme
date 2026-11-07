@@ -17,10 +17,7 @@ import json, os, tempfile
 from playwright.sync_api import sync_playwright
 
 URL = 'http://localhost:8765/index.html'
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if extra != '' and not ok else ''))
-    if not ok: fails.append(label)
+from commun import check, fails, termine
 st = lambda pg: json.loads(pg.evaluate("localStorage.getItem('forme.v1')") or '{}')
 sets = lambda e: [(s['kg'], s['reps']) for s in e['sets']]
 
@@ -211,4 +208,4 @@ with sync_playwright() as p:
     ctx.close()
     b.close()
 
-print('\n%d echec(s) : %s' % (len(fails), fails) if fails else '\nTOUT EST OK')
+termine()

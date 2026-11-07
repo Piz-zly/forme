@@ -11,10 +11,7 @@ import json, datetime
 from playwright.sync_api import sync_playwright
 
 TODAY = datetime.date.today().isoformat()
-fails = []
-def check(label, ok, extra=''):
-    print(('OK   ' if ok else 'FAIL ') + label + (' ' + str(extra) if extra and not ok else ''))
-    if not ok: fails.append(label)
+from commun import check, fails, termine
 
 with sync_playwright() as p:
     b = p.chromium.launch()
@@ -167,4 +164,4 @@ with sync_playwright() as p:
     print('ERRS', errs)
     check('aucune erreur JavaScript', not errs)
     b.close()
-print('\nECHECS:' if fails else '\nTOUT PASSE', fails if fails else '')
+termine()
