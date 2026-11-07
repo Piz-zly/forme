@@ -70,7 +70,8 @@ garde tout dans le navigateur du téléphone.
   lus sont toujours montrés pour vérification avant d'être enregistrés.
 
 **Muscu**
-- Bibliothèque de 60 exercices en 7 groupes, plus les exercices créés à la volée.
+- Bibliothèque de 175 exercices en 8 groupes (consignes, équipement, filtres Muscle et Équipement),
+  plus les exercices créés à la volée.
 - Séance en cours : séries, charge, répétitions, rappel de la dernière
   performance, chronomètre de séance.
 - Minuteur de repos en barre fixe en bas de l'écran, lancé à la main ou

@@ -58,10 +58,20 @@ reconstruit la vue entière, c'est suffisant à cette échelle.
 
 Les quatre vues : `weight`, `food`, `gym`, `scan`.
 
-Le **Repas** a trois sous-onglets, pilotés par la variable `foodSub`
-(`'journal'`, `'recipes'`, `'done'`) : `VIEWS.food` affiche le journal, ou passe la
-main à `recipesView()` (`js2d.js`). Le choix n'est pas enregistré : on revient au
-journal à chaque ouverture de l'application.
+Le **Repas** a cinq sous-onglets, pilotés par la variable `foodSub`
+(`'journal'`, `'recipes'`, `'done'`, `'week'`, `'bilan'`) : `VIEWS.food` affiche le journal, ou passe la
+main à `recipesView()` (`js2d.js`), `weekView()` ou `bilanView()` (`js2h.js`). Le choix n'est pas
+enregistré : on revient au journal à chaque ouverture de l'application.
+
+**Repas de l'heure** (`slotNow`, `js2.js`, 2026.11.07-1) — une seule règle pour tous les écrans qui
+proposent un repas par défaut : avant 10 h petit-déjeuner, de 10 h à 15 h déjeuner, de 15 h à 18 h
+collation, ensuite dîner. `slotNow(false)` pour un écran sans collation (Recettes) : dîner à la place.
+Utilisée par le Scan (« Ajouter au journal »), la Semaine (aujourd'hui seulement) et les Recettes
+(`rcNextSlot`, aujourd'hui seulement). Testé par `tests/t21.py` (horloge simulée).
+
+**Lire un nombre** (`num`, `js1.js`) — ignore les espaces : `nf` écrit « 2 200 » avec une espace fine,
+et un champ pré-rempli par `nf` doit se relire 2200 (bug corrigé en 2026.11.07-1, `tests/t20.py`).
+Tout champ numérique se lit avec `num`, jamais avec `parseFloat` directement.
 
 **Animations** (`js1b.js`, 2026.10.13-5) — outil maison chargé juste après `js1.js`. Il
 remplace `renderBehind` par une enveloppe : avant le dessin, `animSnap()` note la position des

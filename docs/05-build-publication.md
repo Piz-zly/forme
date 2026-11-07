@@ -31,16 +31,18 @@ script continue sans, mais on perd le filet).
 
 ```bash
 python3 -m http.server 8765          # depuis la racine du projet
-python3 tests/t4.py                  # séance, minuteur de repos, fiche d'exercice
-python3 tests/t6.py                  # routines
-python3 tests/t7.py                  # bascule muscles en rouge
-python3 tests/t5.py                  # partage entrant des pas
+for f in tests/t*.py; do python3 "$f" || echo "ÉCHEC : $f"; done   # tous les tests (t4 à t22)
 ```
+
+Le contenu de chaque test est listé dans `CLAUDE.md` (arborescence). Il faut tous les lancer :
+un test qui passe dans un onglet ne dit rien des autres.
 
 Les tests utilisent Playwright avec Chromium en 412 × 900, la taille d'un
 téléphone. Ils cliquent dans l'application comme un utilisateur et affichent le
 texte obtenu, en plus de captures dans `/tmp`. Ils signalent toute erreur
-JavaScript : **`ERRS []` est la ligne à vérifier en priorité**.
+JavaScript : **`ERRS []` est la ligne à vérifier en priorité** (t4, t5, t7). Les autres
+affichent une ligne `OK` ou `FAIL` par contrôle, puis `TOUT EST OK` ; depuis 2026.11.07-1, ils
+partagent `tests/commun.py` (`check`, `clean`, `termine`) et finissent avec le code 1 en cas d'échec.
 
 ```bash
 pip install playwright && playwright install chromium

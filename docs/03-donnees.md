@@ -118,6 +118,19 @@ persist('sessions', '2026-01-15'); // tranches découpées par année
 regroupé et différé. Les repas et les séances sont découpés en documents
 (`meals_2026-10`, `sessions_2026`) pour ne pas tout réécrire à chaque ajout.
 
+### Protections (2026.11.07-1)
+
+- **Données illisibles** au chargement (texte de `forme.v1` abîmé, ou qui n'est pas un objet) : le
+  texte brut est recopié tel quel sous la clé **`forme.v1.abime`** avant que le premier enregistrement
+  ne remplace `forme.v1`, puis l'appli repart des valeurs par défaut et affiche une feuille « Données
+  illisibles ». La première copie n'est jamais écrasée (une seconde panne ne la remplace pas). Pour
+  récupérer : lire `forme.v1.abime` (outils de développement du navigateur), réparer le JSON, le
+  restaurer comme une sauvegarde. Un stockage simplement inaccessible ne déclenche rien.
+- **Stockage plein** : si `saveLocal()` échoue, un message le dit (au plus une fois par minute), après
+  le message de l'action en cours. Les données restent en mémoire jusqu'à la fermeture : exporter.
+
+Testé par `tests/t22.py`. Pour des données normales, rien ne change : même clé, même format.
+
 ## Synchronisation — version Claude uniquement
 
 `initDb()` ouvre une collection privée propre au compte, compare les horodatages

@@ -26,12 +26,12 @@ Forme - licences des éléments tiers
    (dossiers images/ et videos/, © Gym visual - https://gymvisual.com/) ne sont pas sous licence
    MIT : elles n'ont été ni téléchargées, ni copiées, ni référencées par Forme. Les images de
    Forme restent celles des points 1 et 2.
-9) Recherche tolérante aux fautes de frappe : Fuse.js v7.2.0 (fichier vendor/fuse.basic.min.js)
-   https://github.com/krisk/Fuse - Copyright (c) 2026 Kiro Risk - Apache License 2.0.
-   Texte complet de la licence : vendor/fuse-LICENSE.txt. Fichier non modifié.
 8) Liste des exercices et muscles sollicités (src/js3.js, src/js3c.js) : free-exercise-db
    https://github.com/yuhonas/free-exercise-db - Unlicense (domaine public). Seules les données
    texte sont utilisées, pas les photos du dépôt.
+9) Recherche tolérante aux fautes de frappe : Fuse.js v7.2.0 (fichier vendor/fuse.basic.min.js)
+   https://github.com/krisk/Fuse - Copyright (c) 2026 Kiro Risk - Apache License 2.0.
+   Texte complet de la licence : vendor/fuse-LICENSE.txt. Fichier non modifié.
 10) Lecture des étiquettes hors ligne (version téléphone, dossier vendor/ocr, fichiers non modifiés) :
    - Tesseract.js 7.0.0 (tesseract.min.js, worker.min.js) - https://github.com/naptha/tesseract.js
      Apache License 2.0 - vendor/ocr/tesseract.js-LICENSE.md ; composants inclus (buffer, ieee754,

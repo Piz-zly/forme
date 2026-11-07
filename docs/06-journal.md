@@ -5,6 +5,40 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 
 ---
 
+### 2026.11.07-1 — Nettoyage du code, deux bugs corrigés (à essayer sur le téléphone)
+
+- **Bug corrigé : les nombres de 1 000 et plus.** L'appli écrit « 2 200 » avec une espace fine ; la
+  relecture s'arrêtait à l'espace. Réglages → Enregistrer sans rien changer faisait passer l'objectif
+  de 2 200 kcal à 2 kcal et celui de 10 000 pas à 10 ; un aliment à 1 200 kcal ouvert puis enregistré
+  devenait 1 kcal ; même chose pour × 1,5 et × 2, les boutons +100 / +500 de l'ajout rapide, « Calculer
+  les valeurs » d'une recette perso, une quantité scannée de 1 000 g et des pas tapés « 8 400 ».
+  `num()` ignore maintenant les espaces (`tests/t20.py`). **Les objectifs déjà abîmés ne sont pas
+  réparés automatiquement** : à vérifier dans Réglages.
+- **Bug corrigé : barre des glucides pleine** quand l'objectif de glucides vaut 0 (calories trop basses
+  pour les réglages) et que rien n'est noté. Elle est vide.
+- **Repas proposé selon l'heure, une seule règle** (`slotNow`) : avant 10 h petit-déjeuner, 10 h–15 h
+  déjeuner, 15 h–18 h collation, ensuite dîner. C'était déjà celle du Scan ; la Semaine et les Recettes
+  basculaient à 11 h et 16 h. Les Recettes ne visent pas la collation (dîner à la place). Un autre jour
+  qu'aujourd'hui : inchangé (`tests/t21.py`).
+- **Protection des données** : données illisibles → copie gardée sous `forme.v1.abime` et feuille
+  d'alerte ; stockage plein → message (`tests/t22.py`, `docs/03-donnees.md`).
+- Nettoyage sans effet visible : code et actions qui ne servaient plus, deux calculs recopiés, règles de
+  style jamais utilisées ou recouvertes (vérifié par 33 captures identiques au pixel dans les trois
+  ambiances), exception Google Fonts retirée de `sw.js`, 60 vignettes `img2/*-t.png` jamais affichées
+  retirées (240 Ko), fins de ligne stables quand on construit sous Windows (`index.html` passe une fois
+  entièrement en fins de ligne Unix, contenu identique), aide commune aux tests (`tests/commun.py`).
+- Détail point par point : `docs/09-nettoyage.md`.
+
+### 2026.10.15-1 — Polices en local (publiée le 15 octobre 2026)
+
+- Les polices Zen Maru Gothic (500, 700, 900) et Figtree (400 à 700) sont copiées dans `vendor/fonts/`
+  (sous-ensemble latin, fichiers Fontsource non modifiés, SIL Open Font License 1.1, licences jointes) et
+  chargées par `@font-face` dans `src/p1.pwa.css` : la version téléphone ne fait plus aucune requête vers
+  Google Fonts, et les polices marchent hors ligne (ajoutées à la liste `SHELL` de `sw.js`).
+- `build.sh` retire de `index.html` les deux liens Google Fonts de `p1.html` ; `forme.html` les garde
+  (la version Claude ne peut pas lire `vendor/fonts/`).
+- `THIRD_PARTY.txt` : point 5 (polices).
+
 ### 2026.10.14-5 — Muscu : records, types de série, suggestion de charge, séries par muscle, écran allumé (à essayer sur le téléphone)
 
 - **Records en direct** : à la validation d'une série, comparaison avec toutes les séries de travail déjà

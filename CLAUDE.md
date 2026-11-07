@@ -132,12 +132,17 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── t16.py Poids : plus de détails, IMC, historique par semaine et repliable, CSV, dépense estimée
 │   ├── t17.py Repas : ajouts rapides, copier, repas types, souvent, corrections, cru/cuit, Semaine, courses, frigo, Bilan
 │   ├── t18.py étiquettes : parseLabel, lecture réelle de fausses étiquettes (Tesseract.js, hors ligne)
-│   └── t19.py Muscu : records, types de série, suggestion de charge, séries par muscle, écran allumé
+│   ├── t19.py Muscu : records, types de série, suggestion de charge, séries par muscle, écran allumé
+│   ├── t20.py nombres de 1 000 et plus (Réglages, journal, pas « 8 400 ») gardés à l'enregistrement
+│   ├── t21.py repas proposé selon l'heure (Scan, Semaine, Recettes), horloge simulée
+│   ├── t22.py données illisibles (copie forme.v1.abime) et stockage plein
+│   └── commun.py aides partagées par les tests : check, clean, termine
 │
 ├── ill/                       ← illustrations des mouvements (739 fichiers, 149 mouvements, CC0)
-├── img2/                      ← schémas anatomiques par exercice (MIT)
+├── img2/                      ← schémas anatomiques par exercice, un -m.png chacun (MIT)
 ├── icons/                     ← icônes de l'application
-└── vendor/                    ← zxing.min.js (codes-barres), fuse.basic.min.js (fautes de frappe), ocr/ (Tesseract.js), Apache-2.0
+└── vendor/                    ← zxing.min.js (codes-barres), fuse.basic.min.js (fautes de frappe), ocr/ (Tesseract.js), Apache-2.0 ;
+                                 fonts/ (Zen Maru Gothic, Figtree, SIL OFL, version téléphone)
 ```
 
 ## 5. Sommaire de la documentation
@@ -152,6 +157,9 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 | `docs/06-journal.md` | Historique des versions |
 | `docs/07-a-faire.md` | La suite : recettes, esthétique, idées en attente |
 | `docs/08-pistes-open-source.md` | Projets libres repérés et ce qui en a été fait : Ciqual, free-exercise-db, Fuse.js et Tesseract.js intégrés, AutoAnimate écarté, canvas-confetti en attente |
+| `docs/09-nettoyage.md` | Nettoyage du code (novembre 2026) : ce qui a été corrigé, ce qui a été laissé et pourquoi |
+
+`docs/00-sommaire.md` reprend ce tableau pour qui ouvre `docs/` directement.
 
 ## 6. Méthode de travail
 
@@ -222,7 +230,7 @@ Dire franchement ce qui n'a pas pu être testé (vibration, caméra, menu de par
 d'Android ne sont testables que sur son téléphone). Un point par message quand il
 le demande : il avance sujet par sujet.
 
-## 7. État au 8 octobre 2026
+## 7. État au 7 novembre 2026
 
 - Version publiée : **2026.10.08-16**, poussée sur GitHub le 8 octobre 2026 au soir (ambiances
   Lune par défaut, Sakura et Néon dans Réglages → Ambiance ; bandeau de niveau en haut de chaque onglet).
@@ -269,3 +277,10 @@ le demande : il avance sujet par sujet.
   par muscle (7 jours) » dans Progression, écran allumé pendant la séance (téléphone). Testée
   (`tests/t4.py` à `t19.py`), publiée le 14 octobre 2026, pas encore essayée sur son téléphone. L'écran allumé n'est vérifiable
   que sur son téléphone.
+- **2026.10.15-1** (15 octobre 2026) : polices en local (`vendor/fonts/`), plus aucune requête vers Google
+  Fonts depuis le téléphone. Publiée le 15 octobre 2026.
+- **2026.11.07-1** (7 novembre 2026, branche `nettoyage`) : nettoyage du code (`docs/09-nettoyage.md`) et
+  deux bugs corrigés. Le plus grave : les nombres de 1 000 et plus étaient relus faux (Réglages →
+  Enregistrer mettait l'objectif à 2 kcal et 10 pas) ; ses objectifs peuvent déjà être abîmés, à
+  vérifier dans Réglages. Repas proposé selon l'heure unifié, copie de secours des données illisibles.
+  Testée (`tests/t4.py` à `t22.py`), **pas encore envoyée sur GitHub**.

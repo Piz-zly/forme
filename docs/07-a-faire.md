@@ -188,9 +188,10 @@ champs vides, et c'est le signe qu'il faut passer à l'import de fichier.
 - Deux systèmes d'identifiants coexistent pour les exercices : celui de `EXI[].i`
   pour les schémas anatomiques, celui de `ILL[]` pour les illustrations. Les
   unifier demanderait de régénérer `img2/`. Sans urgence, mais à savoir.
-- `tools/paint.py` et `tools/gen_schemas_muscles.py` contiennent des chemins
-  absolus de l'atelier d'origine. À adapter avant toute réexécution.
+- `tools/paint.py`, `tools/recadre.py` et `tools/gen_schemas_muscles.py` lisent leurs fichiers d'entrée
+  dans le dossier d'atelier `FORME_ATELIER` (hors dépôt) : sans lui, ils ne peuvent pas être relancés.
 - Deux imperfections assumées sur la coloration des muscles, décrites dans
   `docs/04-images.md`.
-- Les tests couvrent Poids, Muscu, le partage entrant et les recettes (`tests/t8.py`) et l'ajout d'un aliment par la recherche (`tests/t9.py`).
-  Ni le journal du Repas ni l'onglet Scan n'ont de test de bout en bout.
+- Les tests couvrent les quatre onglets (journal du Repas : `t17.py` ; Scan : `t10.py`, `t18.py`), mais
+  pas la caméra en direct, la vibration, le menu Partager d'Android ni l'écran allumé réel.
+- Ce que le nettoyage de novembre 2026 a laissé de côté, et pourquoi : `docs/09-nettoyage.md`.

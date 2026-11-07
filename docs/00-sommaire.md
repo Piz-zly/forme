@@ -14,6 +14,7 @@ aspect.
 | 6 | [06-journal.md](06-journal.md) | Historique des versions |
 | 7 | [07-a-faire.md](07-a-faire.md) | Le prochain sujet, les demandes en attente, les dettes techniques |
 | 8 | [08-pistes-open-source.md](08-pistes-open-source.md) | Projets libres repérés pour améliorer Forme, leur licence, comment les intégrer et dans quel ordre |
+| 9 | [09-nettoyage.md](09-nettoyage.md) | Nettoyage du code de novembre 2026 : ce qui a été trouvé, corrigé, laissé, et comment c'est vérifié |
 
 ## Les trois réflexes
 
