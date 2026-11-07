@@ -5,6 +5,16 @@ Pour agrandir encore : une ligne `F(...)` dans `tools/gen_aliments.py`, un appel
 dans sa table `ALIM`, qui est séparée de celle de la recherche), puis relancer les
 scripts et `./src/build.sh`. Pensé pour s'agrandir ainsi, sans toucher au reste.
 
+## Fluidité : faite en 2026.11.07-4, à essayer sur son téléphone
+
+À vérifier sur son téléphone, car rien de tout ça n'est testable ici : le **geste Retour** réel d'Android (bord de
+l'écran ou bouton), et que l'appli se ferme normalement quand il n'y a plus rien à fermer ; les **vibrations** (force,
+durée, et qu'elles ne soient pas trop fréquentes) ; la **sensation des glissements** (balayage de jour, ligne tirée
+à gauche, feuille tirée vers le bas) et l'absence de conflit avec le défilement ; le clavier qui reste ouvert pendant
+la saisie en séance ; « Mesurer la fluidité » après quelques minutes d'usage.
+Poids : 34 ko au démarrage au lieu des 25 ko prévus, à lui faire valider (ou à alléger, voir `docs/06-journal.md`).
+Non faits, à sa demande : SortableJS (réordonner au doigt), pure-web-bottom-sheet.
+
 ## Muscu progression : fait en 2026.10.14-5, à essayer sur son téléphone
 
 À vérifier sur son téléphone : que **l'écran reste vraiment allumé** pendant une séance (et se rééteint

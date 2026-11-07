@@ -71,6 +71,19 @@ français `tessdata_best` en entiers (0,7 Mo). Copiés dans `vendor/ocr/` (≈ 4
 usage seulement, URL absolues, `workerBlobURL:false`, `gzip:true`. La qualité dépend de la photo :
 d'où la feuille de vérification obligatoire.
 
+## Fluidité et ergonomie (2026.11.07-4)
+
+Pistes choisies dans la note « Pistes pour la fluidité et l'ergonomie » du 7 novembre 2026 :
+- **Idiomorph** (bigskysoftware, 0BSD) — **intégré** : `morphIn()` met l'écran à jour sans tout refaire. Script
+  classique (global `Idiomorph`), aucun changement.
+- **Geste Retour** — **intégré sans bibliothèque** : CloseWatcher, sinon `history.pushState` / `popstate`.
+- **web-haptics** (lochie, MIT) — **repris sans bibliothèque** : seules les durées des motifs, dans `haptic()`.
+- **TinyGesture** (sciactive, Apache-2.0) — **intégré** : le fichier `dist` est un module ES ; `export default`
+  retiré pour un script classique (noté dans `THIRD_PARTY.txt`). Non minifié (outil externe refusé ici) : 13,2 ko.
+- **web-vitals** (GoogleChrome, Apache-2.0) — **intégré, chargé à la demande** (Réglages → Mesurer la fluidité),
+  version « attribution » IIFE.
+- **SortableJS** et **pure-web-bottom-sheet** : écartés pour l'instant, à sa demande.
+
 ## Ordre conseillé
 
 1 puis 3 (la base d'aliments d'abord, la recherche floue ensuite), 5 avec le

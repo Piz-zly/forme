@@ -73,6 +73,21 @@ Forme - licences des éléments tiers
    - Delapouite : stars-stack, diamond-trophy, mountain-road (niveaux 5, 7, 9) ;
    - Carl Olsen : flame (niveau 8).
    Mention visible dans les Réglages et dans la feuille « Mes insignes ».
+18) Écran mis à jour sans tout refaire : Idiomorph 0.8.0 (vendor/idiomorph.min.js, fichier non modifié)
+   https://github.com/bigskysoftware/idiomorph - Big Sky Software - licence Zero-Clause BSD (0BSD).
+   Texte complet : vendor/idiomorph-LICENSE.txt.
+19) Gestes au doigt : TinyGesture 3.0.1 (vendor/tinygesture.js) - https://github.com/sciactive/tinygesture
+   SciActive (Hunter Perrin) - Apache License 2.0, texte complet : vendor/tinygesture-LICENSE.txt.
+   FICHIER MODIFIÉ pour Forme (dist/TinyGesture.js) : ligne « export default TinyGesture; » retirée pour l'utiliser
+   en script classique ; indentation, lignes vides et commentaire de carte source retirés ; en-tête ajouté. Le code
+   lui-même n'est pas changé.
+20) Mesure de la fluidité (Réglages, version téléphone, chargé seulement à la demande) : web-vitals 6.2.3, version
+   « attribution » IIFE (vendor/web-vitals.attribution.iife.js, fichier non modifié)
+   https://github.com/GoogleChrome/web-vitals - Copyright 2020 Google LLC - Apache License 2.0,
+   texte complet : vendor/web-vitals-LICENSE.txt. Rien n'est envoyé : la mesure reste affichée dans les Réglages.
+21) Vibrations (haptic(), src/js1g.js) : durées reprises des motifs de web-haptics (light, success, nudge, warning)
+   https://github.com/lochie/web-haptics - Copyright (c) 2025 Lochie Axon - licence MIT (même texte que celui du
+   point 11 ci-dessous). Aucun fichier de la bibliothèque n'est copié.
 17) Coach « Maître » (dossier coach/, affiché nulle part pour l'instant) : personnages originaux fabriqués avec
    DiceBear 9.4 (https://github.com/dicebear/dicebear, outil MIT), styles en domaine public CC0 1.0 :
    coach/maitre.svg - style Thumbs, par DiceBear, mot de départ « Maitre » ;

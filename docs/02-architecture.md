@@ -53,8 +53,16 @@ VIEWS.weight_after = () => { /* code exécuté après insertion, ex. tracer un g
 ```
 
 `render()` écrit `VIEWS[tab]()` dans `#view`, puis appelle `VIEWS[tab+'_after']`
-si elle existe. Il n'y a ni rendu différentiel ni état de composant : on
-reconstruit la vue entière, c'est suffisant à cette échelle.
+si elle existe. Il n'y a pas d'état de composant : on recalcule la vue entière.
+
+Depuis 2026.11.07-4, l'écriture passe par `morphIn(el, html)` (`js1g.js`, Idiomorph) : seuls les morceaux qui
+changent sont modifiés. Un champ en cours de saisie n'est pas touché (focus, curseur, valeur, clavier) ; un
+bouton qui vient d'être touché est, lui, bien mis à jour. Les lignes `data-ak` (animations de `js1b.js`) sont
+appariées par leur clé. `reSheet()` fait de même dans la feuille. Sans Idiomorph : `innerHTML`, comme avant.
+Conséquence : un élément de `#view` peut survivre d'un rendu à l'autre. Ne pas lui ajouter d'écouteur dans
+un `VIEWS.*_after` sans le retirer (le graphique, lui, refait son `<svg>` à chaque fois : pas de doublon).
+Attention : dans le code, `history` est une fonction de `js3.js` ; l'historique du navigateur s'écrit
+`window.history`.
 
 Les quatre vues : `weight`, `food`, `gym`, `scan`.
 
@@ -124,6 +132,12 @@ confirmSheet(titre, texte, libellé, onOk);  // confirmation destructive
 ```
 
 Un clic sur le fond (`.scrim`) ferme la feuille. `A.close` est déjà câblé.
+Depuis 2026.11.07-4 (`js1g.js`) : le geste Retour d'Android ferme la feuille (`backSync()`, appelé par
+`openSheet`, `closeSheet` et `render` ; CloseWatcher, sinon une entrée d'historique), et la feuille se ferme
+aussi en la tirant vers le bas. Pour une petite suppression facile à défaire (ligne de repas, pesée, série),
+pas de confirmation : `undoable(back)` affiche « Supprimé · Annuler » 5 s, `back()` remet ce qui a été retiré.
+`toast(msg, {label, fn})` accepte un bouton. Les grosses suppressions gardent `confirmSheet`.
+Vibrations : `haptic('leger'|'succes'|'fort'|'avert'|'repos')`, coupées par Réglages → Vibrations.
 
 ## Le style
 

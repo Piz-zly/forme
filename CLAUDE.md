@@ -56,12 +56,14 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
    dépenses affichées sont indicatifs. Le dire quand c'est utile, sans alourdir.
 5. **Interface en français**, tutoiement, vocabulaire simple. Il dit « routine »,
    pas « modèle » ; « séance », pas « workout ».
-6. **Pas de dépendance ajoutée** sans raison forte. Cinq bibliothèques
+6. **Pas de dépendance ajoutée** sans raison forte. Huit bibliothèques
    externes aujourd'hui, copiées en local dans `vendor/` : ZXing (codes-barres), Fuse.js
    (recherche tolérante aux fautes, depuis 2026.10.13-4) et Tesseract.js (lecture des étiquettes
    hors ligne, `vendor/ocr/`, ≈ 4,8 Mo chargés seulement au premier usage de la photo, version
    téléphone seulement, depuis 2026.10.14-4), countUp.js (chiffres qui défilent) et canvas-confetti
-   (palier franchi), depuis 2026.11.07-3. Icônes Phosphor et emojis Fluent : seulement les tracés utilisés,
+   (palier franchi), depuis 2026.11.07-3, Idiomorph (écran mis à jour sans tout refaire) et TinyGesture
+   (gestes au doigt, fichier retouché : `export` retiré), web-vitals (mesure de la fluidité, chargé seulement à la
+   demande, téléphone seulement), depuis 2026.11.07-4. Icônes Phosphor et emojis Fluent : seulement les tracés utilisés,
    dans `src/js1c.js` (généré par `tools/gen_icones.py`). Jamais de CDN, tout doit marcher hors ligne. Il a
    **écarté** l'idée d'une clé Claude dans l'application : ne pas la proposer. Données externes :
    la table Ciqual (Anses, Etalab 2.0), extraite dans `src/js2g.js` ; le texte de deux bases
@@ -88,6 +90,7 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── p1.pwa.css             ← CSS en plus, uniquement pour la version téléphone
 │   ├── js1.js                 ← utilitaires, état, stockage, synchro, graphique, navigation, glissement entre onglets (slide)
 │   ├── js1c.js                ← icônes Phosphor, emojis Fluent et insignes Game-icons utilisés — GÉNÉRÉ par tools/gen_icones.py, ne pas éditer
+│   ├── js1g.js                ← fluidité : écran mis à jour sans tout refaire (morphIn), geste Retour, vibrations (haptic), « Annuler », gestes au doigt
 │   ├── js1b.js                ← animations douces (outil maison) et chiffres qui défilent (countUp) autour du dessin des écrans — à retirer de build.sh pour s'en passer
 │   ├── js2.js                 ← onglet Poids (cercle, paliers) + onglet Repas
 │   ├── js2b.js                ← carte « Journée » (pas, dépense, apport)
@@ -142,6 +145,7 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── t21.py repas proposé selon l'heure (Scan, Semaine, Recettes), horloge simulée
 │   ├── t22.py données illisibles (copie forme.v1.abime) et stockage plein
 │   ├── t23.py ambiance Lune + Kikkō : lune chargée, halo, motif devant, plus de nuages ; Sakura et Néon intactes
+│   ├── t25.py fluidité : focus gardé en séance, geste Retour, balayages, Annuler, feuille tirée, vibrations, web-vitals
 │   ├── t24.py esthétique : icônes, emojis des repas, chiffres qui défilent, confettis une fois par palier, glissements
 │   └── commun.py aides partagées par les tests : check, clean, termine
 │
@@ -150,7 +154,8 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 ├── icons/                     ← icônes de l'application
 ├── coach/                     ← coach « Maître » choisi (DiceBear, CC0), affiché nulle part pour l'instant
 └── vendor/                    ← zxing.min.js (codes-barres), fuse.basic.min.js (fautes de frappe), ocr/ (Tesseract.js), Apache-2.0 ;
-                                 countUp.umd.js (MIT), confetti.browser.js (ISC) ;
+                                 countUp.umd.js (MIT), confetti.browser.js (ISC) ; idiomorph.min.js (0BSD), tinygesture.js
+                                 (Apache-2.0, retouché), web-vitals.attribution.iife.js (Apache-2.0, chargé à la demande) ;
                                  fonts/ (Zen Maru Gothic, Figtree, SIL OFL, version téléphone)
 ```
 
@@ -299,4 +304,8 @@ le demande : il avance sujet par sujet.
 - **2026.11.07-3** (7 novembre 2026, branche `esthetique`) : icônes Phosphor, emojis Fluent des repas, chiffres qui
   défilent (countUp.js), confettis à chaque palier franchi (canvas-confetti), glissement entre onglets, icônes
   des sections d'aliments, insignes de niveau (Game-icons, CC BY 3.0). 69,6 ko ajoutés sur 72 autorisés.
-  Testée (`tests/t4.py` à `t24.py`), envoyée sur la branche `esthetique`, pas encore fusionnée dans `main`.
+  Testée (`tests/t4.py` à `t24.py`), publiée le 7 novembre 2026.
+- **2026.11.07-4** (7 novembre 2026, branche `fluidite`) : écran mis à jour sans tout refaire (le champ en cours de
+  saisie garde le clavier), geste Retour d'Android, petites vibrations (Réglages → Vibrations), « Supprimé · Annuler »,
+  balayage de jour dans le journal, ligne tirée à gauche pour supprimer, feuille tirée vers le bas pour la fermer,
+  Réglages → « Mesurer la fluidité ». Testée (`tests/t4.py` à `t25.py`), pas encore fusionnée dans `main`.

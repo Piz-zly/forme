@@ -5,6 +5,29 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 
 ---
 
+### 2026.11.07-4 — Fluidité et gestes au doigt (à essayer sur le téléphone)
+
+- **Écran mis à jour sans tout refaire** (Idiomorph, 0BSD, `vendor/idiomorph.min.js`) : pendant la saisie d'une
+  charge ou d'une recherche, le champ garde le clavier, le curseur et la valeur ; la page ne saute plus.
+- **Geste Retour d'Android** : ferme la feuille ouverte, puis ramène Recettes, Déjà faites, Semaine ou Bilan au
+  Journal ; ensuite, comportement normal (l'appli peut se fermer). Sans bibliothèque (CloseWatcher, sinon historique).
+- **Petites vibrations** (motifs de web-haptics, MIT) : série validée et changement de jour (léger), repas ajouté
+  et pesée enregistrée (succès), record et palier (fort), suppression (avertissement). Fin du repos et code-barres
+  lu passent par la même fonction. Réglages → « Vibrations » (activé par défaut).
+- **Gestes** (TinyGesture, Apache-2.0, `vendor/tinygesture.js`, `export` retiré) : balayer le journal du Repas
+  change de jour (avec le glissement dans le bon sens, comme les flèches) ; tirer une ligne du journal vers la
+  gauche montre « Supprimer » ; tirer une feuille vers le bas la ferme (elle suit le doigt et revient si le geste
+  est trop court). Pas pendant une séance ; rien ne suit le doigt avec « réduire les animations », seule l'action a lieu.
+- **« Supprimé · Annuler »** (5 s) pour la ligne de repas, la pesée et la série ; les grosses suppressions
+  (routine, séance, bibliothèque, sauvegarde) gardent leur confirmation.
+- **Réglages → « Mesurer la fluidité »** (web-vitals, Apache-2.0, chargé seulement à l'appui, téléphone
+  seulement) : délai de réaction le plus lent en ms et ce qui a été touché. Rien n'est envoyé.
+- Toucher le sous-onglet déjà ouvert ne fait plus glisser l'écran pour rien.
+- Poids : `index.html` 882 232 → 892 375 octets (+10,1 ko) ; `vendor/` chargé au démarrage +23,8 ko
+  (Idiomorph 10,6 ko, TinyGesture 13,2 ko) : **34,0 ko**, au-dessus des 25 ko prévus (minification de TinyGesture
+  non faite : outil externe refusé). web-vitals : 15,7 ko, chargé à la demande seulement.
+- Nouveau test `tests/t25.py` (vibrations simulées).
+
 ### 2026.11.07-3 — Esthétique : icônes, emojis, chiffres, confettis, glissements (à essayer sur le téléphone)
 
 - **Icônes Phosphor** (MIT) dans la barre d'onglets (au repos en deux tons, pleine sur l'onglet actif, petit
