@@ -16,12 +16,13 @@ const nf=(n,d=1)=>Number(n).toLocaleString('fr-FR',{minimumFractionDigits:0,maxi
 /* espaces ignorées : nf écrit « 2 200 » (espace fine), qui doit se relire 2200 et non 2 */
 const num=v=>{const n=parseFloat(String(v??'').replace(/\s/g,'').replace(',','.'));return isFinite(n)?n:0};
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+/* icônes des boutons : Phosphor (js1c.js, généré) ; lues au moment du dessin, js1c.js venant après ce fichier */
 const ICON={
-  check:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
-  plus:'<svg viewBox="0 0 24 24" width="20" height="20" style="stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg>',
-  chev:'<svg viewBox="0 0 24 24" width="22" height="22" style="stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M9 5l7 7-7 7"/></svg>',
-  chevL:'<svg viewBox="0 0 24 24" width="22" height="22" style="stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M15 5l-7 7 7 7"/></svg>',
-  cam:'<svg viewBox="0 0 24 24" width="22" height="22" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'
+  get check(){return icon('coche')},
+  get plus(){return icon('plus','',20)},
+  get chev(){return icon('droite','',22)},
+  get chevL(){return icon('gauche','',22)},
+  get cam(){return icon('photo','',22)}
 };
 
 /* ===== state & storage ===== */

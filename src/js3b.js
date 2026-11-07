@@ -17,8 +17,8 @@ function syncRestBar(){
         <button class="rclock" data-act="g-rest-dur" aria-label="Changer la durée du repos"><span class="small" style="opacity:.75;font-weight:700">REPOS</span><b id="rclk">0:00</b></button>
         <button class="rmain" data-act="g-rest-more" aria-label="Ajouter 15 secondes">+15</button>
         <button class="rmain" data-act="g-rest-skip">Passer</button>`
-      :`<button class="rgo" data-act="g-rest-go">⏱ Démarrer le repos</button>
-        <button class="rdur" data-act="g-rest-dur" aria-label="Changer la durée du repos"><span id="rdef">${mmss(S.settings.rest)}</span> ▾</button>`;
+      :`<button class="rgo" data-act="g-rest-go">${icon('minuteur','gl')} Démarrer le repos</button>
+        <button class="rdur" data-act="g-rest-dur" aria-label="Changer la durée du repos"><span id="rdef">${mmss(S.settings.rest)}</span> ${icon('ouvrir','gl')}</button>`;
     document.body.appendChild(el);restBarState=want;
   }
   if(want==='on'){
@@ -156,12 +156,12 @@ function routineView(){
   const rows=r.exercises.map((e,i)=>`<div class="card ex" data-ak="${esc(e.name)}#${occ[e.name]=(occ[e.name]||0)+1}" style="padding:14px;margin-bottom:10px">
     <div class="hd"><button class="thumbbtn" data-act="g-exinfo" data-name="${esc(e.name)}" aria-label="Voir ${esc(e.name)}">${thumb(e.name,46)}</button>
       <div style="flex:1;min-width:0"><b style="overflow-wrap:anywhere">${esc(e.name)}</b><div class="small muted" id="rsum${i}">${esc(rSum(e))}</div></div>
-      <button class="iconbtn" style="width:40px;height:40px;box-shadow:none;background:var(--surface2)" data-act="g-rexmenu" data-i="${i}" aria-label="Options"><span style="font-size:20px;line-height:1">⋯</span></button></div>${gripRow(e.name,'g-rgrip',i)}
+      <button class="iconbtn" style="width:40px;height:40px;box-shadow:none;background:var(--surface2)" data-act="g-rexmenu" data-i="${i}" aria-label="Options"><span style="font-size:20px;line-height:1">${icon('menu','gl')}</span></button></div>${gripRow(e.name,'g-rgrip',i)}
     <div class="rsets"><div class="h">Série</div><div class="h">Poids (kg)</div><div class="h">Répétitions</div><div></div>
       ${e.sets.map((s,si)=>`<button class="n${STYPES[s.t]?' t'+s.t:''}" data-act="g-stype" data-c="r" data-e="${i}" data-s="${si}" aria-label="Série ${si+1}, ${STYPES[s.t]?STYPES[s.t][1].toLowerCase():'normale'} : changer le type">${STYPES[s.t]?(s.t==='d'?'Drop set':s.t==='w'?'Échauff.':'Échec'):'Série '+setLab(e.sets,si)}</button>
       <input class="rin" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" data-in="rset" data-f="kg" data-i="${i}" data-s="${si}" value="${esc(s.kg)}" placeholder="kg" aria-label="Série ${si+1} : poids en kg">
       <input class="rin" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" enterkeyhint="next" data-in="rset" data-f="reps" data-i="${i}" data-s="${si}" value="${esc(s.reps)}" placeholder="reps" aria-label="Série ${si+1} : répétitions">
-      <button class="rstep" data-act="g-rdelset" data-i="${i}" data-s="${si}" aria-label="Supprimer la série ${si+1}" ${e.sets.length<=1?'disabled':''}>×</button>`).join('')}
+      <button class="rstep" data-act="g-rdelset" data-i="${i}" data-s="${si}" aria-label="Supprimer la série ${si+1}" ${e.sets.length<=1?'disabled':''}>${icon('fermer','gl')}</button>`).join('')}
     </div>
     ${e.sets.length<RSETS_MAX?`<button class="chip" style="margin-top:10px;min-height:44px" data-act="g-raddset" data-i="${i}">${ICON.plus} Ajouter une série</button>`:''}
     </div>`).join('');

@@ -125,7 +125,7 @@ function rcSheet(){
   const r=recipeById(rcOpenId);if(!r)return;
   const note=RC().notes[r.id]||'';
   openSheet(`<div class="rc"><h3>${esc(r.n)}</h3>
-  <div class="row" style="flex-wrap:wrap;gap:6px;margin:-6px 0 14px"><span class="pill neutral">⏱ ${r.t} min</span>${r.veg?'<span class="pill good">Végétarien</span>':''}${r.prep?'<span class="pill neutral">À préparer à l’avance</span>':''}${r.mine?'<span class="pill neutral">Ma recette</span>':''}</div>
+  <div class="row" style="flex-wrap:wrap;gap:6px;margin:-6px 0 14px"><span class="pill neutral">${icon('minuteur','gl')} ${r.t} min</span>${r.veg?'<span class="pill good">Végétarien</span>':''}${r.prep?'<span class="pill neutral">À préparer à l’avance</span>':''}${r.mine?'<span class="pill neutral">Ma recette</span>':''}</div>
   <div class="sec">Portions</div>
   <div class="seg" id="rcseg" role="tablist" aria-label="Nombre de portions">${[[.5,'½'],[1,'1'],[1.5,'1,5'],[2,'2']].map(([k,n])=>`<button role="tab" data-act="rc-k" data-k="${k}" aria-selected="${rcK===k}">${n}</button>`).join('')}</div>
   <div class="stats" id="rcstats" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px"></div>

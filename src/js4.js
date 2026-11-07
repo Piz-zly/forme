@@ -179,7 +179,7 @@ VIEWS.scan=()=>{
   ${canVision?`<p class="muted small" style="margin:0 0 12px">Photographie le tableau nutritionnel et la liste d’ingrédients (jusqu’à ${maxImgs} photos). La note est calculée à partir du Nutri-Score et des additifs.</p>
   <div class="grid2"><label class="btn" style="cursor:pointer">${ICON.cam} Photo<input type="file" accept="image/*" capture="environment" data-ch="s-files" class="hidden"></label>
   <label class="btn ghost" style="cursor:pointer">Galerie<input type="file" accept="image/*" multiple data-ch="s-files" class="hidden"></label></div>${thumbs}
-  ${scanUrls.length?`<div class="row" style="margin-top:6px"><button class="btn block" id="sgo" data-act="s-go" ${scanBusy?'disabled':''}>${scanBusy?'<span class="spin"></span> Analyse…':'Analyser'}</button><button class="btn ghost" data-act="s-clear" aria-label="Effacer les photos">×</button></div>`:''}`
+  ${scanUrls.length?`<div class="row" style="margin-top:6px"><button class="btn block" id="sgo" data-act="s-go" ${scanBusy?'disabled':''}>${scanBusy?'<span class="spin"></span> Analyse…':'Analyser'}</button><button class="btn ghost" data-act="s-clear" aria-label="Effacer les photos">${icon('fermer','gl')}</button></div>`:''}`
   :(typeof ocrBtns==='function'&&ocrBtns('scan',''))||`<p class="muted small" style="margin:0 0 12px">L’analyse par photo n’est pas disponible ici. Tu peux saisir les valeurs de l’étiquette à la main.</p>`}
   ${scanErr?`<div class="pill bad" style="margin-top:10px;white-space:normal">${esc(scanErr)}</div>`:''}
   <button class="btn soft block" style="margin-top:12px" data-act="s-manual">Saisir les valeurs à la main</button></div>
@@ -348,6 +348,9 @@ I.imp=t=>{
 };
 
 /* ===== boot ===== */
+/* icônes fixes de la page (js1c.js) : réglages, et pour chaque onglet la version au repos (duotone) et active (pleine) */
+$('[data-act="settings"]').innerHTML=icon('reglages');
+document.querySelectorAll('.tab').forEach(b=>{const n='onglet-'+{weight:'poids',food:'repas',gym:'muscu',scan:'scan'}[b.dataset.t];b.insertAdjacentHTML('afterbegin',icon(n,'off')+icon(n+'-actif','on'))});
 render();
 if(lsBroken)openSheet('<h3>Données illisibles</h3><p class="muted" style="margin:0 0 16px">Tes données enregistrées sur ce téléphone n’ont pas pu être lues. Une copie est gardée de côté : ne désinstalle pas l’appli et n’efface pas les données du navigateur, puis demande de l’aide pour la récupérer. Si tu as une sauvegarde, tu peux aussi la restaurer dans Réglages.</p><button class="btn block" data-act="close">J’ai compris</button>');
 if(migrated)persist('settings');
