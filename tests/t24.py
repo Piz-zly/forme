@@ -6,6 +6,8 @@
   2. emojis Fluent (style Flat) des quatre repas, en couleur, dans leur pastille ;
   3. chiffres qui défilent (countUp.js) : valeur finale exacte, rejoués seulement si la valeur change,
      jamais avec « réduire les animations » ni pendant une séance ;
+  4. confettis : une salve quand un palier est franchi, une seule fois par palier (S.settings.fete),
+     aucune au premier affichage ni avec « réduire les animations » ;
   aucune erreur JavaScript, sur index.html et forme.html.
 
     python3 -m http.server 8765
@@ -90,6 +92,26 @@ with sync_playwright() as p:
         check(f'{page} : séance en cours -> pas de défilement', clean(pg.inner_text('[data-cu="act-s"]')) == '9 000')
         check(f'{page} : chiffres sans erreur JavaScript', not errs, errs)
         ctx.close()
+        # 4. confettis : une seule fois par palier, jamais avec « réduire les animations »
+        for reduit in (False, True):
+            ctx, pg, errs = ouvre(b, page, 'lune', reduit=reduit, data=dict(DATA, weights={T: 93.4}))
+            pg.evaluate('()=>{window.nbFete=0;const c=window.confetti;window.confetti=Object.assign((...a)=>{window.nbFete++;return c(...a)},c)}')
+            fete = lambda: pg.evaluate('window.nbFete')
+            st = lambda: pg.evaluate('JSON.parse(localStorage.getItem("forme.v1")).settings.fete')
+            pg.click('.tab[data-t="food"]'); pg.click('.tab[data-t="weight"]'); pg.wait_for_timeout(100)
+            check(f'{page} : premier affichage -> palier noté sans fête', fete() == 0 and st() and st()['n'] == 0, (fete(), st()))
+            def pese(v):
+                pg.fill('#wval', v); pg.click('[data-act="w-save"]'); pg.wait_for_timeout(100)
+            pese('92,4')
+            if reduit:
+                check(f'{page} : réduire les animations -> pas de confettis', fete() == 0, fete())
+            else:
+                check(f'{page} : palier franchi -> une salve (2 appels : confettis + étoiles)', fete() == 2, fete())
+                check(f'{page} : palier fêté retenu dans les données', st()['n'] == 1, st())
+                pese('92,3'); pese('93,1'); pese('92,2')
+                check(f'{page} : pesées corrigées -> pas de nouvelle fête', fete() == 2, fete())
+            check(f'{page} : confettis sans erreur JavaScript', not errs, errs)
+            ctx.close()
     b.close()
 
 termine()

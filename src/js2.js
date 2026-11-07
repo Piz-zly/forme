@@ -74,6 +74,34 @@ function hudHtml(){
   const lo=bounds[reached],hi=bounds[reached+1],pct=Math.round(clamp(Math.abs(cur-lo)/Math.abs(hi-lo),0,1)*100),left=Math.abs(cur-hi);
   return box(lv,name,pct+' %','' +pct,'encore <b class="num">'+nf(left,1)+' kg</b> avant '+nf(hi,2)+' kg');
 }
+/* paliers franchis vers l'objectif (le niveau du bandeau moins 1) et l'objectif qui les définit ; null sans objectif ni pesée */
+function palReached(){
+  const g=S.settings.goalW,step=S.settings.step||2.5,arr=sortedW();
+  if(!g||!arr.length)return null;
+  const start=S.settings.startW||arr[0].y,cur=arr[arr.length-1].y,dir=start>g?-1:1;
+  if(Math.abs(start-g)<0.05)return null;
+  let n=0;milestones(start,g,step).forEach(v=>{if(dir<0?cur<=v+0.05:cur>=v-0.05)n++});
+  return {k:start+'|'+g+'|'+step,n};
+}
+/* confettis une seule fois par palier (= niveau gagné), onglet Poids seulement. S.settings.fete = {k: objectif, n: paliers fêtés}.
+   Première fois, objectif changé, import ou synchro sans ce champ : on note sans fêter. Pesée corrigée : n ne redescend pas. */
+function feteCheck(){
+  const p=palReached(),f=S.settings.fete;if(!p)return;
+  const same=f&&f.k===p.k;
+  if(same&&p.n<=f.n)return;
+  S.settings.fete={k:p.k,n:p.n};persist('settings');
+  if(same&&!S.active)fete();
+}
+/* canvas-confetti (vendor/confetti.browser.js, ISC) : une salve d'environ 2 s aux couleurs de l'ambiance, avec des étoiles */
+function fete(){
+  if(!window.confetti||(typeof animOff==='function'&&animOff()))return;
+  try{
+    const cs=getComputedStyle(document.documentElement),c=['--c-weight','--c-gym','--c-scan','--warn'].map(v=>cs.getPropertyValue(v).trim());
+    const star=confetti.shapeFromPath({path:'M12 0l3.1 8.4H24l-7.2 5.3 2.8 8.6L12 17l-7.6 5.3 2.8-8.6L0 8.4h8.9z'});
+    confetti({particleCount:90,spread:75,startVelocity:38,ticks:120,origin:{y:.6},colors:c,disableForReducedMotion:true});
+    confetti({particleCount:28,spread:110,scalar:1.4,ticks:120,shapes:[star],origin:{y:.55},colors:[c[3],c[0]],disableForReducedMotion:true});
+  }catch(e){}
+}
 /* ===== POIDS : statistiques détaillées, historique par semaine, dépense estimée (2026.10.14-3) ===== */
 /* sens de l'objectif : -1 pour perdre, +1 pour prendre, 0 sans objectif */
 function wDir(arr){
@@ -188,6 +216,7 @@ VIEWS.weight=()=>{
   :'<div class="card empty">Entre ton premier poids ci-dessus.<br>Le graphique et la tendance apparaîtront dès la 2e pesée.</div>'}`;
 };
 VIEWS.weight_after=()=>{
+  feteCheck();
   const el=$('#wchart');if(!el)return;
   const arr=sortedW();if(!arr.length)return;
   const lastX=arr[arr.length-1].x,avg=movAvg(arr);
