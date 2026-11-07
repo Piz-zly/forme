@@ -13,7 +13,8 @@ const fmtLong=s=>parseD(s).toLocaleDateString('fr-FR',{weekday:'long',day:'numer
 const fmtShort=s=>parseD(s).toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
 const fmtDay=s=>parseD(s).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
 const nf=(n,d=1)=>Number(n).toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:d});
-const num=v=>{const n=parseFloat(String(v??'').replace(',','.'));return isFinite(n)?n:0};
+/* espaces ignorées : nf écrit « 2 200 » (espace fine), qui doit se relire 2200 et non 2 */
+const num=v=>{const n=parseFloat(String(v??'').replace(/\s/g,'').replace(',','.'));return isFinite(n)?n:0};
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const ICON={
   check:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
