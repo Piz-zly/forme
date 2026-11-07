@@ -351,7 +351,7 @@ VIEWS.food=()=>{
   if(foodSub!=='journal')return foodSeg()+recipesView();
   const list=dayEntries(fDate),t=totals(list),g=goals();
   const rem=g.kcal-t.kcal,over=rem<0,C=2*Math.PI*56,prog=clamp(t.kcal/g.kcal,0,1);
-  const mac=(l,v,goal)=>`<div class="macro"><div class="row sb small"><b>${l}</b><span class="num">${nf(v,0)} / ${nf(goal,0)} g</span></div><div class="bar"><i style="width:${clamp(v/goal*100,0,100)}%"></i></div></div>`;
+  const mac=(l,v,goal)=>`<div class="macro"><div class="row sb small"><b>${l}</b><span class="num">${nf(v,0)} / ${nf(goal,0)} g</span></div><div class="bar"><i style="width:${clamp(v/goal*100||0,0,100)}%"></i></div></div>`;
   const slots=SLOTS.map(([k,name])=>{
     const es=list.filter(e=>e.slot===k),st=totals(es);
     return `<div class="card slot" data-ag="m:${fDate}:${k}"><div class="row sb" style="margin-bottom:4px"><h4 class="row" style="gap:10px">${slotIcon(k)}${name}</h4><span class="num muted">${nf(st.kcal,0)} kcal</span></div>
