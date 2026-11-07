@@ -349,6 +349,7 @@ I.imp=t=>{
 
 /* ===== boot ===== */
 render();
+if(lsBroken)openSheet('<h3>Données illisibles</h3><p class="muted" style="margin:0 0 16px">Tes données enregistrées sur ce téléphone n’ont pas pu être lues. Une copie est gardée de côté : ne désinstalle pas l’appli et n’efface pas les données du navigateur, puis demande de l’aide pour la récupérer. Si tu as une sauvegarde, tu peux aussi la restaurer dans Réglages.</p><button class="btn block" data-act="close">J’ai compris</button>');
 if(migrated)persist('settings');
 if(migratedR){dirty.add('routines');saveLocal()}
 setInterval(tick,1000);

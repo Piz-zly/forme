@@ -28,7 +28,14 @@ const ICON={
 const LS='forme.v1';
 const defaults=()=>({settings:{kcal:2200,p:150,c:250,f:70,goalW:80,startW:null,step:2.5,rest:90,pasCharge:2.5,sugCharge:true,sugMin:10,sugMax:12,ecranAllume:true,auto:true,pkg:2,fkg:1,steps:10000,heightCm:null},weights:{},foods:[],meals:{},routines:[],sessions:[],exercises:[],scans:[],act:{},recipes:{done:{},notes:{},mine:[]},combos:[],fixes:{},plan:{days:{},shop:{done:{},extra:[]}},fridge:{have:[]},active:null,ui:{tab:'weight'},_t:{}});
 let S=defaults();
-try{const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);S=Object.assign(defaults(),o);S.settings=Object.assign(defaults().settings,o.settings||{})}}catch(e){}
+/* données illisibles : copie gardée sous forme.v1.abime avant que le prochain enregistrement les remplace
+   (la première copie n'est jamais écrasée) ; l'appli repart des valeurs par défaut et le dit (js4.js) */
+let lsBroken=false;
+try{const raw=localStorage.getItem(LS);if(raw){
+  let o=null;try{o=JSON.parse(raw)}catch(e){}
+  if(o&&typeof o==='object'&&!Array.isArray(o)){S=Object.assign(defaults(),o);S.settings=Object.assign(defaults().settings,o.settings||{})}
+  else{lsBroken=true;try{if(localStorage.getItem(LS+'.abime')==null)localStorage.setItem(LS+'.abime',raw)}catch(_){}}
+}}catch(e){}
 function migrateSettings(){const g=S.settings;if(!g.v2){g.v2=1;if(g.goalW==null)g.goalW=80;if(!g.step)g.step=2.5;return true}return false}
 const migrated=migrateSettings();
 /* routines (2026.10.14-2) : chaque exercice garde ses séries une par une, {name, sets:[{kg,reps},…]}.
@@ -78,7 +85,10 @@ function localIds(){
   return ids;
 }
 let dbc=null,syncState='local',dirty=new Set(),saveTimer=null;
-function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+/* stockage plein ou refusé : prévenir, au plus une fois par minute (persist est appelé à chaque saisie) ;
+   après le message de l'action en cours (« Poids enregistré »), pour ne pas être remplacé par lui */
+let saveWarned=0;
+function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){if(Date.now()-saveWarned>60000){saveWarned=Date.now();setTimeout(toast,0,'Enregistrement impossible sur ce téléphone (mémoire pleine ?). Exporte une sauvegarde dans Réglages.')}}}
 function persist(slice,key){
   const id=docOf(slice,key);dirty.add(id);S._t[id]=Date.now();saveLocal();
   clearTimeout(saveTimer);saveTimer=setTimeout(flush,900);
