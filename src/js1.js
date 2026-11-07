@@ -141,8 +141,9 @@ function toast(msg){
 }
 function openSheet(html){
   $('#layer').innerHTML='<div class="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>'+html+'</div></div>';
+  backSync();
 }
-function closeSheet(){$('#layer').innerHTML=''}
+function closeSheet(){$('#layer').innerHTML='';backSync()}
 /* remplace le contenu de la feuille ouverte sans rejouer l'animation d'ouverture ni remonter en haut ;
    sans feuille ouverte, l'ouvre normalement */
 function reSheet(html){
@@ -225,6 +226,7 @@ function render(){
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===tab)));
   renderBehind();
   if(typeof syncRestBar==='function')syncRestBar();
+  backSync();
 }
 function renderBehind(){const h=$('#hud');if(h&&typeof hudHtml==='function')h.innerHTML=hudHtml();const f=VIEWS[tab];if(f){morphIn($('#view'),f());VIEWS[tab+'_after']&&VIEWS[tab+'_after']();}}
 addEventListener('scroll',()=>document.body.classList.toggle('scrolled',window.scrollY>6),{passive:true});
