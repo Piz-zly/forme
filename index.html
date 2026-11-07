@@ -198,6 +198,11 @@ textarea.inp{padding:12px 14px;min-height:96px;resize:vertical}
 .sheet h3{margin:0 0 14px;font:800 22px/1.15 var(--font-display);letter-spacing:-.02em}
 @keyframes up{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.toastbtn{border:0;background:none;color:inherit;font:inherit;font-weight:800;text-decoration:underline;padding:6px 2px;min-height:32px;cursor:pointer}
+/* ligne du journal tirée à gauche (js1g.js) : bouton Supprimer derrière ; pan-y laisse le défilement vertical au navigateur */
+#view .entry{touch-action:pan-y;transition:transform .18s ease-out}
+.swdel{position:absolute;right:0;width:96px;border:0;border-radius:12px;background:var(--bad);color:var(--on-accent);font-weight:800}
+@media (prefers-reduced-motion:reduce){#view .entry{transition:none}}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tabbar-h) + 84px + env(safe-area-inset-bottom,0px));z-index:70;padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;box-shadow:var(--shadow);max-width:90%}
 
 /* weight */
@@ -545,12 +550,14 @@ button.lvl{border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transpa
 </div>
 <div id="layer"></div>
 <script src="vendor/fuse.basic.min.js"></script>
+<script src="vendor/idiomorph.min.js"></script>
+<script src="vendor/tinygesture.js"></script>
 <script src="vendor/countUp.umd.js"></script>
 <script src="vendor/confetti.browser.js"></script>
 <script>
 (function(){'use strict';
 /* ===== utils ===== */
-const APP_VER='2026.11.07-3';
+const APP_VER='2026.11.07-4';
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
@@ -580,7 +587,7 @@ const ICON={
 
 /* ===== state & storage ===== */
 const LS='forme.v1';
-const defaults=()=>({settings:{kcal:2200,p:150,c:250,f:70,goalW:80,startW:null,step:2.5,rest:90,pasCharge:2.5,sugCharge:true,sugMin:10,sugMax:12,ecranAllume:true,auto:true,pkg:2,fkg:1,steps:10000,heightCm:null},weights:{},foods:[],meals:{},routines:[],sessions:[],exercises:[],scans:[],act:{},recipes:{done:{},notes:{},mine:[]},combos:[],fixes:{},plan:{days:{},shop:{done:{},extra:[]}},fridge:{have:[]},active:null,ui:{tab:'weight'},_t:{}});
+const defaults=()=>({settings:{kcal:2200,p:150,c:250,f:70,goalW:80,startW:null,step:2.5,rest:90,pasCharge:2.5,sugCharge:true,sugMin:10,sugMax:12,ecranAllume:true,vibre:true,auto:true,pkg:2,fkg:1,steps:10000,heightCm:null},weights:{},foods:[],meals:{},routines:[],sessions:[],exercises:[],scans:[],act:{},recipes:{done:{},notes:{},mine:[]},combos:[],fixes:{},plan:{days:{},shop:{done:{},extra:[]}},fridge:{have:[]},active:null,ui:{tab:'weight'},_t:{}});
 let S=defaults();
 /* données illisibles : copie gardée sous forme.v1.abime avant que le prochain enregistrement les remplace
    (la première copie n'est jamais écrasée) ; l'appli repart des valeurs par défaut et le dit (js4.js) */
@@ -685,20 +692,24 @@ async function initDb(){
 
 /* ===== ui helpers ===== */
 const A={},I={};
-function toast(msg){
+/* act facultatif : {label, fn} ajoute un bouton (ex. « Annuler ») et laisse le message 5 s */
+function toast(msg,act){
   document.querySelectorAll('.toast').forEach(t=>t.remove());
-  const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);
-  setTimeout(()=>t.remove(),2200);
+  const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;
+  if(act){const b=document.createElement('button');b.className='toastbtn';b.textContent=act.label;b.onclick=()=>{t.remove();act.fn()};t.append(' · ',b)}
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),act?5000:2200);
 }
 function openSheet(html){
   $('#layer').innerHTML='<div class="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>'+html+'</div></div>';
+  backSync();
 }
-function closeSheet(){$('#layer').innerHTML=''}
+function closeSheet(){$('#layer').innerHTML='';backSync()}
 /* remplace le contenu de la feuille ouverte sans rejouer l'animation d'ouverture ni remonter en haut ;
    sans feuille ouverte, l'ouvre normalement */
 function reSheet(html){
   const sh=$('#layer .sheet');if(!sh){openSheet(html);return}
-  const y=sh.scrollTop;sh.innerHTML='<div class="grab"></div>'+html;sh.scrollTop=y;
+  const y=sh.scrollTop;morphIn(sh,'<div class="grab"></div>'+html);sh.scrollTop=y;
 }
 const sheetOpen=()=>!!$('#layer .scrim');
 function confirmSheet(title,text,okLabel,onOk){
@@ -776,8 +787,9 @@ function render(){
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===tab)));
   renderBehind();
   if(typeof syncRestBar==='function')syncRestBar();
+  backSync();
 }
-function renderBehind(){const h=$('#hud');if(h&&typeof hudHtml==='function')h.innerHTML=hudHtml();const f=VIEWS[tab];if(f){$('#view').innerHTML=f();VIEWS[tab+'_after']&&VIEWS[tab+'_after']();}}
+function renderBehind(){const h=$('#hud');if(h&&typeof hudHtml==='function')h.innerHTML=hudHtml();const f=VIEWS[tab];if(f){morphIn($('#view'),f());VIEWS[tab+'_after']&&VIEWS[tab+'_after']();}}
 addEventListener('scroll',()=>document.body.classList.toggle('scrolled',window.scrollY>6),{passive:true});
 document.querySelector('.tabbar').addEventListener('click',e=>{
   const b=e.target.closest('.tab');if(!b)return;
@@ -789,8 +801,13 @@ document.querySelector('.tabbar').addEventListener('click',e=>{
    changement direct, comme avant. Seul #view glisse (CSS « vue » dans p1.html). */
 function slide(b,fn){
   const sib=[...b.parentElement.children],cur=sib.findIndex(x=>x.getAttribute('aria-selected')==='true');
-  if(!document.startViewTransition||cur<0||S.active||matchMedia('(prefers-reduced-motion: reduce)').matches){fn();return}
-  const r=document.documentElement;r.dataset.vt=sib.indexOf(b)>cur?'g':'d';
+  const i=sib.indexOf(b);if(cur<0||i===cur){fn();return}   /* même onglet : rien ne glisse */
+  go(i>cur?'g':'d',fn);
+}
+/* d : 'g' le nouveau contenu arrive de la droite, 'd' de la gauche */
+function go(d,fn){
+  if(!document.startViewTransition||S.active||matchMedia('(prefers-reduced-motion: reduce)').matches){fn();return}
+  const r=document.documentElement;r.dataset.vt=d;
   document.startViewTransition(fn).finished.finally(()=>delete r.dataset.vt);
 }
 /* ===== ICÔNES : GÉNÉRÉ par tools/gen_icones.py, ne pas éditer =====
@@ -939,6 +956,111 @@ function cuPlay(){
   renderBehind=function(){draw();try{cuPlay()}catch(e){}};
   openSheet=function(){const r=sheet.apply(this,arguments);try{cuPlay()}catch(e){}return r};
 }
+/* ===== FLUIDITÉ (2026.11.07-4) : écran mis à jour sans tout refaire, geste Retour, vibrations, glissements au doigt ===== */
+
+/* Remplace le contenu de el par html en gardant les éléments déjà là (Idiomorph, vendor/idiomorph.min.js, 0BSD) : le champ
+   en cours de saisie garde focus, curseur, valeur et clavier ; la page ne saute pas. Les lignes data-ak (js1b.js) sont
+   appariées par leur clé grâce à un id provisoire, pour que l'animation retrouve les mêmes lignes. Sans Idiomorph ou en
+   cas d'erreur : innerHTML, comme avant. */
+function morphIn(el,html){
+  if(!window.Idiomorph){el.innerHTML=html;return}
+  try{
+    const t=document.createElement('template');t.innerHTML=html;
+    [el,t.content].forEach(r=>r.querySelectorAll('[data-ak]:not([id])').forEach(x=>x.id='ak-'+x.dataset.ak));
+    /* seul un champ de saisie actif est laissé tel quel ; un bouton qui vient d'être touché garde le focus mais doit changer */
+    const typing=!!document.activeElement&&document.activeElement.matches('input,textarea,select');
+    Idiomorph.morph(el,[...t.content.childNodes],{morphStyle:'innerHTML',ignoreActiveValue:typing});
+    el.querySelectorAll('[data-ak][id^="ak-"]').forEach(x=>x.removeAttribute('id'));
+  }catch(e){el.innerHTML=html}
+}
+
+/* geste Retour d'Android : ferme la feuille ouverte, sinon ramène un sous-onglet du Repas au Journal ; sinon rien n'est
+   retenu et l'appli peut se fermer. CloseWatcher si Chrome le connaît, sinon une seule entrée d'historique à la fois
+   (window.history : « history » est aussi une fonction de js3.js ; jamais de boucle : chaque entrée ajoutée attend un vrai Retour, ou est retirée dès que l'écran n'en a plus besoin). */
+let backW=null,backPushed=false,backSkip=false;
+const backWant=()=>sheetOpen()||(tab==='food'&&foodSub!=='journal');
+function backDo(){
+  if(sheetOpen())closeSheet();
+  else if(tab==='food'&&foodSub!=='journal'){foodSub='journal';render()}
+  else backSync();
+}
+function backSync(){
+  const w=backWant();
+  if(window.CloseWatcher){
+    if(w&&!backW){try{backW=new CloseWatcher();backW.onclose=()=>{backW=null;backDo()}}catch(e){backW=null}}
+    else if(!w&&backW){const x=backW;backW=null;x.destroy()}
+    return;
+  }
+  if(w&&!backPushed){try{window.history.pushState({forme:1},'');backPushed=true}catch(e){}}
+  else if(!w&&backPushed){backPushed=false;backSkip=true;window.history.back()}
+}
+addEventListener('popstate',()=>{if(backSkip){backSkip=false;return}if(backPushed){backPushed=false;backDo()}});
+
+/* vibrations courtes. Durées reprises des motifs de web-haptics (github.com/lochie/web-haptics, MIT), sans leur modulation
+   d'intensité : leger = light, succes = success, fort = nudge, avert = warning. repos = fin du repos (motif d'origine). */
+const HAPTIC={leger:[15],succes:[30,60,40],fort:[80,80,50],avert:[40,100,40],repos:[200,90,200]};
+function haptic(t){if(S.settings.vibre===false||!navigator.vibrate)return;try{navigator.vibrate(HAPTIC[t]||HAPTIC.leger)}catch(e){}}
+
+/* petite suppression déjà faite : « Supprimé · Annuler » pendant 5 s ; back() remet exactement ce qui a été retiré */
+function undoable(back){haptic('avert');toast('Supprimé',{label:'Annuler',fn:()=>{back();render()}})}
+
+/* glissements au doigt : TinyGesture (vendor/tinygesture.js, Apache-2.0). Journal du Repas : balayer change de jour ;
+   ligne du journal tirée à gauche : bouton « Supprimer ». Feuille tirée vers le bas (poignée, ou contenu en haut) : fermée.
+   Jamais sur un champ, le graphique ou une zone qui défile à l'horizontale ; pas de balayage pendant une séance.
+   Avec moins d'animations, rien ne suit le doigt : seule l'action a lieu. */
+const motionOff=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+function noSwipe(t){
+  if(!t||!t.closest||t.closest('input,textarea,select,#wchart,#gchart,.toast'))return true;
+  for(let e=t;e&&e!==document.body;e=e.parentElement)
+    if(e.scrollWidth>e.clientWidth+2&&/auto|scroll/.test(getComputedStyle(e).overflowX))return true;
+  return false;
+}
+function closeSwiped(keep){
+  document.querySelectorAll('#view .entry.swiped').forEach(r=>{if(r!==keep){r.style.transform='';r.classList.remove('swiped')}});
+  document.querySelectorAll('#view .swdel').forEach(b=>b.remove());
+}
+function openSwiped(row){
+  row.classList.add('swiped');row.style.transform='translateX(-104px)';
+  const p=row.parentElement;if(getComputedStyle(p).position==='static')p.style.position='relative';
+  const b=document.createElement('button');b.className='swdel';b.dataset.act='f-del';b.dataset.id=row.dataset.id;b.textContent='Supprimer';
+  b.style.top=row.offsetTop+'px';b.style.height=row.offsetHeight+'px';row.after(b);
+}
+if(typeof TinyGesture==='function'){
+  const journal=()=>tab==='food'&&foodSub==='journal'&&!S.active;
+  const V=new TinyGesture($('#view'),{mouseSupport:false});
+  let start=null,row=null,onRow=false;
+  V.on('panstart',e=>{
+    start=noSwipe(e.target)?null:e.target;
+    row=start&&journal()?start.closest('.entry[data-act="f-edit"]'):null;onRow=!!row;
+    closeSwiped(row);
+  });
+  V.on('panmove',()=>{if(row&&/horizontal/.test(V.swipingDirection||'')&&!motionOff()){row.style.transition='none';row.style.transform='translateX('+Math.max(-140,Math.min(0,V.touchMoveX))+'px)'}});
+  V.on('panend',()=>{
+    if(!row)return;
+    row.style.transition='';
+    if(/horizontal/.test(V.swipingDirection||'')&&V.touchEndX-V.touchStartX<-50)openSwiped(row);else row.style.transform='';
+    row=null;
+  });
+  V.on('swipeleft',()=>{if(start&&!onRow&&journal())dayMove(1)});
+  V.on('swiperight',()=>{if(start&&!onRow&&journal())dayMove(-1)});
+
+  const L=new TinyGesture($('#layer'),{mouseSupport:false});
+  let sh=null;
+  L.on('panstart',e=>{
+    const s=$('#layer .sheet');
+    sh=s&&s.contains(e.target)&&!e.target.closest('input,textarea,select')&&(e.target.closest('.grab')||s.scrollTop<=0)?s:null;
+  });
+  L.on('panmove',()=>{
+    if(!sh||motionOff()||/horizontal/.test(L.swipingDirection||''))return;
+    sh.style.transition='none';sh.style.transform='translateY('+Math.max(0,L.touchMoveY)+'px)';
+  });
+  L.on('panend',()=>{
+    if(!sh)return;
+    const s=sh,y=L.touchEndY-L.touchStartY;sh=null;
+    if(y>110&&y>Math.abs(L.touchEndX-L.touchStartX))closeSheet();
+    else{s.style.transition='transform .2s ease-out';s.style.transform=''}
+  });
+}
 /* ===== WEIGHT ===== */
 let wRange=30,wDate=null,wVal=null,wAll=false;
 const sortedW=()=>Object.keys(S.weights).sort().map(d=>({d,x:dn(d),y:S.weights[d]}));
@@ -1036,7 +1158,7 @@ function feteCheck(){
   const same=f&&f.k===p.k;
   if(same&&p.n<=f.n)return;
   S.settings.fete={k:p.k,n:p.n};persist('settings');
-  if(same&&!S.active)fete();
+  if(same&&!S.active){haptic('fort');fete()}
 }
 /* canvas-confetti (vendor/confetti.browser.js, ISC) : une salve d'environ 2 s aux couleurs de l'ambiance, avec des étoiles */
 function fete(){
@@ -1183,7 +1305,7 @@ A['w-save']=()=>{
   const inp=$('#wval');const v=num(inp.value);
   if(v<20||v>400){toast('Entre un poids valide (en kg)');return}
   const d=wDate||today();S.weights[d]=Math.round(v*10)/10;wVal=S.weights[d];
-  persist('weights');toast('Poids enregistré');render();
+  persist('weights');haptic('succes');toast('Poids enregistré');render();
 };
 A['w-range']=b=>{wRange=Number(b.dataset.r);render()};
 A['w-all']=()=>{wAll=!wAll;render()};
@@ -1192,8 +1314,8 @@ A['w-edit']=b=>{
   openSheet(`<h3>${esc(fmtLong(d))}</h3><div class="field"><label for="ew">Poids (kg)</label><input class="inp" id="ew" inputmode="decimal" value="${nf(S.weights[d])}"></div>
   <div class="grid2"><button class="btn danger" data-act="w-del" data-d="${d}">Supprimer</button><button class="btn" data-act="w-upd" data-d="${d}">Enregistrer</button></div>`);
 };
-A['w-upd']=b=>{const v=num($('#ew').value);if(v<20||v>400){toast('Poids invalide');return}S.weights[b.dataset.d]=Math.round(v*10)/10;persist('weights');closeSheet();render()};
-A['w-del']=b=>{delete S.weights[b.dataset.d];persist('weights');wVal=null;closeSheet();render()};
+A['w-upd']=b=>{const v=num($('#ew').value);if(v<20||v>400){toast('Poids invalide');return}S.weights[b.dataset.d]=Math.round(v*10)/10;persist('weights');haptic('succes');closeSheet();render()};
+A['w-del']=b=>{const d=b.dataset.d,v=S.weights[d];delete S.weights[d];persist('weights');wVal=null;closeSheet();render();undoable(()=>{S.weights[d]=v;persist('weights');wVal=null})};
 
 /* ===== POIDS : export et import CSV (Réglages) ===== */
 /* export : UTF-8 avec BOM (Excel français), « ; », virgule décimale, du plus ancien au plus récent */
@@ -1340,9 +1462,11 @@ VIEWS.food=()=>{
       <div class="small" style="margin-top:2px"><b class="num" style="color:${over?'var(--bad)':'var(--ink)'}">${nf(Math.abs(rem),0)} kcal</b> <span class="muted">${over?'au-dessus de l’objectif':'restantes'}</span></div>${(st=>st.n>=2?`<div class="small" id="fstreak" style="margin-top:4px;font-weight:700">🔥 ${st.n} jours notés de suite</div>`:'')(mealStreak())}</div>
   </div>${g.auto?`<div class="small muted" style="margin-top:12px">Objectifs calculés pour ${nf(g.w)} kg : ${nf(S.settings.pkg||2)} g de protéines et ${nf(S.settings.fkg||1)} g de lipides par kilo, glucides pour compléter les calories.${g.low?' Les calories sont trop basses pour ces réglages.':''}</div>`:''}</div>${slots}<button class="btn ghost block" style="margin-bottom:14px" data-act="f-copy" data-slot="">Copier une journée entière</button>`;
 };
-A['f-day']=b=>{const n=Number(b.dataset.n);const nd=addDays(fDate,n);if(nd>today())return;fDate=nd;render()};
+A['f-day']=b=>dayMove(Number(b.dataset.n));
+/* jour suivant (n=1) ou précédent (n=-1) du journal, boutons ou balayage, avec le glissement dans le bon sens */
+function dayMove(n){const nd=addDays(fDate,n);if(nd>today())return;haptic('leger');go(n>0?'g':'d',()=>{fDate=nd;render()})}
 function addEntry(slot,e,date){
-  const d=date||fDate;(S.meals[d]=S.meals[d]||[]).push({id:uid(),slot,name:e.name,kcal:r1(e.kcal),p:r1(e.p),c:r1(e.c),f:r1(e.f)});
+  const d=date||fDate;haptic('succes');(S.meals[d]=S.meals[d]||[]).push({id:uid(),slot,name:e.name,kcal:r1(e.kcal),p:r1(e.p),c:r1(e.c),f:r1(e.f)});
   persist('meals',d);
 }
 function recents(){
@@ -1441,7 +1565,11 @@ A['f-save']=b=>{
   e.name=$('#en').value.trim()||e.name;e.kcal=r1($('#ek').value);e.p=r1($('#ep').value);e.c=r1($('#ec').value);e.f=r1($('#ef').value);
   persist('meals',fDate);closeSheet();render();
 };
-A['f-del']=b=>{S.meals[fDate]=dayEntries(fDate).filter(x=>x.id!==b.dataset.id);persist('meals',fDate);closeSheet();render()};
+A['f-del']=b=>{
+  const d=fDate,l=dayEntries(d),i=l.findIndex(x=>x.id===b.dataset.id);if(i<0)return;const e=l[i];
+  S.meals[d]=l.filter((_,j)=>j!==i);persist('meals',d);closeSheet();render();
+  undoable(()=>{const L=dayEntries(d).slice();L.splice(Math.min(i,L.length),0,e);S.meals[d]=L;persist('meals',d)});
+};
 A['f-fav']=b=>{
   const e=dayEntries(fDate).find(x=>x.id===b.dataset.id);if(!e)return;
   if(!S.foods.some(f=>f.name.toLowerCase()===e.name.toLowerCase())){S.foods.unshift({id:uid(),name:e.name,kcal:e.kcal,p:e.p,c:e.c,f:e.f});persist('foods')}
@@ -2481,6 +2609,7 @@ A['g-check']=b=>{
       const o=a.exercises.filter(x=>x.name===e.name).flatMap(x=>x.sets.filter(y=>y!==s&&y.done&&isWork(y)));
       const pr=prCheck(e.name,s,o);if(pr){s.pr=pr;prBan={s,until:Date.now()+PR_MS}}
     }
+    haptic(s.pr?'fort':'leger');   /* série validée : léger ; record battu : fort */
     startRest(S.settings.rest);
   }else{s.done=false;delete s.pr}
   persist('active');render();
@@ -2512,7 +2641,8 @@ A['g-exmenu']=b=>{
   const ei=b.dataset.e,e=S.active.exercises[+ei];
   openSheet(`<h3>${esc(e.name)}</h3><div class="grid2"><button class="btn ghost" data-act="g-rmset" data-e="${ei}">Retirer la dernière série</button><button class="btn danger" data-act="g-rmex" data-e="${ei}">Retirer l’exercice</button></div>`);
 };
-A['g-rmset']=b=>{const e=S.active.exercises[+b.dataset.e];if(e.sets.length)e.sets.pop();persist('active');closeSheet();render()};
+A['g-rmset']=b=>{const e=S.active.exercises[+b.dataset.e];if(!e.sets.length)return;const s=e.sets.pop();persist('active');closeSheet();render();
+  undoable(()=>{if(S.active&&S.active.exercises.includes(e)){e.sets.push(s);persist('active')}})};
 A['g-rmex']=b=>{S.active.exercises.splice(+b.dataset.e,1);persist('active');closeSheet();render()};
 A['g-cancel']=()=>confirmSheet('Abandonner la séance ?','Tout ce que tu as saisi sera perdu.','Abandonner',()=>{S.active=null;restEnd=0;gymOpen=false;persist('active');render()});
 
@@ -2695,7 +2825,7 @@ function syncRestBar(){
   if(want==='on'){
     const ms=restEnd-Date.now(),left=Math.ceil(ms/1000);
     if(left<=0){
-      if(!restRang){restRang=true;toast('Repos terminé');try{navigator.vibrate&&navigator.vibrate([200,90,200])}catch(_){}}
+      if(!restRang){restRang=true;toast('Repos terminé');haptic('repos')}
       restEnd=0;syncRestBar();return;
     }
     const c=$('#rclk');if(c)c.textContent=mmss(left);
@@ -3460,6 +3590,7 @@ A.settings=()=>{
   <div class="small muted" style="margin:-4px 0 12px">Quand toutes tes séries atteignent le max, l’appli suggère d’ajouter un palier. Ce n’est qu’une suggestion : rien n’est changé à ta place.</div>
   ${typeof wakeSync==='function'?`<label class="row" style="min-height:44px;margin-bottom:0"><input type="checkbox" id="gwl" ${g.ecranAllume!==false?'checked':''} style="width:22px;height:22px"> Garder l’écran allumé pendant la séance</label>
   <div class="small muted" style="margin:0 0 12px">Consomme un peu plus de batterie.</div>`:''}
+  ${navigator.vibrate?`<label class="row" style="min-height:44px;margin-bottom:12px"><input type="checkbox" id="gvib" ${g.vibre!==false?'checked':''} style="width:22px;height:22px"> Vibrations (série validée, repas ajouté, record…)</label>`:''}
   <div class="sec" style="margin-top:6px">Activité</div>
   <div class="grid2">${f('gst','Objectif de pas / jour',g.steps||10000)}</div>
   <button class="btn block" data-act="set-save">Enregistrer</button>
@@ -3470,6 +3601,7 @@ A.settings=()=>{
   <div class="grid2"><button class="btn ghost" data-act="exp">Exporter</button><label class="btn ghost" style="cursor:pointer">Restaurer<input type="file" accept=".json,application/json" data-ch="imp" class="hidden"></label></div>
   <div class="grid2" style="margin-top:8px"><button class="btn ghost" data-act="w-csv-exp">Exporter les pesées (CSV)</button><label class="btn ghost" style="cursor:pointer;text-align:center">Importer des pesées (CSV)<input type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" data-ch="wcsv" class="hidden"></label></div>
   <div id="expout"></div>${typeof A.upd==='function'?'<div class="sec" style="margin-top:22px">Application</div><button class="btn ghost block" data-act="upd">Vérifier les mises à jour</button>':''}
+  ${typeof perfStart==='function'?'<div class="sec" style="margin-top:22px">Fluidité</div><button class="btn ghost block" data-act="perf">'+(perfP?'Mesure en cours':'Mesurer la fluidité')+'</button><div id="perfout" class="small muted" style="margin-top:8px">'+esc(perfText())+'</div>':''}
   <div class="small muted" style="margin-top:14px">Version ${APP_VER}</div>
   <div class="small muted" style="margin-top:8px">Illustrations des mouvements : Open Exercise Illustrations (CC0, domaine public). Schémas musculaires : tracés de react-body-highlighter, © 2020 GV79, licence MIT. Lecture des codes-barres : ZXing. Lecture des étiquettes : Tesseract.js (Apache-2.0). Insignes : game-icons.net, CC BY 3.0. <a href="THIRD_PARTY.txt" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700">Licences</a></div>`);
   gprev();
@@ -3496,6 +3628,7 @@ A['set-save']=()=>{
   if(!(lo>=1&&hi>lo&&hi<=50)){toast('Répétitions visées : min plus petit que max');return}
   g.sugMin=lo;g.sugMax=hi;g.sugCharge=$('#gsug').checked;g.pasCharge=v('gpc')>0&&v('gpc')<=50?v('gpc'):2.5;
   if($('#gwl'))g.ecranAllume=$('#gwl').checked;
+  if($('#gvib'))g.vibre=$('#gvib').checked;
   g.goalW=v('gw')>=20?v('gw'):null;g.step=v('gt')>0?v('gt'):2.5;g.startW=v('gs')>=20?v('gs'):null;if(v('gr')>=10)g.rest=v('gr');
   persist('settings');closeSheet();toast('Réglages enregistrés');render();
 };
@@ -3614,7 +3747,7 @@ A.live=async b=>{
     if(code)break;
   }
   const ok=liveRun&&code;stopLive();
-  if(ok){try{navigator.vibrate&&navigator.vibrate(40)}catch(_){}await afterCode(code,ctx,slot)}
+  if(ok){haptic('succes');await afterCode(code,ctx,slot)}
 };
 /* sauvegarde : téléchargement d'un fichier */
 dl={phone:true,save:async({filename,data,type})=>{
@@ -3741,6 +3874,25 @@ function wakeSync(){
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wlNo=false;wakeSync()});
 window.addEventListener('pagehide',wakeOff);
+
+/* mesure de la fluidité (Réglages) : web-vitals (vendor/web-vitals.attribution.iife.js, Apache-2.0) chargé seulement quand
+   on appuie sur « Mesurer la fluidité », jamais au démarrage. Garde le délai de réaction le plus lent (INP). Rien n'est envoyé. */
+let perfP=null,perfInp=null;
+function perfStart(){
+  if(!perfP)perfP=new Promise((res,rej)=>{const s=document.createElement('script');s.src='vendor/web-vitals.attribution.iife.js';s.onload=res;s.onerror=()=>{perfP=null;rej(new Error('perf'))};document.head.appendChild(s)})
+    .then(()=>webVitals.onINP(m=>{perfInp=m;const o=$('#perfout');if(o)o.textContent=perfText()},{reportAllChanges:true,durationThreshold:16}));
+  return perfP;
+}
+function perfText(){
+  if(!perfP)return '';
+  if(!perfInp)return 'Mesure en cours : utilise l’appli normalement, puis reviens ici.';
+  const v=Math.round(perfInp.value),a=perfInp.attribution||{},sel=a.interactionTarget||'';
+  let el=null;try{el=sel&&document.querySelector(sel)}catch(e){}
+  const c=el&&(el.closest('button,a,label,[data-act],input')||el);
+  const nom=c&&(c.getAttribute('aria-label')||c.textContent.trim().replace(/\s+/g,' ').slice(0,40))||sel||'un élément';
+  return 'Réaction la plus lente : '+v+' ms ('+(v<=200?'bon':v<=500?'à améliorer':'lent')+'), en touchant « '+nom+' ».';
+}
+A.perf=b=>{perfStart().then(()=>{b.textContent='Mesure en cours';const o=$('#perfout');if(o)o.textContent=perfText()}).catch(()=>toast('Mesure impossible'))};
 })();
 </script>
 </body></html>
