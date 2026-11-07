@@ -45,6 +45,30 @@ ICONES = {
     'repas-lu':            ('fluent-flat', 'green-salad'),
     'repas-di':            ('fluent-flat', 'shallow-pan-of-food'),
     'repas-sn':            ('fluent-flat', 'red-apple'),
+    # sections d'aliments (SLIB, js4b.js) : 'sec-' + identifiant de la section ; choisies par lui le 7 novembre 2026
+    'sec-vpo':             ('fluent-flat', 'poultry-leg'),
+    'sec-lait':            ('fluent-flat', 'cheese-wedge'),
+    'sec-fl':              ('fluent-flat', 'carrot'),
+    'sec-fec':             ('fluent-flat', 'baguette-bread'),
+    'sec-sucre':           ('fluent-flat', 'cookie'),
+    'sec-gras':            ('fluent-flat', 'olive'),
+    'sec-boisson':         ('fluent-flat', 'cup-with-straw'),
+    'sec-plat':            ('fluent-flat', 'takeout-box'),
+    'sec-snack':           ('fluent-flat', 'popcorn'),
+    'sec-sport':           ('fluent-flat', 'flexed-biceps'),
+    'sec-autre':           ('fluent-flat', 'package'),
+    # insignes de niveau (LVL_NAMES, js2.js), Recrue -> Immortel ; auteurs dans THIRD_PARTY.txt (CC BY 3.0)
+    'insigne-1':           ('game', 'rank-1'),          # Skoll
+    'insigne-2':           ('game', 'rank-2'),          # Skoll
+    'insigne-3':           ('game', 'rank-3'),          # Skoll
+    'insigne-4':           ('game', 'sword-wound'),     # Lorc
+    'insigne-5':           ('game', 'stars-stack'),     # Delapouite
+    'insigne-6':           ('game', 'winged-sword'),    # Lorc
+    'insigne-7':           ('game', 'diamond-trophy'),  # Delapouite
+    'insigne-8':           ('game', 'flame'),           # Carl Olsen
+    'insigne-9':           ('game', 'mountain-road'),   # Delapouite
+    'insigne-10':          ('game', 'sands-of-time'),   # Lorc
+    'insigne-11':          ('game', 'hourglass'),       # Lorc
 }
 
 PAQUETS = {'ph': '@iconify-json/ph', 'fluent': '@iconify-json/fluent-emoji',

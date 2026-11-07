@@ -132,7 +132,7 @@ function libSections(){
     const total=subs.reduce((a,x)=>a+x[2].length,0);
     if(searching&&!total)return '';
     const open=total&&(searching||libOpen.has(s.id));
-    return `<div class="libsec${total?'':' libempty'}"><button class="libh" data-act="lib-sec" data-s="${s.id}" aria-expanded="${!!open}" ${total?'':'disabled'}><span class="grow">${esc(s.n)}</span><span class="pill neutral">${total}</span><span class="libchev">${ICON.chev}</span></button>${open?`<div class="libbody">${subs.map(([k,n,list])=>`<div class="sec libsub">${esc(n)} <span class="muted">· ${list.length}</span></div><div class="list" data-ag="lib:${s.id}.${k}">${list.map(libRow).join('')}</div>`).join('')}</div>`:''}</div>`;
+    return `<div class="libsec${total?'':' libempty'}"><button class="libh" data-act="lib-sec" data-s="${s.id}" aria-expanded="${!!open}" ${total?'':'disabled'}>${icon('sec-'+s.id,'secico')}<span class="grow">${esc(s.n)}</span><span class="pill neutral">${total}</span><span class="libchev">${ICON.chev}</span></button>${open?`<div class="libbody">${subs.map(([k,n,list])=>`<div class="sec libsub">${esc(n)} <span class="muted">· ${list.length}</span></div><div class="list" data-ag="lib:${s.id}.${k}">${list.map(libRow).join('')}</div>`).join('')}</div>`:''}</div>`;
   }).join('');
   return out||'<div class="empty">Aucun produit ne correspond.</div>';
 }

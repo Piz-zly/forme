@@ -63,7 +63,7 @@ function ringCard(arr){
 const LVL_NAMES=['Recrue','Apprenti','Aventurier','Guerrier','Vétéran','Gladiateur','Champion','Héros','Titan','Légende','Immortel'];
 function hudHtml(){
   const g=S.settings.goalW,step=S.settings.step||2.5,arr=sortedW();
-  const box=(lv,name,right,pct,sub)=>'<div class="lvl" aria-label="Niveau '+lv+'">'+lv+'</div><div class="xp"><div class="xpt"><b>'+esc(name)+'</b><span>'+right+'</span></div><div class="bar"><i style="width:'+pct+'%"></i></div><div class="xps">Niveau '+lv+(sub?' · '+sub:'')+'</div></div>';
+  const box=(lv,name,right,pct,sub)=>'<button class="lvl" data-act="insignes" aria-label="Niveau '+lv+' : voir mes insignes">'+icon('insigne-'+Math.min(lv,LVL_NAMES.length))+'<b>'+lv+'</b></button><div class="xp"><div class="xpt"><b>'+esc(name)+'</b><span>'+right+'</span></div><div class="bar"><i style="width:'+pct+'%"></i></div><div class="xps">Niveau '+lv+(sub?' · '+sub:'')+'</div></div>';
   if(!g||!arr.length)return box(1,LVL_NAMES[0],'0 XP',0,'pèse-toi pour gagner tes premiers points');
   const start=S.settings.startW||arr[0].y,cur=arr[arr.length-1].y,dir=start>g?-1:1,total=Math.abs(start-g);
   if(total<0.05)return '';
@@ -74,6 +74,11 @@ function hudHtml(){
   const lo=bounds[reached],hi=bounds[reached+1],pct=Math.round(clamp(Math.abs(cur-lo)/Math.abs(hi-lo),0,1)*100),left=Math.abs(cur-hi);
   return box(lv,name,pct+' %','' +pct,'encore <b class="num">'+nf(left,1)+' kg</b> avant '+nf(hi,2)+' kg');
 }
+/* feuille « Mes insignes » : un insigne par niveau (Game-icons, CC BY 3.0), gagnés en couleur, suivants grisés */
+A.insignes=()=>{
+  const p=palReached(),lv=p?p.n+1:1;
+  openSheet('<h3>Mes insignes</h3><div class="insg">'+LVL_NAMES.map((n,i)=>'<div class="'+(i<lv?'on':'off')+'">'+icon('insigne-'+(i+1))+'<b>'+(i+1)+'</b><span>'+esc(n)+'</span></div>').join('')+'</div><div class="small muted" style="margin-top:12px">Un insigne par palier de poids franchi. Insignes : game-icons.net, CC BY 3.0.</div>');
+};
 /* paliers franchis vers l'objectif (le niveau du bandeau moins 1) et l'objectif qui les définit ; null sans objectif ni pesée */
 function palReached(){
   const g=S.settings.goalW,step=S.settings.step||2.5,arr=sortedW();

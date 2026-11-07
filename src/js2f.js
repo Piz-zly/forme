@@ -99,7 +99,7 @@ function cqMore(sec){
   return n?`<div class="small muted" id="bcqmore" style="margin-top:10px">+ ${n} aliments de la table Ciqual dans cette section : tape un mot pour les trouver.</div>`:'';
 }
 function foodSearchHtml(slot){
-  const chips=foodCats().map(([k,n])=>`<button class="chip" data-act="b-cat" data-k="${k}" aria-pressed="${!bq.trim()&&bcat===k}">${n}</button>`).join('');
+  const chips=foodCats().map(([k,n])=>`<button class="chip" data-act="b-cat" data-k="${k}" aria-pressed="${!bq.trim()&&bcat===k}">${icon('sec-'+k,'secico')}${n}</button>`).join('');
   return `<div class="field"><input class="inp" type="search" id="bqin" data-in="bq" placeholder="Ex : œuf, riz, poulet…" value="${esc(bq)}" aria-label="Chercher un aliment" autocomplete="off"></div>
   <div id="boften">${bq.trim()?'':oftenHtml(slot)}</div>
   <div class="chips" id="bchips">${chips}</div>

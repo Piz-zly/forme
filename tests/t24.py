@@ -3,13 +3,14 @@
   1. icônes Phosphor : barre d'onglets (duotone au repos, pleine sur l'onglet actif), roue des
      Réglages, chevrons ; toutes dessinées (aucune icône vide), dans les trois ambiances ; le rebond
      de l'onglet actif est coupé avec « réduire les animations » ;
-  2. emojis Fluent (style Flat) des quatre repas, en couleur, dans leur pastille ;
+  2. emojis Fluent (style Flat) des quatre repas, en couleur, dans leur pastille ; icônes des sections ;
   3. chiffres qui défilent (countUp.js) : valeur finale exacte, rejoués seulement si la valeur change,
      jamais avec « réduire les animations » ni pendant une séance ;
   4. confettis : une salve quand un palier est franchi, une seule fois par palier (S.settings.fete),
      aucune au premier affichage ni avec « réduire les animations » ;
   6. glissement (View Transitions) entre onglets et sous-onglets : seul le contenu glisse ; aucun avec
      « réduire les animations », pendant une séance, ou pour un autre redessin ;
+  5. insignes de niveau (Game-icons) dans la pastille du bandeau, feuille « Mes insignes », mention CC BY ;
   aucune erreur JavaScript, sur index.html et forme.html.
 
     python3 -m http.server 8765
@@ -62,8 +63,33 @@ with sync_playwright() as p:
             emo = pg.evaluate("""()=>[...document.querySelectorAll('.sloticon')].map(s=>{const v=s.querySelector('svg.ico');
               return v&&v.getBoundingClientRect().width>0&&v.querySelector('path[fill^="#"]')?1:0})""")
             check(f'{t} : 4 repas avec leur emoji en couleur', len(emo) >= 4 and all(emo), emo)
+            # 2. icônes des sections : chips de « Chercher »
+            pg.click('[data-act="f-add"][data-slot="bk"]'); pg.wait_for_timeout(300)
+            n = pg.evaluate("()=>[...document.querySelectorAll('[data-act=\"b-cat\"]')].filter(b=>b.dataset.k!=='top').map(b=>!!b.querySelector('svg.secico path'))")
+            check(f'{t} : chaque section de Chercher a son icône', len(n) >= 5 and all(n), n)
+            pg.locator('#layer .scrim').click(position={'x': 10, 'y': 10}); pg.wait_for_timeout(300)
+            # 5. insigne dans la pastille du bandeau, feuille « Mes insignes »
+            lv = pg.evaluate("()=>{const l=document.querySelector('.hud .lvl');const s=l&&l.querySelector('svg.ico');return l?[l.tagName,!!(s&&s.firstElementChild&&s.getBoundingClientRect().width>0),l.querySelector('b').textContent]:null}")
+            check(f'{t} : insigne et numéro dans la pastille du bandeau', lv == ['BUTTON', True, '1'], lv)
+            pg.click('.hud .lvl'); pg.wait_for_timeout(300)
+            ins = pg.evaluate("()=>[document.querySelectorAll('.insg>div.on').length,document.querySelectorAll('.insg>div.off').length,document.querySelectorAll('.insg svg path').length>0,/game-icons\\.net, CC BY 3\\.0/.test(document.querySelector('#layer').textContent)]")
+            check(f'{t} : « Mes insignes » : 1 gagné, 10 grisés, mention CC BY', ins == [1, 10, True, True], ins)
+            pg.locator('#layer .scrim').click(position={'x': 10, 'y': 10}); pg.wait_for_timeout(300)
             check(f'{t} : aucune erreur JavaScript', not errs, errs)
             ctx.close()
+        # insignes : niveau 4, bibliothèque, mention dans les Réglages
+        ctx, pg, errs = ouvre(b, page, 'lune', data=dict(DATA, weights={T: 87.4}, scans=[
+            {'id': 'p1', 'date': T, 'name': 'Poulet', 'brand': '', 'code': '', 'src': 'manual', 'cat': 'vpo.viande',
+             'per': {'kcal': 100, 'fat': 1, 'sat': 0, 'carbs': 1, 'sugar': 1, 'salt': 0, 'fiber': 0, 'prot': 1, 'fv': 0}, 'additives': []}]))
+        pg.click('.hud .lvl'); pg.wait_for_timeout(300)
+        check(f'{page} : 87,4 kg -> 4 insignes gagnés', pg.locator('.insg>div.on').count() == 4, pg.locator('.insg>div.on').count())
+        pg.locator('#layer .scrim').click(position={'x': 10, 'y': 10}); pg.wait_for_timeout(300)
+        pg.click('.tab[data-t="scan"]'); pg.click('[data-act="scan-sub"][data-s="lib"]'); pg.wait_for_timeout(400)
+        check(f'{page} : sections de la bibliothèque avec icône', pg.locator('.libh svg.secico').count() == 11, pg.locator('.libh svg.secico').count())
+        pg.click('[data-act="settings"]'); pg.wait_for_timeout(400)
+        check(f'{page} : Réglages : « Insignes : game-icons.net, CC BY 3.0 »', 'Insignes : game-icons.net, CC BY 3.0' in pg.inner_text('#layer'))
+        check(f'{page} : insignes sans erreur JavaScript', not errs, errs)
+        ctx.close()
         # rebond coupé si le téléphone demande moins d'animations
         ctx, pg, errs = ouvre(b, page, 'lune', reduit=True, data=DATA)
         pg.click('.tab[data-t="food"]'); pg.wait_for_timeout(100)
