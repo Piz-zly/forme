@@ -5,6 +5,24 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 
 ---
 
+### 2026.11.07-2 — Ambiance Lune + Kikkō (à essayer sur le téléphone)
+
+- L'ambiance **Lune** (toujours appelée ainsi dans Réglages → Ambiance) devient « Lune + Kikkō » :
+  - **nouvelle lune détaillée**, teinte lavande, mers et cratères en relief, dessin original calculé par
+    `tools/gen_lune_detail.py` (graine fixe, aucune photo) ; même coin en haut à droite, débordant de
+    l'écran, 80 % de l'ancienne taille, avec un **halo** à 50 % ;
+  - **motif japonais Kikkō** (hexagones très fins) devant la lune, qui s'efface vers le bas : Pattern
+    Monster, MIT (`THIRD_PARTY.txt`, point 11) ;
+  - **nuages retirés** ; étoiles dessinées et scintillantes gardées ; couleurs du fond inchangées ;
+  - cartes un peu plus opaques (`--panel` de .76 à .8, ambiance Lune seulement).
+- La lune est une image WebP mise dans la page (data URI) par `tools/gen_decor.py` : pas de fichier à
+  part, hors ligne, et aussi dans la version Claude.
+- `index.html` : 863 942 → 846 368 octets (≈ 17,6 ko de moins : les nuages et l'ancienne lune au trait
+  pesaient plus que la nouvelle image).
+- Sakura et Néon : inchangées, 22 captures identiques au pixel près avant / après.
+- Nouveau test : `tests/t23.py` (lune chargée, en haut à droite, halo, motif devant, plus de nuages ;
+  rien de visible en Sakura et Néon ; `--panel` de chaque ambiance).
+
 ### 2026.11.07-1 — Nettoyage du code, deux bugs corrigés (à essayer sur le téléphone)
 
 - **Bug corrigé : les nombres de 1 000 et plus.** L'appli écrit « 2 200 » avec une espace fine ; la

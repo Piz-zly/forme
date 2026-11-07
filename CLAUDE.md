@@ -112,8 +112,9 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── recadre.py             ← recadre les illustrations au format de ill/ (atelier hors dépôt)
 │   ├── paint.py               ← colore en rouge les muscles sur les illustrations
 │   ├── gen_schemas_muscles.py ← génère les schémas anatomiques de img2/
-│   ├── gen_decor.py           ← écrit le décor de fond dans src/p1.html (lance les deux suivants)
-│   ├── gen_lune.py            ← décor Lune : ciel étoilé, lune au trait d'encre, nuages en volutes
+│   ├── gen_decor.py           ← écrit le décor de fond dans src/p1.html (lance les trois suivants ; plusieurs minutes)
+│   ├── gen_lune.py            ← décor Lune : ciel étoilé, emplacement de la lune, motif Kikkō (nuages gardés, non affichés)
+│   ├── gen_lune_detail.py     ← lune détaillée lavande, dessin original calculé (numpy, scipy, Pillow), image WebP
 │   └── gen_sakura.py          ← décor Sakura : branches de cerisier, mont Fuji
 │
 ├── tests/                     ← tests de bout en bout (Playwright, Chromium)
@@ -136,6 +137,7 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── t20.py nombres de 1 000 et plus (Réglages, journal, pas « 8 400 ») gardés à l'enregistrement
 │   ├── t21.py repas proposé selon l'heure (Scan, Semaine, Recettes), horloge simulée
 │   ├── t22.py données illisibles (copie forme.v1.abime) et stockage plein
+│   ├── t23.py ambiance Lune + Kikkō : lune chargée, halo, motif devant, plus de nuages ; Sakura et Néon intactes
 │   └── commun.py aides partagées par les tests : check, clean, termine
 │
 ├── ill/                       ← illustrations des mouvements (739 fichiers, 149 mouvements, CC0)
@@ -283,4 +285,8 @@ le demande : il avance sujet par sujet.
   deux bugs corrigés. Le plus grave : les nombres de 1 000 et plus étaient relus faux (Réglages →
   Enregistrer mettait l'objectif à 2 kcal et 10 pas) ; ses objectifs peuvent déjà être abîmés, à
   vérifier dans Réglages. Repas proposé selon l'heure unifié, copie de secours des données illisibles.
-  Testée (`tests/t4.py` à `t22.py`), **pas encore envoyée sur GitHub**.
+  Testée (`tests/t4.py` à `t22.py`), publiée le 7 novembre 2026.
+- **2026.11.07-2** (7 novembre 2026, branche `ambiance-lune-kikko`) : ambiance Lune + Kikkō — lune détaillée
+  lavande avec halo, motif japonais Kikkō (Pattern Monster, MIT) devant, nuages retirés, cartes un peu plus
+  opaques. Sakura et Néon inchangées. Testée (`tests/t4.py` à `t23.py`), pas encore fusionnée dans `main`.
+  Branche `esthetique` (icônes Phosphor, étape 1 en cours) : mise de côté, à reprendre après cette fusion.

@@ -131,6 +131,9 @@ Elles ne suivent pas `prefers-color-scheme`. Les jetons `--panel`, `--tile`, `--
 et Néon sont en fin de feuille, préfixées par leur `[data-theme]`. Le décor de fond (`.deco`, avec `.sk`
 pour Sakura et `.ln` pour Lune) est en tête de `p1.html` entre `<!-- deco:debut -->` et
 `<!-- deco:fin -->`, écrit par `python3 tools/gen_decor.py` ; `#app` passe au-dessus (`z-index:1`).
+Lune (2026.11.07-2) : `.ln` = étoiles (`svg.stars`), lune détaillée `div.moon` (halo `.mglow` + `img` en
+data URI, position absolue posée par `.ln .moon`), puis motif Kikkō `.kk` devant ; `.ln` est caché en
+Sakura et en Néon. Testé par `tests/t23.py`.
 Le bandeau de niveau est `#hud`, rempli par `hudHtml()` (`js2.js`).
 
 Règle forte : **une seule couleur d'accent à la fois**, donnée par l'onglet actif.

@@ -162,8 +162,19 @@ la même bibliothèque depuis un CDN, faute de pouvoir servir un fichier local.
 
 ## Décors de fond (ambiances Lune et Sakura)
 
-Dessins originaux, tracés par des scripts : `tools/gen_lune.py` (ciel étoilé, lune au trait d'encre,
-nuages en volutes) et `tools/gen_sakura.py` (branches de cerisier, mont Fuji). `tools/gen_decor.py`
-les assemble dans `src/p1.html`. Aucune image tierce, rien à déclarer dans `THIRD_PARTY.txt`.
+Dessins originaux, tracés par des scripts : `tools/gen_lune.py` (ciel étoilé) et `tools/gen_sakura.py`
+(branches de cerisier, mont Fuji). `tools/gen_decor.py` les assemble dans `src/p1.html`.
+
+**Ambiance Lune + Kikkō (2026.11.07-2).** La lune est une **lune détaillée** teinte « lavande », dessin
+original **calculé** par `tools/gen_lune_detail.py` : mers lunaires aux positions réelles de la face
+visible (un fait de la nature), bords et textures tirés au hasard avec une graine fixe (l'image est
+toujours la même), cratères en relief, traînées de Tycho, Copernic, Kepler et Aristarque. Aucune photo.
+Image WebP 640 px (≈ 34 ko, ≈ 46 ko en base64), mise **dans** `src/p1.html` en data URI par
+`gen_decor.py` : pas de fichier à part, elle marche hors ligne sans toucher au service worker, et dans
+`forme.html`. Le calcul demande numpy, scipy et Pillow et prend plusieurs minutes.
+Devant la lune, le motif japonais **Kikkō** (hexagones) est le motif `japanese-pattern-3` de
+**Pattern Monster** (MIT, déclaré dans `THIRD_PARTY.txt`), écrit en CSS (`.ln .kk`, image SVG en ligne).
+Les nuages en volutes et l'ancienne lune au trait ne sont plus affichés ; leurs fonctions (`cloud`,
+`moon`) restent dans `gen_lune.py` pour pouvoir les remettre. Ne rien embarquer d'autre sans licence.
 Les images de référence envoyées par l'utilisateur (photos, fond d'écran tiré d'un manga) n'ont servi
 qu'à l'ambiance : on n'en reprend ni les personnages ni la composition.

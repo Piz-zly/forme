@@ -164,6 +164,12 @@ de l'ambiance de son fond d'écran sans en reprendre le personnage), **Sakura** 
 repas sont toujours dans `SLOT_ICONS` en tête de `src/js2.js`. À lui demander : quelle ambiance il garde,
 si les cartes doivent laisser voir davantage le décor.
 
+**Ambiance Lune + Kikkō : faite en 2026.11.07-2, à essayer sur son téléphone.** Lune détaillée lavande
+(`tools/gen_lune_detail.py`, dessin original ; la photo de lune rousse qu'il avait montrée n'a pas été réutilisée)
+avec son halo, en haut à droite ; motif japonais Kikkō (hexagones, Pattern Monster, MIT) devant la lune ;
+nuages retirés ; cartes un peu plus opaques ; étoiles gardées, pas de grain. Le nom dans Réglages reste
+« Lune ». Sakura et Néon inchangées (captures identiques au pixel).
+
 **Motivation : demandée le 8 octobre, à faire, dans cet ordre s'il le confirme.**
 - **Série de jours** (jours d'affilée avec une pesée, un repas noté ou une séance).
 - **Résumé de la semaine** (poids perdu, séances, jours dans l'objectif, petit mot d'encouragement).
