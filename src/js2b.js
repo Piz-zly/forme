@@ -25,9 +25,9 @@ function actCard(){
       <input type="date" data-ch="actdate" value="${d}" max="${today()}" aria-label="Jour affiché" style="position:absolute;inset:0;opacity:0;width:100%;height:100%">
     </label></div>
   <button class="actgrid" data-act="act-edit" aria-label="Modifier les pas et la dépense du jour">
-    <div class="stat"><span>Pas</span><b>${a.s?nf(a.s,0):'—'}</b><span>sur ${nf(goalS,0)}</span></div>
-    <div class="stat"><span>Dépensées</span><b>${hasK?nf(a.k,0):'—'}</b><span>kcal</span></div>
-    <div class="stat"><span>Mangées</span><b>${hasE?nf(eaten,0):'—'}</b><span>kcal</span></div>
+    <div class="stat"><span>Pas</span><b>${a.s?nfc('act-s',a.s,0):'—'}</b><span>sur ${nf(goalS,0)}</span></div>
+    <div class="stat"><span>Dépensées</span><b>${hasK?nfc('act-k',a.k,0):'—'}</b><span>kcal</span></div>
+    <div class="stat"><span>Mangées</span><b>${hasE?nfc('act-e',eaten,0):'—'}</b><span>kcal</span></div>
   </button>
   <div class="bar" style="margin:12px 0 4px"><i style="width:${sPct}%"></i></div>
   <div class="small muted" style="margin-bottom:14px">${a.s?nf(sPct,0)+' % de ton objectif de pas':'Saisis tes pas depuis Step Counter Pedometer.'}</div>

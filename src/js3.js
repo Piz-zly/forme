@@ -279,7 +279,7 @@ function finishSession(){
   S.sessions.unshift(ses);S.sessions.sort((x,y)=>y.date.localeCompare(x.date));
   S.active=null;restEnd=0;gymOpen=false;prBan=null;persist('sessions',date);persist('active');
   const recs=prs.map(r=>r.txt);
-  openSheet(`<h3>Séance enregistrée</h3><div class="stats" style="margin-bottom:14px"><div class="stat"><span>Durée</span><b>${ses.dur}</b><span>min</span></div><div class="stat"><span>Séries</span><b>${exs.reduce((t,e)=>t+e.sets.length,0)}</b><span>validées</span></div><div class="stat"><span>Volume</span><b>${nf(sessVol(ses),0)}</b><span>kg</span></div></div>
+  openSheet(`<h3>Séance enregistrée</h3><div class="stats" style="margin-bottom:14px"><div class="stat"><span>Durée</span><b>${ses.dur}</b><span>min</span></div><div class="stat"><span>Séries</span><b>${exs.reduce((t,e)=>t+e.sets.length,0)}</b><span>validées</span></div><div class="stat"><span>Volume</span><b>${nfc('ses-vol',sessVol(ses),0)}</b><span>kg</span></div></div>
   ${recs.length?'<div class="card" style="box-shadow:none"><h2>Records battus</h2>'+recs.map(r=>'<div style="padding:4px 0;font-weight:600">🏆 '+esc(r)+'</div>').join('')+'</div>':''}
   <div class="grid2"><button class="btn soft" data-act="g-saver" data-id="${ses.id}">Garder comme routine</button><button class="btn" data-act="close">Fermer</button></div>`);
   render();

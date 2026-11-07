@@ -54,8 +54,8 @@ function ringCard(arr){
   return `<div class="card"><div class="row sb" style="margin-bottom:2px"><h2 style="margin:0">Objectif ${nf(g)} kg</h2><span class="pill neutral">${reached} / ${N} paliers</span></div>
   <div class="ringbig"><svg viewBox="0 0 280 280" role="img" aria-label="Progression vers ${nf(g)} kg : ${pct} pour cent, ${reached} paliers sur ${N}">${tracks}${fills}${ticks}${marker}${labels}</svg>
     <div class="c"><b class="num">${nf(cur)}</b><span class="muted small">kg</span><span class="pill ${done?'good':'neutral'}" style="margin-top:6px">${done?'Objectif atteint':pct+' %'}</span></div></div>
-  <div style="text-align:center;margin:0 0 4px;font-weight:600">${done?'Bravo, tu es à ton objectif.':next==null?'':'Prochain palier : <b class="num">'+nf(next,2)+' kg</b> <span class="muted">· encore '+nf(left,1)+' kg</span>'}</div>
-  <div class="small muted" style="text-align:center;margin-bottom:12px">Départ ${nf(start,1)} kg · ${nf(Math.abs(start-cur),1)} kg parcourus sur ${nf(total,1)}</div>
+  <div style="text-align:center;margin:0 0 4px;font-weight:600">${done?'Bravo, tu es à ton objectif.':next==null?'':'Prochain palier : <b class="num">'+nf(next,2)+' kg</b> <span class="muted">· encore '+nfc('w-left',left,1)+' kg</span>'}</div>
+  <div class="small muted" style="text-align:center;margin-bottom:12px">Départ ${nf(start,1)} kg · ${nfc('w-done',Math.abs(start-cur),1)} kg parcourus sur ${nf(total,1)}</div>
   <div class="pals">${chips}</div></div>`;
 }
 
@@ -360,7 +360,7 @@ VIEWS.food=()=>{
   ${dateBar()}
   <div class="card"><div class="row" style="gap:18px">
     <div class="ring"><svg viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="var(--surface2)" stroke-width="12"/><circle cx="66" cy="66" r="56" fill="none" stroke="${over?'var(--bad)':'var(--accent)'}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${(C*prog).toFixed(1)} ${C.toFixed(1)}"/></svg>
-      <div class="c"><b>${nf(t.kcal,0)}</b><span class="small muted">sur ${nf(g.kcal,0)} kcal</span></div></div>
+      <div class="c"><b>${nfc('food-kcal',t.kcal,0)}</b><span class="small muted">sur ${nf(g.kcal,0)} kcal</span></div></div>
     <div style="flex:1;min-width:0">${mac('Protéines',t.p,g.p)}${mac('Glucides',t.c,g.c)}${mac('Lipides',t.f,g.f)}
       <div class="small" style="margin-top:2px"><b class="num" style="color:${over?'var(--bad)':'var(--ink)'}">${nf(Math.abs(rem),0)} kcal</b> <span class="muted">${over?'au-dessus de l’objectif':'restantes'}</span></div>${(st=>st.n>=2?`<div class="small" id="fstreak" style="margin-top:4px;font-weight:700">🔥 ${st.n} jours notés de suite</div>`:'')(mealStreak())}</div>
   </div>${g.auto?`<div class="small muted" style="margin-top:12px">Objectifs calculés pour ${nf(g.w)} kg : ${nf(S.settings.pkg||2)} g de protéines et ${nf(S.settings.fkg||1)} g de lipides par kilo, glucides pour compléter les calories.${g.low?' Les calories sont trop basses pour ces réglages.':''}</div>`:''}</div>${slots}<button class="btn ghost block" style="margin-bottom:14px" data-act="f-copy" data-slot="">Copier une journée entière</button>`;

@@ -70,3 +70,23 @@ function animPlay(s){
     try{animPlay(s)}catch(e){}
   };
 }
+
+/* chiffres qui défilent : countUp.js (vendor/countUp.umd.js, MIT). Les chiffres marqués par nfc() (js1.js)
+   défilent jusqu'à leur valeur, avec le même format que nf. Seulement si la valeur a changé depuis le dernier
+   affichage, ou au premier affichage du jour (mémoire du téléphone, pas localStorage) ; jamais pendant une
+   séance Muscu ni si le téléphone demande moins d'animations. Sans countUp, le chiffre reste affiché tel quel. */
+const cuSeen=new Map();
+function cuPlay(){
+  const off=animOff()||S.active||!window.countUp,day=today();
+  document.querySelectorAll('[data-cu]').forEach(el=>{
+    const k=el.dataset.cu,v=+el.dataset.v,d=+el.dataset.d||0,o=cuSeen.get(k),same=o&&o.day===day;
+    cuSeen.set(k,{v,day});
+    if(off||!isFinite(v)||(same&&o.v===v))return;
+    try{new countUp.CountUp(el,v,{startVal:same?o.v:0,decimalPlaces:d,duration:1,formattingFn:n=>nf(n,d)}).start()}catch(e){el.textContent=nf(v,d)}
+  });
+}
+{
+  const draw=renderBehind,sheet=openSheet;
+  renderBehind=function(){draw();try{cuPlay()}catch(e){}};
+  openSheet=function(){const r=sheet.apply(this,arguments);try{cuPlay()}catch(e){}return r};
+}

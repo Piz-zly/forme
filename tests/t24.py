@@ -4,15 +4,24 @@
      Réglages, chevrons ; toutes dessinées (aucune icône vide), dans les trois ambiances ; le rebond
      de l'onglet actif est coupé avec « réduire les animations » ;
   2. emojis Fluent (style Flat) des quatre repas, en couleur, dans leur pastille ;
+  3. chiffres qui défilent (countUp.js) : valeur finale exacte, rejoués seulement si la valeur change,
+     jamais avec « réduire les animations » ni pendant une séance ;
   aucune erreur JavaScript, sur index.html et forme.html.
 
     python3 -m http.server 8765
     python3 tests/t24.py
 """
 from playwright.sync_api import sync_playwright
-from commun import check, termine
+import datetime
+from commun import check, clean, termine
 
 BASE = 'http://localhost:8765/'
+T = datetime.date.today().isoformat()
+DATA = {'settings': {'kcal': 2200, 'goalW': 80, 'startW': 95, 'step': 2.5, 'steps': 10000},
+        'weights': {T: 92.5},
+        'meals': {T: [{'id': 'm1', 'slot': 'lu', 'name': 'Plat', 'kcal': 650, 'p': 45, 'c': 70, 'f': 15},
+                      {'id': 'm2', 'slot': 'bk', 'name': 'Bol', 'kcal': 380, 'p': 14, 'c': 60, 'f': 8}]},
+        'act': {T: {'s': 8400, 'k': 2450}}}
 
 def ouvre(b, page, theme, reduit=False, data=None):
     ctx = b.new_context(viewport={'width': 390, 'height': 844}, reduced_motion='reduce' if reduit else 'no-preference')
@@ -52,10 +61,34 @@ with sync_playwright() as p:
             check(f'{t} : aucune erreur JavaScript', not errs, errs)
             ctx.close()
         # rebond coupé si le téléphone demande moins d'animations
-        ctx, pg, errs = ouvre(b, page, 'lune', reduit=True)
+        ctx, pg, errs = ouvre(b, page, 'lune', reduit=True, data=DATA)
         pg.click('.tab[data-t="food"]'); pg.wait_for_timeout(100)
         an = pg.evaluate("()=>getComputedStyle(document.querySelector('.tab[data-t=\"food\"] .ico.on')).animationName")
         check(f'{page} : réduire les animations -> pas de rebond', an == 'none', an)
+        # 3. chiffres : rien ne défile avec « réduire les animations »
+        pg.click('.tab[data-t="weight"]'); pg.wait_for_timeout(50)
+        check(f'{page} : réduire les animations -> chiffres affichés tout de suite', clean(pg.inner_text('[data-cu="act-s"]')) == '8 400')
+        ctx.close()
+        # 3. chiffres qui défilent
+        ctx, pg, errs = ouvre(b, page, 'lune', data=dict(DATA, ui={'tab': 'gym'}))   # démarre sur Muscu : aucun chiffre vu
+        pg.click('.tab[data-t="weight"]'); pg.wait_for_timeout(50)
+        vu = clean(pg.inner_text('[data-cu="act-s"]'))
+        check(f'{page} : les pas défilent à l’arrivée', vu != '8 400', vu)
+        pg.wait_for_timeout(1300)
+        fin = {k: clean(pg.inner_text(f'[data-cu="{k}"]')) for k in ('act-s', 'act-k', 'act-e', 'w-left', 'w-done')}
+        check(f'{page} : chiffres finaux exacts', fin == {'act-s': '8 400', 'act-k': '2 450', 'act-e': '1 030', 'w-left': '2,5', 'w-done': '2,5'}, fin)
+        pg.click('.tab[data-t="food"]'); pg.wait_for_timeout(50)
+        k1 = clean(pg.inner_text('[data-cu="food-kcal"]'))
+        pg.wait_for_timeout(1300)
+        check(f'{page} : total du Repas défile puis 1 030', k1 != '1 030' and clean(pg.inner_text('[data-cu="food-kcal"]')) == '1 030', k1)
+        pg.click('.tab[data-t="weight"]'); pg.wait_for_timeout(50)
+        check(f'{page} : valeur inchangée -> pas de nouveau défilement', clean(pg.inner_text('[data-cu="act-s"]')) == '8 400')
+        # pendant une séance : rien ne défile
+        pg.click('.tab[data-t="gym"]'); pg.click('[data-act="g-tab"][data-t="sessions"]'); pg.click('[data-act="g-start"]'); pg.wait_for_timeout(300)
+        pg.click('.tab[data-t="weight"]'); pg.wait_for_timeout(50)
+        pg.click('[data-act="act-edit"]'); pg.fill('#apas', '9000'); pg.click('[data-act="act-save"]'); pg.wait_for_timeout(50)
+        check(f'{page} : séance en cours -> pas de défilement', clean(pg.inner_text('[data-cu="act-s"]')) == '9 000')
+        check(f'{page} : chiffres sans erreur JavaScript', not errs, errs)
         ctx.close()
     b.close()
 
