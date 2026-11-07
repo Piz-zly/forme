@@ -68,6 +68,15 @@ button{cursor:pointer;border:0;background:none;padding:0}
 .tab .ico.on,.tab[aria-selected="true"] .ico.off{display:none}
 .tab[aria-selected="true"] .ico.on{display:block;animation:tabpop .3s cubic-bezier(.3,1.6,.5,1)}
 @keyframes tabpop{0%{transform:scale(.7)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+/* glissement entre onglets et sous-onglets (slide(), js1.js) : seul le contenu glisse ; barre d'onglets et bandeau restent en place.
+   Le calque de la transition laisse passer les appuis : rien n'est bloqué pendant les 0,3 s. */
+#view{view-transition-name:vue}
+::view-transition{pointer-events:none}
+::view-transition-old(vue){animation:.3s ease both vtout}
+::view-transition-new(vue){animation:.3s ease both vtin}
+html[data-vt="d"]{--vtd:-1}
+@keyframes vtout{to{opacity:0;transform:translateX(calc(var(--vtd,1) * -24%))}}
+@keyframes vtin{from{opacity:0;transform:translateX(calc(var(--vtd,1) * 24%))}}
 @media (prefers-reduced-motion:reduce){.tab[aria-selected="true"] .ico.on{animation:none}}
 .tab[aria-selected="true"]{color:var(--tc);background:var(--tcs)}
 .tab[data-t="weight"]{--tc:var(--c-weight)}

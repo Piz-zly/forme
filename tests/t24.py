@@ -8,6 +8,8 @@
      jamais avec « réduire les animations » ni pendant une séance ;
   4. confettis : une salve quand un palier est franchi, une seule fois par palier (S.settings.fete),
      aucune au premier affichage ni avec « réduire les animations » ;
+  6. glissement (View Transitions) entre onglets et sous-onglets : seul le contenu glisse ; aucun avec
+     « réduire les animations », pendant une séance, ou pour un autre redessin ;
   aucune erreur JavaScript, sur index.html et forme.html.
 
     python3 -m http.server 8765
@@ -92,6 +94,32 @@ with sync_playwright() as p:
         check(f'{page} : séance en cours -> pas de défilement', clean(pg.inner_text('[data-cu="act-s"]')) == '9 000')
         check(f'{page} : chiffres sans erreur JavaScript', not errs, errs)
         ctx.close()
+        # 6. glissement entre onglets et sous-onglets
+        for reduit in (False, True):
+            ctx, pg, errs = ouvre(b, page, 'lune', reduit=reduit, data=DATA)
+            pg.evaluate('()=>{window.nbVt=0;const f=document.startViewTransition.bind(document);document.startViewTransition=c=>{window.nbVt++;return f(c)}}')
+            nb = lambda: pg.evaluate('window.nbVt')
+            pg.click('.tab[data-t="food"]'); pg.wait_for_timeout(400)
+            pg.click('[data-act="food-sub"][data-s="recipes"]'); pg.wait_for_timeout(400)
+            pg.click('.tab[data-t="scan"]'); pg.wait_for_timeout(400)
+            pg.click('[data-act="scan-sub"][data-s="lib"]'); pg.wait_for_timeout(400)
+            if reduit:
+                check(f'{page} : réduire les animations -> aucun glissement', nb() == 0, nb())
+                check(f'{page} : sans glissement, l’onglet change quand même', pg.locator('.tab[data-t="scan"][aria-selected="true"]').count() == 1)
+            else:
+                check(f'{page} : 4 changements d’écran = 4 glissements', nb() == 4, nb())
+                check(f'{page} : l’écran a bien changé après le glissement', pg.locator('[data-act="scan-sub"][data-s="lib"][aria-selected="true"]').count() == 1)
+                noms = pg.evaluate("()=>['#view','.tabbar','#hud'].map(s=>getComputedStyle(document.querySelector(s)).viewTransitionName)")
+                check(f'{page} : seul le contenu glisse (barre d’onglets et bandeau fixes)', noms == ['vue', 'none', 'none'], noms)
+                pg.click('.tab[data-t="weight"]'); pg.wait_for_timeout(400); n0 = nb()
+                pg.click('[data-act="act-edit"]'); pg.fill('#apas', '9100'); pg.click('[data-act="act-save"]'); pg.wait_for_timeout(200)
+                check(f'{page} : autre redessin (enregistrer) -> pas de glissement', nb() == n0, (n0, nb()))
+                pg.click('.tab[data-t="gym"]'); pg.click('[data-act="g-tab"][data-t="sessions"]'); pg.wait_for_timeout(400)
+                pg.click('[data-act="g-start"]'); pg.wait_for_timeout(300); n0 = nb()
+                pg.click('.tab[data-t="food"]'); pg.wait_for_timeout(300); pg.click('.tab[data-t="gym"]'); pg.wait_for_timeout(300)
+                check(f'{page} : séance en cours -> pas de glissement', nb() == n0, (n0, nb()))
+            check(f'{page} : glissements sans erreur JavaScript', not errs, errs)
+            ctx.close()
         # 4. confettis : une seule fois par palier, jamais avec « réduire les animations »
         for reduit in (False, True):
             ctx, pg, errs = ouvre(b, page, 'lune', reduit=reduit, data=dict(DATA, weights={T: 93.4}))

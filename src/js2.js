@@ -370,7 +370,7 @@ function dateBar(){
 let foodSub='journal';
 const FOOD_SUBS=[['journal','Journal'],['recipes','Recettes'],['done','Déjà faites'],['week','Semaine'],['bilan','Bilan']];
 const foodSeg=()=>'<div class="seg seg5" role="tablist">'+FOOD_SUBS.map(([k,n])=>`<button role="tab" data-act="food-sub" data-s="${k}" aria-selected="${foodSub===k}">${n}</button>`).join('')+'</div>';
-A['food-sub']=b=>{foodSub=b.dataset.s;render();window.scrollTo(0,0)};
+A['food-sub']=b=>{foodSub=b.dataset.s;slide(b,()=>{render();window.scrollTo(0,0)})};
 VIEWS.food=()=>{
   if(foodSub==='week')return foodSeg()+weekView();
   if(foodSub==='bilan')return foodSeg()+bilanView();

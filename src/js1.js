@@ -231,5 +231,14 @@ addEventListener('scroll',()=>document.body.classList.toggle('scrolled',window.s
 document.querySelector('.tabbar').addEventListener('click',e=>{
   const b=e.target.closest('.tab');if(!b)return;
   if(tab===b.dataset.t){window.scrollTo({top:0,behavior:'smooth'});return}
-  tab=b.dataset.t;S.ui.tab=tab;saveLocal();closeSheet();render();window.scrollTo(0,0);
+  tab=b.dataset.t;S.ui.tab=tab;saveLocal();closeSheet();slide(b,()=>{render();window.scrollTo(0,0)});
 });
+/* glissement entre onglets et sous-onglets (View Transitions de Chrome) : b = bouton choisi, parmi des frères marqués
+   aria-selected ; le sens suit l'ordre des boutons. Sans la fonction, avec moins d'animations ou pendant une séance :
+   changement direct, comme avant. Seul #view glisse (CSS « vue » dans p1.html). */
+function slide(b,fn){
+  const sib=[...b.parentElement.children],cur=sib.findIndex(x=>x.getAttribute('aria-selected')==='true');
+  if(!document.startViewTransition||cur<0||S.active||matchMedia('(prefers-reduced-motion: reduce)').matches){fn();return}
+  const r=document.documentElement;r.dataset.vt=sib.indexOf(b)>cur?'g':'d';
+  document.startViewTransition(fn).finished.finally(()=>delete r.dataset.vt);
+}

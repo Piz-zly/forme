@@ -77,7 +77,7 @@ const libPrompt=()=>`\nAjoute aussi la clé "category" : un identifiant choisi U
 let scanSub='scan',libQ='',libOpen=new Set();
 const SCAN_SUBS=[['scan','Scanner'],['lib','Bibliothèque']];
 const scanSeg=()=>'<div class="seg" role="tablist">'+SCAN_SUBS.map(([k,n])=>`<button role="tab" data-act="scan-sub" data-s="${k}" aria-selected="${scanSub===k}">${n}${k==='lib'&&S.scans.length?` <span class="small" style="opacity:.7">${libDistinct()}</span>`:''}</button>`).join('')+'</div>';
-A['scan-sub']=b=>{scanSub=b.dataset.s;render();window.scrollTo(0,0)};
+A['scan-sub']=b=>{scanSub=b.dataset.s;slide(b,()=>{render();window.scrollTo(0,0)})};
 A['lib-go']=()=>{scanSub='lib';render();window.scrollTo(0,0)};
 
 /* Un meme produit scanne sous plusieurs marques ne compte qu'une fois : meme rangement, memes

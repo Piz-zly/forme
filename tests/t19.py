@@ -199,6 +199,7 @@ with sync_playwright() as pw:
     # fin de seance : types, records et volume
     pg.click('[data-act="g-finish"]'); pg.wait_for_timeout(200)
     pg.locator('#layer .btn', has_text='Terminer').click(); pg.wait_for_timeout(400)
+    pg.wait_for_timeout(1200)  # le volume du résumé défile pendant 1 s (countUp, esthétique 2026.11)
     fin = clean(pg.inner_text('#layer'))
     check('fin : records battus listés', 'records battus' in fin.lower() and 'Squat 100 kg × 5' in fin, fin[:300])
     o = st(pg); ses = next(s for s in o['sessions'] if s['date'] == D(0))

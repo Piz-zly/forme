@@ -107,7 +107,7 @@ function gymHome(){
   const seg=`<div class="seg" role="tablist"><button role="tab" data-act="g-tab" data-t="sessions" aria-selected="${gymTab==='sessions'}">Séances</button><button role="tab" data-act="g-tab" data-t="progress" aria-selected="${gymTab==='progress'}">Progression</button></div>`;
   return seg+(gymTab==='sessions'?sessionsHome():progressView());
 }
-A['g-tab']=b=>{gymTab=b.dataset.t;render()};
+A['g-tab']=b=>{gymTab=b.dataset.t;slide(b,render)};
 function sessionsHome(){
   const wk=S.sessions.filter(s=>dn(s.date)>dn(today())-7);
   const active=S.active?`<div class="card" style="background:var(--accent);color:var(--on-accent)"><div class="row sb"><div><div class="small" style="opacity:.85;font-weight:700">SÉANCE EN COURS</div><div class="num" style="font-size:22px;font-weight:800">${esc(S.active.name)}</div></div><button class="btn" style="background:var(--on-accent);color:var(--accent)" data-act="g-resume">Reprendre</button></div></div>`:'';
