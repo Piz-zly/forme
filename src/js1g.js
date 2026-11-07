@@ -45,3 +45,61 @@ function haptic(t){if(S.settings.vibre===false||!navigator.vibrate)return;try{na
 
 /* petite suppression déjà faite : « Supprimé · Annuler » pendant 5 s ; back() remet exactement ce qui a été retiré */
 function undoable(back){haptic('avert');toast('Supprimé',{label:'Annuler',fn:()=>{back();render()}})}
+
+/* glissements au doigt : TinyGesture (vendor/tinygesture.js, Apache-2.0). Journal du Repas : balayer change de jour ;
+   ligne du journal tirée à gauche : bouton « Supprimer ». Feuille tirée vers le bas (poignée, ou contenu en haut) : fermée.
+   Jamais sur un champ, le graphique ou une zone qui défile à l'horizontale ; pas de balayage pendant une séance.
+   Avec moins d'animations, rien ne suit le doigt : seule l'action a lieu. */
+const motionOff=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+function noSwipe(t){
+  if(!t||!t.closest||t.closest('input,textarea,select,#wchart,#gchart,.toast'))return true;
+  for(let e=t;e&&e!==document.body;e=e.parentElement)
+    if(e.scrollWidth>e.clientWidth+2&&/auto|scroll/.test(getComputedStyle(e).overflowX))return true;
+  return false;
+}
+function closeSwiped(keep){
+  document.querySelectorAll('#view .entry.swiped').forEach(r=>{if(r!==keep){r.style.transform='';r.classList.remove('swiped')}});
+  document.querySelectorAll('#view .swdel').forEach(b=>b.remove());
+}
+function openSwiped(row){
+  row.classList.add('swiped');row.style.transform='translateX(-104px)';
+  const p=row.parentElement;if(getComputedStyle(p).position==='static')p.style.position='relative';
+  const b=document.createElement('button');b.className='swdel';b.dataset.act='f-del';b.dataset.id=row.dataset.id;b.textContent='Supprimer';
+  b.style.top=row.offsetTop+'px';b.style.height=row.offsetHeight+'px';row.after(b);
+}
+if(typeof TinyGesture==='function'){
+  const journal=()=>tab==='food'&&foodSub==='journal'&&!S.active;
+  const V=new TinyGesture($('#view'),{mouseSupport:false});
+  let start=null,row=null,onRow=false;
+  V.on('panstart',e=>{
+    start=noSwipe(e.target)?null:e.target;
+    row=start&&journal()?start.closest('.entry[data-act="f-edit"]'):null;onRow=!!row;
+    closeSwiped(row);
+  });
+  V.on('panmove',()=>{if(row&&/horizontal/.test(V.swipingDirection||'')&&!motionOff()){row.style.transition='none';row.style.transform='translateX('+Math.max(-140,Math.min(0,V.touchMoveX))+'px)'}});
+  V.on('panend',()=>{
+    if(!row)return;
+    row.style.transition='';
+    if(/horizontal/.test(V.swipingDirection||'')&&V.touchEndX-V.touchStartX<-50)openSwiped(row);else row.style.transform='';
+    row=null;
+  });
+  V.on('swipeleft',()=>{if(start&&!onRow&&journal())dayMove(1)});
+  V.on('swiperight',()=>{if(start&&!onRow&&journal())dayMove(-1)});
+
+  const L=new TinyGesture($('#layer'),{mouseSupport:false});
+  let sh=null;
+  L.on('panstart',e=>{
+    const s=$('#layer .sheet');
+    sh=s&&s.contains(e.target)&&!e.target.closest('input,textarea,select')&&(e.target.closest('.grab')||s.scrollTop<=0)?s:null;
+  });
+  L.on('panmove',()=>{
+    if(!sh||motionOff()||/horizontal/.test(L.swipingDirection||''))return;
+    sh.style.transition='none';sh.style.transform='translateY('+Math.max(0,L.touchMoveY)+'px)';
+  });
+  L.on('panend',()=>{
+    if(!sh)return;
+    const s=sh,y=L.touchEndY-L.touchStartY;sh=null;
+    if(y>110&&y>Math.abs(L.touchEndX-L.touchStartX))closeSheet();
+    else{s.style.transition='transform .2s ease-out';s.style.transform=''}
+  });
+}

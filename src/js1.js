@@ -243,7 +243,12 @@ document.querySelector('.tabbar').addEventListener('click',e=>{
    changement direct, comme avant. Seul #view glisse (CSS « vue » dans p1.html). */
 function slide(b,fn){
   const sib=[...b.parentElement.children],cur=sib.findIndex(x=>x.getAttribute('aria-selected')==='true');
-  if(!document.startViewTransition||cur<0||S.active||matchMedia('(prefers-reduced-motion: reduce)').matches){fn();return}
-  const r=document.documentElement;r.dataset.vt=sib.indexOf(b)>cur?'g':'d';
+  const i=sib.indexOf(b);if(cur<0||i===cur){fn();return}   /* même onglet : rien ne glisse */
+  go(i>cur?'g':'d',fn);
+}
+/* d : 'g' le nouveau contenu arrive de la droite, 'd' de la gauche */
+function go(d,fn){
+  if(!document.startViewTransition||S.active||matchMedia('(prefers-reduced-motion: reduce)').matches){fn();return}
+  const r=document.documentElement;r.dataset.vt=d;
   document.startViewTransition(fn).finished.finally(()=>delete r.dataset.vt);
 }
