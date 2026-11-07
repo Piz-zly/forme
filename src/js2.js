@@ -95,7 +95,7 @@ function feteCheck(){
   const same=f&&f.k===p.k;
   if(same&&p.n<=f.n)return;
   S.settings.fete={k:p.k,n:p.n};persist('settings');
-  if(same&&!S.active)fete();
+  if(same&&!S.active){haptic('fort');fete()}
 }
 /* canvas-confetti (vendor/confetti.browser.js, ISC) : une salve d'environ 2 s aux couleurs de l'ambiance, avec des étoiles */
 function fete(){
@@ -242,7 +242,7 @@ A['w-save']=()=>{
   const inp=$('#wval');const v=num(inp.value);
   if(v<20||v>400){toast('Entre un poids valide (en kg)');return}
   const d=wDate||today();S.weights[d]=Math.round(v*10)/10;wVal=S.weights[d];
-  persist('weights');toast('Poids enregistré');render();
+  persist('weights');haptic('succes');toast('Poids enregistré');render();
 };
 A['w-range']=b=>{wRange=Number(b.dataset.r);render()};
 A['w-all']=()=>{wAll=!wAll;render()};
@@ -251,8 +251,8 @@ A['w-edit']=b=>{
   openSheet(`<h3>${esc(fmtLong(d))}</h3><div class="field"><label for="ew">Poids (kg)</label><input class="inp" id="ew" inputmode="decimal" value="${nf(S.weights[d])}"></div>
   <div class="grid2"><button class="btn danger" data-act="w-del" data-d="${d}">Supprimer</button><button class="btn" data-act="w-upd" data-d="${d}">Enregistrer</button></div>`);
 };
-A['w-upd']=b=>{const v=num($('#ew').value);if(v<20||v>400){toast('Poids invalide');return}S.weights[b.dataset.d]=Math.round(v*10)/10;persist('weights');closeSheet();render()};
-A['w-del']=b=>{delete S.weights[b.dataset.d];persist('weights');wVal=null;closeSheet();render()};
+A['w-upd']=b=>{const v=num($('#ew').value);if(v<20||v>400){toast('Poids invalide');return}S.weights[b.dataset.d]=Math.round(v*10)/10;persist('weights');haptic('succes');closeSheet();render()};
+A['w-del']=b=>{const d=b.dataset.d,v=S.weights[d];delete S.weights[d];persist('weights');wVal=null;closeSheet();render();undoable(()=>{S.weights[d]=v;persist('weights');wVal=null})};
 
 /* ===== POIDS : export et import CSV (Réglages) ===== */
 /* export : UTF-8 avec BOM (Excel français), « ; », virgule décimale, du plus ancien au plus récent */
@@ -401,7 +401,7 @@ VIEWS.food=()=>{
 };
 A['f-day']=b=>{const n=Number(b.dataset.n);const nd=addDays(fDate,n);if(nd>today())return;fDate=nd;render()};
 function addEntry(slot,e,date){
-  const d=date||fDate;(S.meals[d]=S.meals[d]||[]).push({id:uid(),slot,name:e.name,kcal:r1(e.kcal),p:r1(e.p),c:r1(e.c),f:r1(e.f)});
+  const d=date||fDate;haptic('succes');(S.meals[d]=S.meals[d]||[]).push({id:uid(),slot,name:e.name,kcal:r1(e.kcal),p:r1(e.p),c:r1(e.c),f:r1(e.f)});
   persist('meals',d);
 }
 function recents(){
@@ -500,7 +500,11 @@ A['f-save']=b=>{
   e.name=$('#en').value.trim()||e.name;e.kcal=r1($('#ek').value);e.p=r1($('#ep').value);e.c=r1($('#ec').value);e.f=r1($('#ef').value);
   persist('meals',fDate);closeSheet();render();
 };
-A['f-del']=b=>{S.meals[fDate]=dayEntries(fDate).filter(x=>x.id!==b.dataset.id);persist('meals',fDate);closeSheet();render()};
+A['f-del']=b=>{
+  const d=fDate,l=dayEntries(d),i=l.findIndex(x=>x.id===b.dataset.id);if(i<0)return;const e=l[i];
+  S.meals[d]=l.filter((_,j)=>j!==i);persist('meals',d);closeSheet();render();
+  undoable(()=>{const L=dayEntries(d).slice();L.splice(Math.min(i,L.length),0,e);S.meals[d]=L;persist('meals',d)});
+};
 A['f-fav']=b=>{
   const e=dayEntries(fDate).find(x=>x.id===b.dataset.id);if(!e)return;
   if(!S.foods.some(f=>f.name.toLowerCase()===e.name.toLowerCase())){S.foods.unshift({id:uid(),name:e.name,kcal:e.kcal,p:e.p,c:e.c,f:e.f});persist('foods')}

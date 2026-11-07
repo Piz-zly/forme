@@ -177,6 +177,7 @@ A['g-check']=b=>{
       const o=a.exercises.filter(x=>x.name===e.name).flatMap(x=>x.sets.filter(y=>y!==s&&y.done&&isWork(y)));
       const pr=prCheck(e.name,s,o);if(pr){s.pr=pr;prBan={s,until:Date.now()+PR_MS}}
     }
+    haptic(s.pr?'fort':'leger');   /* série validée : léger ; record battu : fort */
     startRest(S.settings.rest);
   }else{s.done=false;delete s.pr}
   persist('active');render();
@@ -208,7 +209,8 @@ A['g-exmenu']=b=>{
   const ei=b.dataset.e,e=S.active.exercises[+ei];
   openSheet(`<h3>${esc(e.name)}</h3><div class="grid2"><button class="btn ghost" data-act="g-rmset" data-e="${ei}">Retirer la dernière série</button><button class="btn danger" data-act="g-rmex" data-e="${ei}">Retirer l’exercice</button></div>`);
 };
-A['g-rmset']=b=>{const e=S.active.exercises[+b.dataset.e];if(e.sets.length)e.sets.pop();persist('active');closeSheet();render()};
+A['g-rmset']=b=>{const e=S.active.exercises[+b.dataset.e];if(!e.sets.length)return;const s=e.sets.pop();persist('active');closeSheet();render();
+  undoable(()=>{if(S.active&&S.active.exercises.includes(e)){e.sets.push(s);persist('active')}})};
 A['g-rmex']=b=>{S.active.exercises.splice(+b.dataset.e,1);persist('active');closeSheet();render()};
 A['g-cancel']=()=>confirmSheet('Abandonner la séance ?','Tout ce que tu as saisi sera perdu.','Abandonner',()=>{S.active=null;restEnd=0;gymOpen=false;persist('active');render()});
 

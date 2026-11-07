@@ -280,6 +280,7 @@ A.settings=()=>{
   <div class="small muted" style="margin:-4px 0 12px">Quand toutes tes séries atteignent le max, l’appli suggère d’ajouter un palier. Ce n’est qu’une suggestion : rien n’est changé à ta place.</div>
   ${typeof wakeSync==='function'?`<label class="row" style="min-height:44px;margin-bottom:0"><input type="checkbox" id="gwl" ${g.ecranAllume!==false?'checked':''} style="width:22px;height:22px"> Garder l’écran allumé pendant la séance</label>
   <div class="small muted" style="margin:0 0 12px">Consomme un peu plus de batterie.</div>`:''}
+  ${navigator.vibrate?`<label class="row" style="min-height:44px;margin-bottom:12px"><input type="checkbox" id="gvib" ${g.vibre!==false?'checked':''} style="width:22px;height:22px"> Vibrations (série validée, repas ajouté, record…)</label>`:''}
   <div class="sec" style="margin-top:6px">Activité</div>
   <div class="grid2">${f('gst','Objectif de pas / jour',g.steps||10000)}</div>
   <button class="btn block" data-act="set-save">Enregistrer</button>
@@ -316,6 +317,7 @@ A['set-save']=()=>{
   if(!(lo>=1&&hi>lo&&hi<=50)){toast('Répétitions visées : min plus petit que max');return}
   g.sugMin=lo;g.sugMax=hi;g.sugCharge=$('#gsug').checked;g.pasCharge=v('gpc')>0&&v('gpc')<=50?v('gpc'):2.5;
   if($('#gwl'))g.ecranAllume=$('#gwl').checked;
+  if($('#gvib'))g.vibre=$('#gvib').checked;
   g.goalW=v('gw')>=20?v('gw'):null;g.step=v('gt')>0?v('gt'):2.5;g.startW=v('gs')>=20?v('gs'):null;if(v('gr')>=10)g.rest=v('gr');
   persist('settings');closeSheet();toast('Réglages enregistrés');render();
 };

@@ -37,3 +37,11 @@ function backSync(){
   else if(!w&&backPushed){backPushed=false;backSkip=true;window.history.back()}
 }
 addEventListener('popstate',()=>{if(backSkip){backSkip=false;return}if(backPushed){backPushed=false;backDo()}});
+
+/* vibrations courtes. Durées reprises des motifs de web-haptics (github.com/lochie/web-haptics, MIT), sans leur modulation
+   d'intensité : leger = light, succes = success, fort = nudge, avert = warning. repos = fin du repos (motif d'origine). */
+const HAPTIC={leger:[15],succes:[30,60,40],fort:[80,80,50],avert:[40,100,40],repos:[200,90,200]};
+function haptic(t){if(S.settings.vibre===false||!navigator.vibrate)return;try{navigator.vibrate(HAPTIC[t]||HAPTIC.leger)}catch(e){}}
+
+/* petite suppression déjà faite : « Supprimé · Annuler » pendant 5 s ; back() remet exactement ce qui a été retiré */
+function undoable(back){haptic('avert');toast('Supprimé',{label:'Annuler',fn:()=>{back();render()}})}

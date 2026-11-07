@@ -29,7 +29,7 @@ const ICON={
 
 /* ===== state & storage ===== */
 const LS='forme.v1';
-const defaults=()=>({settings:{kcal:2200,p:150,c:250,f:70,goalW:80,startW:null,step:2.5,rest:90,pasCharge:2.5,sugCharge:true,sugMin:10,sugMax:12,ecranAllume:true,auto:true,pkg:2,fkg:1,steps:10000,heightCm:null},weights:{},foods:[],meals:{},routines:[],sessions:[],exercises:[],scans:[],act:{},recipes:{done:{},notes:{},mine:[]},combos:[],fixes:{},plan:{days:{},shop:{done:{},extra:[]}},fridge:{have:[]},active:null,ui:{tab:'weight'},_t:{}});
+const defaults=()=>({settings:{kcal:2200,p:150,c:250,f:70,goalW:80,startW:null,step:2.5,rest:90,pasCharge:2.5,sugCharge:true,sugMin:10,sugMax:12,ecranAllume:true,vibre:true,auto:true,pkg:2,fkg:1,steps:10000,heightCm:null},weights:{},foods:[],meals:{},routines:[],sessions:[],exercises:[],scans:[],act:{},recipes:{done:{},notes:{},mine:[]},combos:[],fixes:{},plan:{days:{},shop:{done:{},extra:[]}},fridge:{have:[]},active:null,ui:{tab:'weight'},_t:{}});
 let S=defaults();
 /* données illisibles : copie gardée sous forme.v1.abime avant que le prochain enregistrement les remplace
    (la première copie n'est jamais écrasée) ; l'appli repart des valeurs par défaut et le dit (js4.js) */
@@ -134,10 +134,13 @@ async function initDb(){
 
 /* ===== ui helpers ===== */
 const A={},I={};
-function toast(msg){
+/* act facultatif : {label, fn} ajoute un bouton (ex. « Annuler ») et laisse le message 5 s */
+function toast(msg,act){
   document.querySelectorAll('.toast').forEach(t=>t.remove());
-  const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);
-  setTimeout(()=>t.remove(),2200);
+  const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;
+  if(act){const b=document.createElement('button');b.className='toastbtn';b.textContent=act.label;b.onclick=()=>{t.remove();act.fn()};t.append(' · ',b)}
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),act?5000:2200);
 }
 function openSheet(html){
   $('#layer').innerHTML='<div class="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>'+html+'</div></div>';

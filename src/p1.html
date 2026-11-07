@@ -187,6 +187,11 @@ textarea.inp{padding:12px 14px;min-height:96px;resize:vertical}
 .sheet h3{margin:0 0 14px;font:800 22px/1.15 var(--font-display);letter-spacing:-.02em}
 @keyframes up{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.toastbtn{border:0;background:none;color:inherit;font:inherit;font-weight:800;text-decoration:underline;padding:6px 2px;min-height:32px;cursor:pointer}
+/* ligne du journal tirée à gauche (js1g.js) : bouton Supprimer derrière ; pan-y laisse le défilement vertical au navigateur */
+#view .entry{touch-action:pan-y;transition:transform .18s ease-out}
+.swdel{position:absolute;right:0;width:96px;border:0;border-radius:12px;background:var(--bad);color:var(--on-accent);font-weight:800}
+@media (prefers-reduced-motion:reduce){#view .entry{transition:none}}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tabbar-h) + 84px + env(safe-area-inset-bottom,0px));z-index:70;padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;box-shadow:var(--shadow);max-width:90%}
 
 /* weight */

@@ -24,7 +24,7 @@ function syncRestBar(){
   if(want==='on'){
     const ms=restEnd-Date.now(),left=Math.ceil(ms/1000);
     if(left<=0){
-      if(!restRang){restRang=true;toast('Repos terminé');try{navigator.vibrate&&navigator.vibrate([200,90,200])}catch(_){}}
+      if(!restRang){restRang=true;toast('Repos terminé');haptic('repos')}
       restEnd=0;syncRestBar();return;
     }
     const c=$('#rclk');if(c)c.textContent=mmss(left);

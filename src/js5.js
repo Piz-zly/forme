@@ -64,7 +64,7 @@ A.live=async b=>{
     if(code)break;
   }
   const ok=liveRun&&code;stopLive();
-  if(ok){try{navigator.vibrate&&navigator.vibrate(40)}catch(_){}await afterCode(code,ctx,slot)}
+  if(ok){haptic('succes');await afterCode(code,ctx,slot)}
 };
 /* sauvegarde : téléchargement d'un fichier */
 dl={phone:true,save:async({filename,data,type})=>{
@@ -191,3 +191,4 @@ function wakeSync(){
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wlNo=false;wakeSync()});
 window.addEventListener('pagehide',wakeOff);
+
