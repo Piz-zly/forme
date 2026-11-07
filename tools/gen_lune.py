@@ -1,8 +1,10 @@
-"""Génère le décor « Lune » de Forme : ciel étoilé, grande lune lavande au trait d'encre,
-nuages japonais en volutes.
+"""Génère le décor « Lune » de Forme : ciel étoilé, emplacement de la lune détaillée, motif Kikkō.
 
 Dessin original, tracé par ce script (aucune image tierce).
-Imprime un fragment <div class="ln">…</div> ; tools/gen_decor.py l'insère dans src/p1.html.
+Imprime un fragment <div class="ln">…</div> ; tools/gen_decor.py y met l'image de la lune
+(tools/gen_lune_detail.py, à la place de src="LUNE") et l'insère dans src/p1.html.
+Depuis l'ambiance Lune + Kikkō (2026.11), l'ancienne lune au trait (moon) et les nuages en volutes
+(cloud) ne sont plus affichés ; leurs fonctions restent ici pour pouvoir les remettre.
 """
 import math, random
 
@@ -257,10 +259,12 @@ DEFS = ('<svg width="0" height="0" style="position:absolute"><defs>'
         '</defs></svg>')
 
 if __name__ == '__main__':
+    # Lune + Kikkō (2026.11) : étoiles, puis la lune détaillée (image calculée par gen_lune_detail.py,
+    # mise à la place de LUNE par gen_decor.py), puis le motif Kikkō (.kk) qui passe devant.
+    # Plus de nuages : cloud() et DEFS (leurs dégradés) sont gardés pour pouvoir les remettre.
     PREC[0] = 0
-    m = moon()
+    moon()   # l'ancienne lune au trait n'est plus affichée, mais la tirer garde la même suite de hasard : les étoiles ne bougent pas
     PREC[0] = 1
-    print('<div class="ln">' + DEFS + stars() + m
-          + cloud('cl cl1', [26, 34, 22, 18], spiral_left=True)
-          + cloud('cl cl2', [22, 30, 24], spiral_left=False)
+    print('<div class="ln">' + stars()
+          + '<div class="moon"><i class="mglow"></i><img src="LUNE" alt=""></div><i class="kk"></i>'
           + '</div>')
