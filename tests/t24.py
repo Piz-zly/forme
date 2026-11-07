@@ -81,9 +81,12 @@ with sync_playwright() as p:
         pg.wait_for_timeout(1300)
         fin = {k: clean(pg.inner_text(f'[data-cu="{k}"]')) for k in ('act-s', 'act-k', 'act-e', 'w-left', 'w-done')}
         check(f'{page} : chiffres finaux exacts', fin == {'act-s': '8 400', 'act-k': '2 450', 'act-e': '1 030', 'w-left': '2,5', 'w-done': '2,5'}, fin)
+        STYLE = "()=>[...document.querySelectorAll('[data-cu]')].filter(e=>{const a=getComputedStyle(e),b=getComputedStyle(e.parentElement);return ['fontSize','fontWeight','fontFamily','color'].some(k=>a[k]!==b[k])}).map(e=>e.dataset.cu)"
+        check(f'{page} : chiffres qui défilent = même style que le texte autour (Poids)', pg.evaluate(STYLE) == [], pg.evaluate(STYLE))
         pg.click('.tab[data-t="food"]'); pg.wait_for_timeout(50)
         k1 = clean(pg.inner_text('[data-cu="food-kcal"]'))
         pg.wait_for_timeout(1300)
+        check(f'{page} : même style que le texte autour (Repas)', pg.evaluate(STYLE) == [], pg.evaluate(STYLE))
         check(f'{page} : total du Repas défile puis 1 030', k1 != '1 030' and clean(pg.inner_text('[data-cu="food-kcal"]')) == '1 030', k1)
         pg.click('.tab[data-t="weight"]'); pg.wait_for_timeout(50)
         check(f'{page} : valeur inchangée -> pas de nouveau défilement', clean(pg.inner_text('[data-cu="act-s"]')) == '8 400')

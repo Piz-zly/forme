@@ -63,6 +63,11 @@ Forme - licences des éléments tiers
 15) Confettis : canvas-confetti 1.9.4 (vendor/confetti.browser.js, fichier non modifié)
    https://github.com/catdad/canvas-confetti - Copyright (c) 2020, Kiril Vatev - licence ISC.
    Texte complet : vendor/canvas-confetti-LICENSE.txt.
+16) Coach « Maître » (dossier coach/, affiché nulle part pour l'instant) : personnages originaux fabriqués avec
+   DiceBear 9.4 (https://github.com/dicebear/dicebear, outil MIT), styles en domaine public CC0 1.0 :
+   coach/maitre.svg - style Thumbs, par DiceBear, mot de départ « Maitre » ;
+   coach/maitre-reserve.svg - style Notionists, par Zoish, mot de départ « Sensei ».
+   La mention de licence est aussi dans chaque fichier SVG.
 Les textes MIT des points 12 et 13 sont identiques à celui du point 11 ci-dessous, avec leur propre mention
 de copyright.
 

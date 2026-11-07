@@ -175,8 +175,9 @@ téléphone.** En attente de son choix (planches montrées) :
 - icônes Fluent des **sections d'aliments** (Repas, bibliothèque du Scan) ;
 - **insignes de niveau** Game-icons (étape 5, CC BY 3.0 : auteurs dans `THIRD_PARTY.txt` et une ligne dans
   les Réglages). Budget restant ≈ 9 ko : choisir des icônes légères (moins de 800 octets chacune) ;
-- **coach « Maître »** : douze candidats DiceBear en styles CC0 (Notionists, Lorelei, Thumbs, Pixel Art,
-  Open Peeps) ; ceux qu'il garde iront dans `coach/`, affichés nulle part pour l'instant.
+- **coach « Maître »** : choisi le 7 novembre 2026 parmi douze candidats DiceBear en styles CC0 :
+  `coach/maitre.svg` (Thumbs, orange), et `coach/maitre-reserve.svg` (Notionists, « Sensei ») en réserve.
+  Affichés nulle part pour l'instant (chantier Motivation).
 Idée à lui proposer : des confettis pour les **records de Muscu**, dans le résumé de fin de séance seulement
 (jamais pendant la séance, à sa demande).
 

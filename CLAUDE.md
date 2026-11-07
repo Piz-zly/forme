@@ -148,6 +148,7 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 ├── ill/                       ← illustrations des mouvements (739 fichiers, 149 mouvements, CC0)
 ├── img2/                      ← schémas anatomiques par exercice, un -m.png chacun (MIT)
 ├── icons/                     ← icônes de l'application
+├── coach/                     ← coach « Maître » choisi (DiceBear, CC0), affiché nulle part pour l'instant
 └── vendor/                    ← zxing.min.js (codes-barres), fuse.basic.min.js (fautes de frappe), ocr/ (Tesseract.js), Apache-2.0 ;
                                  countUp.umd.js (MIT), confetti.browser.js (ISC) ;
                                  fonts/ (Zen Maru Gothic, Figtree, SIL OFL, version téléphone)
