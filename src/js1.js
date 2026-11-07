@@ -14,7 +14,7 @@ const fmtShort=s=>parseD(s).toLocaleDateString('fr-FR',{day:'numeric',month:'sho
 const fmtDay=s=>parseD(s).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
 const nf=(n,d=1)=>Number(n).toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:d});
 /* même texte que nf, marqué pour défiler (js1b.js, countUp) ; k : nom unique du chiffre dans l'appli */
-const nfc=(k,n,d=1)=>'<span data-cu="'+k+'" data-v="'+n+'" data-d="'+d+'">'+nf(n,d)+'</span>';
+const nfc=(k,n,d=1)=>'<data data-cu="'+k+'" value="'+n+'" data-d="'+d+'">'+nf(n,d)+'</data>';
 /* espaces ignorées : nf écrit « 2 200 » (espace fine), qui doit se relire 2200 et non 2 */
 const num=v=>{const n=parseFloat(String(v??'').replace(/\s/g,'').replace(',','.'));return isFinite(n)?n:0};
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));

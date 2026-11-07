@@ -79,7 +79,7 @@ const cuSeen=new Map();
 function cuPlay(){
   const off=animOff()||S.active||!window.countUp,day=today();
   document.querySelectorAll('[data-cu]').forEach(el=>{
-    const k=el.dataset.cu,v=+el.dataset.v,d=+el.dataset.d||0,o=cuSeen.get(k),same=o&&o.day===day;
+    const k=el.dataset.cu,v=+el.value,d=+el.dataset.d||0,o=cuSeen.get(k),same=o&&o.day===day;
     cuSeen.set(k,{v,day});
     if(off||!isFinite(v)||(same&&o.v===v))return;
     try{new countUp.CountUp(el,v,{startVal:same?o.v:0,decimalPlaces:d,duration:1,formattingFn:n=>nf(n,d)}).start()}catch(e){el.textContent=nf(v,d)}
