@@ -227,7 +227,7 @@ function weekView(){
   return `<div class="small muted" style="margin:0 2px 12px">Pose des recettes sur les 7 prochains jours. ✓ les note dans ton journal ; leurs ingrédients vont dans la liste de courses.</div>
   ${planDays().map(day).join('')}${shopCard()}`;
 }
-A['pl-add']=b=>{plAdd=b.dataset.d;plQ='';const h=new Date().getHours();plSlot=plAdd===today()?(h<11?'bk':h<16?'lu':'di'):'lu';plSheet(false)};
+A['pl-add']=b=>{plAdd=b.dataset.d;plQ='';plSlot=plAdd===today()?slotNow():'lu';plSheet(false)};
 function plSheet(update){
   const t=plQ?fzWords(plQ):[],list=allRecipes().filter(r=>r.s.includes(plSlot)).filter(r=>!t.length||t.every(w=>normTxt(r.n).includes(w))).sort((a,b)=>a.n.localeCompare(b.n,'fr'));
   if(update){const l=$('#pllist');if(l){l.innerHTML=plRows(list);return}}

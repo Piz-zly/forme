@@ -247,7 +247,7 @@ A['s-manual-ok']=()=>{
 };
 A['s-journal']=b=>{
   const p=S.scans.find(x=>x.id===b.dataset.id)||scanCur;if(!p)return;
-  const h=new Date().getHours(),def=h<10?'bk':h<15?'lu':h<18?'sn':'di';
+  const def=slotNow();
   openSheet(`<h3>Ajouter au journal</h3><div class="muted" style="margin:-8px 0 12px">${esc(p.name)}</div>
   <div class="field"><label for="jg">Quantité (g ou ml)</label><input class="inp" id="jg" inputmode="decimal" value="100"></div>
   <div class="field"><label for="js">Repas</label><select class="inp" id="js">${SLOTS.map(s=>`<option value="${s[0]}" ${s[0]===def?'selected':''}>${s[1]}</option>`).join('')}</select></div>

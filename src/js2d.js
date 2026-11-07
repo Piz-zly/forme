@@ -29,8 +29,8 @@ function rcTarget(rem,slot){
 /* Prochain repas à viser quand aucun filtre n'est choisi : celui de l'heure s'il
    n'est pas encore saisi, sinon le suivant ; un jour passé commence au petit-déjeuner. */
 function rcNextSlot(){
-  const filled=new Set(dayEntries(fDate).map(e=>e.slot)),h=new Date().getHours(),order=['bk','lu','di'];
-  const i=order.indexOf(fDate!==today()?'bk':h<11?'bk':h<16?'lu':'di');
+  const filled=new Set(dayEntries(fDate).map(e=>e.slot)),order=['bk','lu','di'];
+  const i=order.indexOf(fDate!==today()?'bk':slotNow(false));
   for(let n=0;n<3;n++){const s=order[(i+n)%3];if(!filled.has(s))return s}
   return 'sn';
 }
