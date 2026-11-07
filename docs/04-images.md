@@ -143,6 +143,14 @@ Générées pour ce projet : un anneau en quatre quarts aux couleurs des quatre
 onglets. Tailles 192, 512, 512 masquable et 180 pour Apple. Déclarées dans
 `manifest.webmanifest`.
 
+## Icônes et emojis (`src/js1c.js`, 2026.11.07-3)
+
+Seuls les tracés SVG utilisés sont recopiés, par `tools/gen_icones.py`, depuis les paquets Iconify téléchargés
+hors du dépôt (`npm pack`) : **Phosphor Icons** (`@iconify-json/ph` 1.2.2, MIT) pour la barre d'onglets et les
+boutons, en couleur du texte ; **Fluent Emoji** de Microsoft (`@iconify-json/fluent-emoji-flat` 1.2.6, MIT),
+style « Flat », pour les quatre repas. La liste est en tête du script : y ajouter une ligne, relancer le
+script puis le build. Le style Fluent « Color » (dégradés) a été écarté pour son poids (51 ko pour quatre emojis).
+
 ## `vendor/zxing.min.js`
 
 [ZXing](https://github.com/zxing-js/library), **Apache-2.0**, copié en local pour

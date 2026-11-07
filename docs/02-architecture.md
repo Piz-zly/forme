@@ -58,6 +58,11 @@ reconstruit la vue entière, c'est suffisant à cette échelle.
 
 Les quatre vues : `weight`, `food`, `gym`, `scan`.
 
+Depuis 2026.11.07-3 : un changement d'onglet ou de sous-onglet passe par `slide(bouton, fn)` (`js1.js`), qui
+fait glisser `#view` avec les View Transitions de Chrome (sinon `fn()` directement) ; un chiffre écrit avec
+`nfc(clé, valeur, décimales)` au lieu de `nf` défile jusqu'à sa valeur (countUp, `js1b.js`), seulement s'il
+a changé. Les icônes s'écrivent `icon('nom')` (`js1c.js`, généré par `tools/gen_icones.py`).
+
 Le **Repas** a cinq sous-onglets, pilotés par la variable `foodSub`
 (`'journal'`, `'recipes'`, `'done'`, `'week'`, `'bilan'`) : `VIEWS.food` affiche le journal, ou passe la
 main à `recipesView()` (`js2d.js`), `weekView()` ou `bilanView()` (`js2h.js`). Le choix n'est pas

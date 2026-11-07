@@ -56,11 +56,13 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
    dépenses affichées sont indicatifs. Le dire quand c'est utile, sans alourdir.
 5. **Interface en français**, tutoiement, vocabulaire simple. Il dit « routine »,
    pas « modèle » ; « séance », pas « workout ».
-6. **Pas de dépendance ajoutée** sans raison forte. Trois bibliothèques
+6. **Pas de dépendance ajoutée** sans raison forte. Cinq bibliothèques
    externes aujourd'hui, copiées en local dans `vendor/` : ZXing (codes-barres), Fuse.js
    (recherche tolérante aux fautes, depuis 2026.10.13-4) et Tesseract.js (lecture des étiquettes
    hors ligne, `vendor/ocr/`, ≈ 4,8 Mo chargés seulement au premier usage de la photo, version
-   téléphone seulement, depuis 2026.10.14-4). Jamais de CDN, tout doit marcher hors ligne. Il a
+   téléphone seulement, depuis 2026.10.14-4), countUp.js (chiffres qui défilent) et canvas-confetti
+   (palier franchi), depuis 2026.11.07-3. Icônes Phosphor et emojis Fluent : seulement les tracés utilisés,
+   dans `src/js1c.js` (généré par `tools/gen_icones.py`). Jamais de CDN, tout doit marcher hors ligne. Il a
    **écarté** l'idée d'une clé Claude dans l'application : ne pas la proposer. Données externes :
    la table Ciqual (Anses, Etalab 2.0), extraite dans `src/js2g.js` ; le texte de deux bases
    d'exercices (free-exercise-db, exercises-dataset), dans `src/js3c.js` — **jamais leurs images**
@@ -84,8 +86,9 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 ├── src/                       ← LES SOURCES — c'est ici qu'on modifie
 │   ├── p1.html                ← titre, polices, variables CSS, feuille de style, structure
 │   ├── p1.pwa.css             ← CSS en plus, uniquement pour la version téléphone
-│   ├── js1.js                 ← utilitaires, état, stockage, synchro, graphique, navigation
-│   ├── js1b.js                ← animations douces (outil maison) autour du dessin des écrans — à retirer de build.sh pour s'en passer
+│   ├── js1.js                 ← utilitaires, état, stockage, synchro, graphique, navigation, glissement entre onglets (slide)
+│   ├── js1c.js                ← icônes Phosphor et emojis Fluent utilisés — GÉNÉRÉ par tools/gen_icones.py, ne pas éditer
+│   ├── js1b.js                ← animations douces (outil maison) et chiffres qui défilent (countUp) autour du dessin des écrans — à retirer de build.sh pour s'en passer
 │   ├── js2.js                 ← onglet Poids (cercle, paliers) + onglet Repas
 │   ├── js2b.js                ← carte « Journée » (pas, dépense, apport)
 │   ├── js2c.js                ← les recettes embarquées — GÉNÉRÉ par tools/gen_recettes.py, ne pas éditer
@@ -112,6 +115,7 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── recadre.py             ← recadre les illustrations au format de ill/ (atelier hors dépôt)
 │   ├── paint.py               ← colore en rouge les muscles sur les illustrations
 │   ├── gen_schemas_muscles.py ← génère les schémas anatomiques de img2/
+│   ├── gen_icones.py          ← fabrique src/js1c.js : les seules icônes utilisées (paquets Iconify téléchargés hors du dépôt)
 │   ├── gen_decor.py           ← écrit le décor de fond dans src/p1.html (lance les trois suivants ; plusieurs minutes)
 │   ├── gen_lune.py            ← décor Lune : ciel étoilé, emplacement de la lune, motif Kikkō (nuages gardés, non affichés)
 │   ├── gen_lune_detail.py     ← lune détaillée lavande, dessin original calculé (numpy, scipy, Pillow), image WebP
@@ -138,12 +142,14 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 │   ├── t21.py repas proposé selon l'heure (Scan, Semaine, Recettes), horloge simulée
 │   ├── t22.py données illisibles (copie forme.v1.abime) et stockage plein
 │   ├── t23.py ambiance Lune + Kikkō : lune chargée, halo, motif devant, plus de nuages ; Sakura et Néon intactes
+│   ├── t24.py esthétique : icônes, emojis des repas, chiffres qui défilent, confettis une fois par palier, glissements
 │   └── commun.py aides partagées par les tests : check, clean, termine
 │
 ├── ill/                       ← illustrations des mouvements (739 fichiers, 149 mouvements, CC0)
 ├── img2/                      ← schémas anatomiques par exercice, un -m.png chacun (MIT)
 ├── icons/                     ← icônes de l'application
 └── vendor/                    ← zxing.min.js (codes-barres), fuse.basic.min.js (fautes de frappe), ocr/ (Tesseract.js), Apache-2.0 ;
+                                 countUp.umd.js (MIT), confetti.browser.js (ISC) ;
                                  fonts/ (Zen Maru Gothic, Figtree, SIL OFL, version téléphone)
 ```
 
@@ -158,7 +164,7 @@ public, **aucune donnée personnelle ne doit apparaître dans un fichier publié
 | `docs/05-build-publication.md` | Construire, tester, publier, mettre à jour le téléphone |
 | `docs/06-journal.md` | Historique des versions |
 | `docs/07-a-faire.md` | La suite : recettes, esthétique, idées en attente |
-| `docs/08-pistes-open-source.md` | Projets libres repérés et ce qui en a été fait : Ciqual, free-exercise-db, Fuse.js et Tesseract.js intégrés, AutoAnimate écarté, canvas-confetti en attente |
+| `docs/08-pistes-open-source.md` | Projets libres repérés et ce qui en a été fait : Ciqual, free-exercise-db, Fuse.js et Tesseract.js intégrés, AutoAnimate écarté, canvas-confetti intégré |
 | `docs/09-nettoyage.md` | Nettoyage du code (novembre 2026) : ce qui a été corrigé, ce qui a été laissé et pourquoi |
 
 `docs/00-sommaire.md` reprend ce tableau pour qui ouvre `docs/` directement.
@@ -288,5 +294,8 @@ le demande : il avance sujet par sujet.
   Testée (`tests/t4.py` à `t22.py`), publiée le 7 novembre 2026.
 - **2026.11.07-2** (7 novembre 2026, branche `ambiance-lune-kikko`) : ambiance Lune + Kikkō — lune détaillée
   lavande avec halo, motif japonais Kikkō (Pattern Monster, MIT) devant, nuages retirés, cartes un peu plus
-  opaques. Sakura et Néon inchangées. Testée (`tests/t4.py` à `t23.py`), pas encore fusionnée dans `main`.
-  Branche `esthetique` (icônes Phosphor, étape 1 en cours) : mise de côté, à reprendre après cette fusion.
+  opaques. Sakura et Néon inchangées. Testée (`tests/t4.py` à `t23.py`), publiée le 7 novembre 2026.
+- **2026.11.07-3** (7 novembre 2026, branche `esthetique`) : icônes Phosphor, emojis Fluent des repas, chiffres qui
+  défilent (countUp.js), confettis à chaque palier franchi (canvas-confetti), glissement entre onglets. ≈ 51 ko
+  ajoutés sur 60 autorisés. Testée (`tests/t4.py` à `t24.py`), pas encore envoyée. En attente de son choix :
+  insignes de niveau (Game-icons), icônes des sections d'aliments, coach DiceBear (voir `docs/07-a-faire.md`).

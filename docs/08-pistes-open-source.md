@@ -57,6 +57,9 @@ n'aurait rien animé sans refaire le dessin de tous les onglets. Et il n'existe 
 version navigateur classique, même ancienne). Remplacé par `src/js1b.js`, une quarantaine de lignes
 qui utilisent la même technique (mesurer avant, faire glisser après) autour de `render`.
 
+**canvas-confetti — intégré en 2026.11.07-3** : confettis quand un palier de poids est franchi (`fete()` dans
+`src/js2.js`, `vendor/confetti.browser.js`). countUp.js (chiffres qui défilent) est entré en même temps.
+
 **Fuse.js, canvas-confetti.** Copier le fichier minifié dans
 `vendor/`, l'ajouter au service worker et à `build.sh`, licence dans
 `THIRD_PARTY.txt`.

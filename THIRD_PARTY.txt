@@ -51,6 +51,21 @@ Forme - licences des éléments tiers
    La lune détaillée du même décor est un dessin original, calculé par tools/gen_lune_detail.py
    (aucune photo ni image tierce).
 
+12) Icônes de la barre d'onglets et des boutons : Phosphor Icons - https://github.com/phosphor-icons/core
+   Copyright (c) 2023 Phosphor Icons - licence MIT. Tracés recopiés depuis le paquet @iconify-json/ph 1.2.2
+   (seules les icônes utilisées, dans src/js1c.js, par tools/gen_icones.py).
+13) Emojis des repas : Fluent Emoji (style Flat) - https://github.com/microsoft/fluentui-emoji
+   Copyright (c) Microsoft Corporation - licence MIT. Tracés recopiés depuis le paquet
+   @iconify-json/fluent-emoji-flat 1.2.6 (seules les icônes utilisées, dans src/js1c.js).
+14) Chiffres qui défilent : countUp.js 2.10.1 (vendor/countUp.umd.js, fichier non modifié)
+   https://github.com/inorganik/countUp.js - Copyright (c) Jamie Perkins - licence MIT.
+   Texte complet : vendor/countUp-LICENSE.txt.
+15) Confettis : canvas-confetti 1.9.4 (vendor/confetti.browser.js, fichier non modifié)
+   https://github.com/catdad/canvas-confetti - Copyright (c) 2020, Kiril Vatev - licence ISC.
+   Texte complet : vendor/canvas-confetti-LICENSE.txt.
+Les textes MIT des points 12 et 13 sont identiques à celui du point 11 ci-dessous, avec leur propre mention
+de copyright.
+
 Licence MIT (exercises-dataset) : Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation and data files (the "Software"),
 to deal in the Software without restriction, including without limitation the rights to use,

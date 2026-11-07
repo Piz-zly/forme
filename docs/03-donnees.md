@@ -34,6 +34,9 @@ Conséquences à ne jamais perdre de vue :
     ecranAllume: true, // garder l'écran allumé pendant la séance (téléphone seulement)
     heightCm: null,    // taille en cm (120 à 230), facultative, sert seulement à l'IMC (2026.10.14-3)
     seeded: 1,         // la reprise des anciennes pesées a été proposée
+    fete: { k: '95|80|2.5', n: 1 },  // facultatif (2026.11.07-3) : dernier palier fêté par des confettis pour cet
+                       // objectif (k = départ|objectif|palier). Absent, ou objectif changé : noté sans fête.
+                       // n ne redescend jamais : une pesée corrigée, un import ou une synchro ne relancent rien.
     v2: 1              // marqueur de migration
   },
 

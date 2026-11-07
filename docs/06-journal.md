@@ -5,6 +5,25 @@ version courante est déclarée dans `src/js1.js` et affichée en bas des Régla
 
 ---
 
+### 2026.11.07-3 — Esthétique : icônes, emojis, chiffres, confettis, glissements (à essayer sur le téléphone)
+
+- **Icônes Phosphor** (MIT) dans la barre d'onglets (au repos en deux tons, pleine sur l'onglet actif, petit
+  rebond) et sur les boutons : roue des Réglages, flèches, plus, coche, photo, fermer, menu « … », minuteur.
+  `tools/gen_icones.py` ne recopie que les icônes utilisées, dans `src/js1c.js` (généré).
+- **Emojis Fluent** (Microsoft, MIT) pour les quatre repas, dans une pastille. Style « Flat » : le style
+  « Color » pesait 51 ko pour ces quatre icônes.
+- **Chiffres qui défilent** (countUp.js, MIT, `vendor/countUp.umd.js`) : carte Journée, total du Repas, poids
+  restant avant le palier et poids parcouru, volume du résumé de fin de séance. Seulement si la valeur a changé
+  ou au premier affichage du jour ; même format qu'avant (`nfc()` dans `js1.js`).
+- **Confettis** (canvas-confetti, ISC, `vendor/confetti.browser.js`) quand un palier de poids est franchi
+  (= niveau gagné), onglet Poids, une seule fois par palier (`settings.fete`, `docs/03-donnees.md`).
+- **Glissement** entre onglets et sous-onglets (View Transitions de Chrome, `slide()` dans `js1.js`) ; seul le
+  contenu glisse, les appuis ne sont jamais bloqués.
+- Rien de tout ça pendant une séance Muscu, ni si le téléphone demande moins d'animations.
+- Poids ajouté : `index.html` 846 368 → 863 270 octets (+16,9 ko), `vendor/` +33,8 ko, soit 50,7 ko sur 60 autorisés.
+- Nouveau test `tests/t24.py` ; `tests/t19.py` attend la fin du défilement du volume avant de le lire.
+- En attente de son choix : insignes de niveau (Game-icons), icônes des sections d'aliments, coach (DiceBear).
+
 ### 2026.11.07-2 — Ambiance Lune + Kikkō (à essayer sur le téléphone)
 
 - L'ambiance **Lune** (toujours appelée ainsi dans Réglages → Ambiance) devient « Lune + Kikkō » :
