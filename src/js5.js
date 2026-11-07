@@ -192,3 +192,21 @@ function wakeSync(){
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wlNo=false;wakeSync()});
 window.addEventListener('pagehide',wakeOff);
 
+/* mesure de la fluidité (Réglages) : web-vitals (vendor/web-vitals.attribution.iife.js, Apache-2.0) chargé seulement quand
+   on appuie sur « Mesurer la fluidité », jamais au démarrage. Garde le délai de réaction le plus lent (INP). Rien n'est envoyé. */
+let perfP=null,perfInp=null;
+function perfStart(){
+  if(!perfP)perfP=new Promise((res,rej)=>{const s=document.createElement('script');s.src='vendor/web-vitals.attribution.iife.js';s.onload=res;s.onerror=()=>{perfP=null;rej(new Error('perf'))};document.head.appendChild(s)})
+    .then(()=>webVitals.onINP(m=>{perfInp=m;const o=$('#perfout');if(o)o.textContent=perfText()},{reportAllChanges:true,durationThreshold:16}));
+  return perfP;
+}
+function perfText(){
+  if(!perfP)return '';
+  if(!perfInp)return 'Mesure en cours : utilise l’appli normalement, puis reviens ici.';
+  const v=Math.round(perfInp.value),a=perfInp.attribution||{},sel=a.interactionTarget||'';
+  let el=null;try{el=sel&&document.querySelector(sel)}catch(e){}
+  const c=el&&(el.closest('button,a,label,[data-act],input')||el);
+  const nom=c&&(c.getAttribute('aria-label')||c.textContent.trim().replace(/\s+/g,' ').slice(0,40))||sel||'un élément';
+  return 'Réaction la plus lente : '+v+' ms ('+(v<=200?'bon':v<=500?'à améliorer':'lent')+'), en touchant « '+nom+' ».';
+}
+A.perf=b=>{perfStart().then(()=>{b.textContent='Mesure en cours';const o=$('#perfout');if(o)o.textContent=perfText()}).catch(()=>toast('Mesure impossible'))};
