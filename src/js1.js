@@ -1,5 +1,5 @@
 /* ===== utils ===== */
-const APP_VER='2026.11.07-1';
+const APP_VER='2026.11.07-2';
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
